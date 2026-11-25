@@ -5,541 +5,929 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#060a14">
 <meta name="color-scheme" content="dark">
-<title>Синапс · Проверка реле и домена</title>
+<title>Синапс · Домен для реле — подключение и проверки</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#060a14;--s:rgba(15,22,44,.75);--s2:rgba(24,33,64,.55);--l:rgba(122,142,222,.18);--l2:rgba(122,142,222,.34);
---t:#e9edfb;--m:#93a0c4;--d:#5d6890;--cy:#22d3ee;--vi:#8b5cf6;--mg:#e879f9;--gr:#a3e635;--am:#fbbf24;--rd:#fb7185;--bl:#60a5fa;
---g:linear-gradient(135deg,var(--cy),var(--vi) 55%,var(--mg))}
-*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.45) rgba(10,17,34,.6)}
-::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:rgba(10,17,34,.6)}
-::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--cy),var(--vi));border-radius:10px;border:2px solid rgba(10,17,34,.6)}
-body{background:var(--bg);color:var(--t);font-family:"Manrope",-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;
-background:radial-gradient(620px 480px at 14% 12%,rgba(34,211,238,.16),transparent 62%),radial-gradient(720px 540px at 86% 10%,rgba(139,92,246,.2),transparent 62%),radial-gradient(820px 620px at 74% 92%,rgba(232,121,249,.12),transparent 62%),linear-gradient(180deg,#060a14,#0a1122);
-animation:au 30s ease-in-out infinite alternate}
-@keyframes au{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-2%,2%) scale(1.04)}}
+:root{
+--bg:#060a14;--bg2:#0a1122;--surf:rgba(15,22,44,.76);--surf2:rgba(24,33,64,.55);
+--line:rgba(122,142,222,.16);--line2:rgba(122,142,222,.34);
+--tx:#e9edfb;--mut:#93a0c4;--dim:#5d6890;
+--cy:#22d3ee;--vi:#8b5cf6;--mg:#e879f9;--gr:#a3e635;--am:#fbbf24;--rd:#fb7185;--bl:#60a5fa;--cf:#f6821f;
+--grad:linear-gradient(135deg,var(--cy),var(--vi) 55%,var(--mg));
+--ok:linear-gradient(135deg,var(--gr),var(--cy));--nav:60px}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.42) rgba(10,17,34,.7)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(10,17,34,.7)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--cy),var(--vi));border-radius:11px;border:2px solid rgba(10,17,34,.7)}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--mg),var(--cy))}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:"Manrope",-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.62;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none;
+background:radial-gradient(620px 480px at 12% 10%,rgba(34,211,238,.15),transparent 62%),radial-gradient(740px 540px at 88% 8%,rgba(139,92,246,.19),transparent 62%),radial-gradient(820px 620px at 74% 94%,rgba(232,121,249,.12),transparent 62%),radial-gradient(520px 420px at 20% 88%,rgba(246,130,31,.08),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+animation:drift 34s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-2%,2%) scale(1.04)}}
 a{color:var(--cy)}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 button:active{transform:scale(.97)}
-:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
-.wrap{max-width:900px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 15px calc(60px + env(safe-area-inset-bottom))}
-.head{display:flex;align-items:center;gap:11px;margin-bottom:18px;flex-wrap:wrap}
-.orb{width:30px;height:30px;border-radius:50%;background:var(--g);position:relative;flex:none;box-shadow:0 0 18px rgba(34,211,238,.5)}
-.orb::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#060a14}
-.orb::before{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--g);z-index:1}
-h1{font-family:"Unbounded";font-weight:900;font-size:clamp(19px,4vw,27px);line-height:1.2}
-h1 em{font-style:normal;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
-.badge{margin-left:auto;display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-size:11.5px;font-weight:800;border:1px solid var(--l2);background:var(--s2);color:var(--m)}
-.badge.ok{color:var(--gr);border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.08)}
-.badge.bad{color:var(--rd);border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.08)}
-.dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
-.lead{color:var(--m);font-size:14.5px;margin-bottom:16px}
-.card{border:1px solid var(--l2);border-radius:18px;background:var(--s);backdrop-filter:blur(12px);padding:17px;margin-bottom:14px}
-.card h2{font-family:"Unbounded";font-size:14px;font-weight:700;margin-bottom:10px;letter-spacing:.04em}
-.f{margin:10px 0}
-.f label{display:block;font-size:12px;font-weight:800;color:var(--m);margin-bottom:5px}
-.f input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--l2);background:rgba(8,13,28,.75);color:var(--t);font-size:15px;font-family:"JetBrains Mono",monospace}
-.f input:focus{outline:none;border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.13)}
-.f input::placeholder{color:var(--d);font-family:"Manrope",sans-serif}
-.f .h{font-size:11px;color:var(--d);margin-top:4px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.btns{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
-.b{display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border-radius:12px;font-size:13.5px;font-weight:800;border:1px solid transparent;text-decoration:none;transition:.18s}
-.b1{color:#04121a;background:var(--g);box-shadow:0 4px 16px rgba(34,211,238,.3)}
-.b2{color:var(--m);border-color:var(--l2);background:var(--s2)}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px;border-radius:8px}
+input{font:inherit}
+.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+code{font-family:"JetBrains Mono",monospace;font-size:.87em;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.26);padding:1px 7px;border-radius:6px;color:#a5f3fc;word-break:break-all}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:70;height:calc(var(--nav) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);background:rgba(6,10,20,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1080px;margin:0 auto;height:var(--nav);display:flex;align-items:center;gap:11px;padding:0 15px}
+.orb{width:27px;height:27px;border-radius:50%;background:var(--grad);position:relative;flex:none;box-shadow:0 0 16px rgba(34,211,238,.5)}
+.orb::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--bg)}
+.orb::before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--grad);z-index:1}
+.nbrand{font-family:"Unbounded";font-weight:900;font-size:11.5px;letter-spacing:.11em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.nlinks{margin-left:auto;display:flex;gap:7px;align-items:center}
+.nlink{padding:7px 12px;border-radius:10px;font-size:12px;font-weight:800;color:var(--mut);border:1px solid var(--line2);background:var(--surf2);text-decoration:none;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.nlink:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.nsound{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:var(--mut);border:1px solid var(--line2);background:var(--surf2);flex:none}
+.nsound.on{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.nbar{position:absolute;left:0;bottom:-1px;height:2px;background:var(--grad);width:0}
+
+.wrap{max-width:1080px;margin:0 auto;padding:calc(var(--nav) + env(safe-area-inset-top) + 22px) 15px calc(64px + env(safe-area-inset-bottom))}
+section{scroll-margin-top:calc(var(--nav) + env(safe-area-inset-top) + 16px)}
+.rev{opacity:0;transform:translateY(18px);transition:opacity .55s cubic-bezier(.2,.7,.3,1),transform .55s cubic-bezier(.2,.7,.3,1)}
+.rev.in{opacity:1;transform:none}
+h1{font-family:"Unbounded";font-weight:900;font-size:clamp(21px,4.3vw,33px);line-height:1.19;margin-bottom:11px}
+h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-family:"Unbounded";font-weight:700;font-size:16px;letter-spacing:.04em;margin:32px 0 12px;display:flex;align-items:center;gap:11px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+.lead{color:var(--mut);font-size:14.8px;max-width:800px;margin-bottom:16px}
+.kick{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--cf);border:1px solid rgba(246,130,31,.45);background:rgba(246,130,31,.09);margin-bottom:14px}
+.card{border:1px solid var(--line2);border-radius:19px;background:var(--surf);backdrop-filter:blur(13px);padding:19px;margin-bottom:14px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad);opacity:.6}
+.card.cf::before{background:linear-gradient(180deg,var(--cf),var(--am));opacity:1}
+.card.good{border-color:rgba(163,230,53,.45);background:linear-gradient(150deg,rgba(163,230,53,.08),rgba(34,211,238,.06))}
+.card.good::before{background:var(--ok);opacity:1}
+.card.warn{border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(139,92,246,.05))}
+.card.warn::before{background:linear-gradient(180deg,var(--am),var(--rd));opacity:1}
+.card h3{font-family:"Unbounded";font-weight:700;font-size:14.5px;margin-bottom:9px;display:flex;align-items:center;gap:9px}
+.card p{font-size:14px;color:#ccd6f2;margin:.45em 0}
+.stage{font-family:"Unbounded";font-weight:900;font-size:25px;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;flex:none}
+.ol{list-style:none;counter-reset:s;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.ol li{counter-increment:s;position:relative;padding-left:35px;font-size:14px;line-height:1.6;color:#ccd6f2}
+.ol li::before{content:counter(s);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-family:"JetBrains Mono";font-size:11.5px;color:var(--cy);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.33)}
+.ui{display:inline-flex;padding:1px 9px;border-radius:8px;font-weight:800;font-size:.9em;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.35);color:#a5f3fc;white-space:nowrap}
+.ui.g{background:rgba(163,230,53,.13);border-color:rgba(163,230,53,.45);color:#d9f99d}
+.ui.o{background:rgba(246,130,31,.14);border-color:rgba(246,130,31,.5);color:#fdba74}
+.ui.r{background:rgba(251,113,133,.13);border-color:rgba(251,113,133,.45);color:#fecdd3}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:13px;font-size:13px;line-height:1.55;margin:12px 0}
+.note.warn{border:1px solid rgba(251,191,36,.42);background:rgba(251,191,36,.08);color:#fde68a}
+.note.info{border:1px solid rgba(96,165,250,.42);background:rgba(96,165,250,.08);color:#bfdbfe}
+.note.good{border:1px solid rgba(163,230,53,.42);background:rgba(163,230,53,.08);color:#d9f99d}
+.note.bad{border:1px solid rgba(251,113,133,.45);background:rgba(251,113,133,.08);color:#fecdd3}
+.btns{display:flex;gap:9px;flex-wrap:wrap;margin:13px 0}
+.b{display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border-radius:12px;font-size:13.2px;font-weight:800;border:1px solid transparent;text-decoration:none;transition:.18s}
+.b1{color:#04121a;background:var(--grad);box-shadow:0 4px 15px rgba(34,211,238,.28)}
+.b2{color:var(--mut);border-color:var(--line2);background:var(--surf2)}
 .b2:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
-.b3{color:#0c1a04;background:linear-gradient(135deg,var(--gr),var(--cy))}
-.res{display:none;margin-top:11px;border-radius:13px;padding:13px 14px;font-size:13.5px;line-height:1.55}
-.res.show{display:block;animation:up .3s both}
+.b3{color:#0c1a04;background:var(--ok);box-shadow:0 4px 15px rgba(163,230,53,.24)}
+.bcf{color:#1a0e02;background:linear-gradient(135deg,#f6821f,#fbad41)}
+.f{margin:11px 0}
+.f label{display:block;font-size:11.5px;font-weight:800;color:var(--mut);margin-bottom:5px;letter-spacing:.03em}
+.f input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--line2);background:rgba(6,10,20,.75);color:var(--tx);font-size:15px;font-family:"JetBrains Mono"}
+.f input:focus{outline:none;border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.13)}
+.f input::placeholder{color:var(--dim);font-family:"Manrope"}
+.f .h{font-size:11px;color:var(--dim);margin-top:5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.urlcard{display:flex;align-items:center;gap:11px;padding:13px 15px;border-radius:15px;border:1px solid rgba(34,211,238,.45);background:linear-gradient(140deg,rgba(34,211,238,.09),rgba(139,92,246,.1));margin:13px 0;flex-wrap:wrap}
+.urlcard .lbl{width:100%;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.urlcard .u{flex:1;min-width:190px;font-family:"JetBrains Mono";font-size:12.5px;color:#a5f3fc;word-break:break-all}
+.copybtn{flex:none;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;font-size:11.5px;font-weight:800;color:var(--cy);border:1px solid rgba(34,211,238,.45);background:rgba(34,211,238,.08)}
+.copybtn:hover{background:rgba(34,211,238,.18)}
+.copybtn.ok{color:#d9f99d;border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.1)}
+
+.progress{height:7px;border-radius:7px;background:rgba(122,142,222,.15);overflow:hidden;margin:6px 0 14px}
+.progress i{display:block;height:100%;width:0;background:var(--grad);border-radius:7px;transition:width .5s cubic-bezier(.2,.7,.3,1);box-shadow:0 0 10px rgba(34,211,238,.5)}
+.checks{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.check{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:13px;border:1px solid var(--line2);background:var(--surf2);text-align:left;width:100%}
+.check:hover{border-color:rgba(163,230,53,.45)}
+.check .bx{width:23px;height:23px;border-radius:7px;border:2px solid var(--line2);display:grid;place-items:center;flex:none;transition:.2s}
+.check .bx .ic{width:13px;height:13px;color:#0c1a04;opacity:0}
+.check.on .bx{background:var(--gr);border-color:var(--gr)}
+.check.on .bx .ic{opacity:1}
+.check .ct{flex:1;font-size:13.2px;font-weight:700}
+.check.on .ct{color:#d9f99d}
+.check .cn{font-family:"JetBrains Mono";font-size:11px;color:var(--dim)}
+
+.mock{margin:13px 0;border-radius:14px;border:1px solid var(--line2);background:#0a0f1e;overflow:hidden}
+.mock-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(20,28,54,.8);border-bottom:1px solid var(--line)}
+.md{width:8px;height:8px;border-radius:50%}
+.mock-url{flex:1;margin-left:5px;font-family:"JetBrains Mono";font-size:10.5px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mock-b{padding:13px}
+.mrow{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(8,13,28,.6);font-size:12.5px;margin-bottom:7px;flex-wrap:wrap}
+.mrow:last-child{margin-bottom:0}
+.mrow.hl{border-color:rgba(246,130,31,.6);background:rgba(246,130,31,.07)}
+.mrow.ok{border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.06)}
+.mrow.bad{border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.06)}
+.mn{width:20px;height:20px;border-radius:6px;background:rgba(246,130,31,.14);border:1px solid rgba(246,130,31,.5);color:#fdba74;display:grid;place-items:center;font-size:11px;font-weight:800;font-family:"JetBrains Mono";flex:none}
+.mval{padding:5px 10px;border-radius:8px;border:1px solid rgba(34,211,238,.5);background:rgba(8,13,28,.8);font-family:"JetBrains Mono";font-size:11.5px;color:#a5f3fc}
+.mbtn{padding:6px 13px;border-radius:8px;font-size:11.5px;font-weight:800;color:#1a0e02;background:linear-gradient(135deg,#f6821f,#fbad41)}
+.mbtn.g{color:#0c1a04;background:var(--gr)}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:9px 0}
+.plan{padding:11px;border-radius:11px;border:1px solid var(--line);background:rgba(8,13,28,.6);font-size:12px}
+.plan b{display:block;font-size:12.5px;margin-bottom:2px}
+.plan span{color:var(--dim);font-size:11px}
+.plan.hl{border-color:rgba(163,230,53,.6);background:rgba(163,230,53,.07)}
+.plan.dim{opacity:.5}
+.nsbox{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:11px;border:1px solid rgba(34,211,238,.5);background:rgba(34,211,238,.06);margin-bottom:7px}
+.nsbox .tag{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);flex:none}
+.nsbox .ns{flex:1;font-family:"JetBrains Mono";font-size:12.5px;color:#a5f3fc;word-break:break-all}
+.cloud{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:10.5px;font-weight:800}
+.cloud.on{background:rgba(246,130,31,.15);border:1px solid rgba(246,130,31,.55);color:#fdba74}
+.cloud.off{background:rgba(122,142,222,.14);border:1px solid var(--line2);color:var(--mut)}
+.cloud .cd{width:9px;height:9px;border-radius:50%;background:currentColor}
+.tabs{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
+.tab{padding:8px 13px;border-radius:11px;font-size:12.5px;font-weight:800;color:var(--mut);border:1px solid var(--line2);background:var(--surf2)}
+.tab.on{color:#04121a;background:var(--grad);border-color:transparent}
+.pan{display:none}
+.pan.show{display:block;animation:up .3s both}
 @keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.side-menu{display:flex;flex-direction:column;gap:4px;max-width:290px;margin-bottom:11px}
+.side-menu span{padding:7px 11px;border-radius:9px;font-size:12.5px;color:var(--mut);display:flex;align-items:center;gap:9px}
+.side-menu span.hl{color:var(--tx);background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.5);font-weight:700}
+
+.checker{border:1px solid rgba(34,211,238,.4);border-radius:17px;background:linear-gradient(160deg,rgba(34,211,238,.06),rgba(139,92,246,.08));padding:17px;margin-top:13px}
+.checker h3{font-family:"Unbounded";font-size:13.5px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+.checker .cs{font-size:12.5px;color:var(--mut);margin-bottom:11px}
+.res{display:none;margin-top:12px;border-radius:13px;padding:14px;font-size:13.5px;line-height:1.6}
+.res.show{display:block;animation:up .3s both}
 .res.ok{border:1px solid rgba(163,230,53,.55);background:rgba(163,230,53,.09);color:#d9f99d}
 .res.warn{border:1px solid rgba(251,191,36,.55);background:rgba(251,191,36,.09);color:#fde68a}
 .res.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.09);color:#fecdd3}
-.res.load{border:1px solid rgba(96,165,250,.5);background:rgba(96,165,250,.08);color:#bfdbfe}
-.rt{font-family:"Unbounded";font-weight:700;font-size:13.5px;margin-bottom:6px;display:flex;align-items:center;gap:9px}
-.rb{color:inherit;opacity:.95}
-.raw{margin-top:9px;padding:9px 11px;border-radius:9px;background:rgba(6,10,20,.6);border:1px solid var(--l);font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--m);white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto}
-.spin{width:15px;height:15px;flex:none;border-radius:50%;border:2px solid rgba(96,165,250,.25);border-top-color:var(--bl);animation:rot .8s linear infinite}
+.res.load{border:1px solid rgba(96,165,250,.5);background:rgba(96,165,250,.08);color:#bfdbfe;display:flex;align-items:center;gap:11px}
+.rt{font-family:"Unbounded";font-weight:700;font-size:13.5px;margin-bottom:6px}
+.raw{margin-top:9px;padding:9px 11px;border-radius:9px;background:rgba(6,10,20,.6);border:1px solid var(--line);font-family:"JetBrains Mono";font-size:11px;color:var(--mut);white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto}
+.spin{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid rgba(96,165,250,.25);border-top-color:var(--bl);animation:rot .8s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
-.log{margin-top:10px;border-radius:12px;border:1px solid var(--l);background:#080d1c;padding:10px 12px;height:190px;overflow:auto;font-family:"JetBrains Mono",monospace;font-size:11.5px;line-height:1.65}
-.ll{color:var(--m);white-space:pre-wrap;word-break:break-word}
-.ll.ok{color:#a3e635}.ll.warn{color:#fbbf24}.ll.err{color:#fb7185}.ll.act{color:#22d3ee}
+.nslist{display:flex;flex-direction:column;gap:5px;margin-top:9px}
+.nsi{font-family:"JetBrains Mono";font-size:12px;padding:6px 11px;border-radius:8px;background:rgba(6,10,20,.5);border:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.nsi.cf{color:#d9f99d;border-color:rgba(163,230,53,.4)}
+.nsi.old{color:#fde68a}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.mchip{padding:4px 10px;border-radius:999px;font-family:"JetBrains Mono";font-size:10.5px;border:1px solid rgba(163,230,53,.45);background:rgba(163,230,53,.09);color:#d9f99d}
+.links{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.links a{font-size:11.5px;padding:7px 11px;border-radius:9px;border:1px solid var(--line2);background:var(--surf2);text-decoration:none;color:var(--mut)}
+.links a:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+
+.qa{border:1px solid var(--line2);border-radius:14px;background:var(--surf);overflow:hidden;margin-bottom:8px}
+.qa.open{border-color:rgba(34,211,238,.5)}
+.qa-q{width:100%;display:flex;align-items:center;gap:11px;text-align:left;padding:13px 15px;font-size:13.4px;font-weight:800}
+.qa-q .qn{width:21px;height:21px;border-radius:7px;background:rgba(251,113,133,.13);border:1px solid rgba(251,113,133,.42);color:#fecdd3;display:grid;place-items:center;font-size:11px;font-weight:800;font-family:"JetBrains Mono";flex:none}
+.qa-q .cv{margin-left:auto;color:var(--cy);transition:transform .25s}
+.qa.open .qa-q .cv{transform:rotate(180deg)}
+.qa-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.2,.7,.3,1)}
+.qa-a-in{padding:0 15px 14px;font-size:13px;color:var(--mut);line-height:1.65}
+.qa-a-in b{color:var(--tx)}
+.gloss{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.gl{padding:13px 15px;border-radius:13px;border:1px solid var(--line);background:var(--surf2);font-size:12.5px;color:var(--mut);line-height:1.55}
+.gl b{display:block;color:var(--cy);font-size:13px;margin-bottom:3px}
+.log{margin-top:11px;border-radius:12px;border:1px solid var(--line);background:#060b16;padding:10px 12px;height:170px;overflow:auto;font-family:"JetBrains Mono";font-size:11px;line-height:1.65}
+.ll{color:var(--mut);white-space:pre-wrap;word-break:break-word}
+.ll.ok{color:var(--gr)}.ll.warn{color:var(--am)}.ll.err{color:var(--rd)}.ll.act{color:var(--cy)}
 .banner{display:none;padding:12px 14px;border-radius:13px;font-size:13px;margin-bottom:14px;line-height:1.55}
 .banner.show{display:block}
 .banner.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.1);color:#fecdd3}
 .banner.info{border:1px solid rgba(96,165,250,.45);background:rgba(96,165,250,.08);color:#bfdbfe}
-.nsl{display:flex;flex-direction:column;gap:5px;margin-top:8px}
-.nsi{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:12px;padding:6px 10px;border-radius:8px;background:rgba(6,10,20,.5);border:1px solid var(--l)}
-.nsi.cf{color:#d9f99d;border-color:rgba(163,230,53,.4)}
-.nsi.old{color:#fde68a}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
-.chip{padding:5px 10px;border-radius:999px;font-family:"JetBrains Mono",monospace;font-size:11px;border:1px solid rgba(163,230,53,.45);background:rgba(163,230,53,.08);color:#d9f99d}
-.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
-.links a{font-size:11.5px;padding:6px 11px;border-radius:9px;border:1px solid var(--l2);background:var(--s2);text-decoration:none;color:var(--m)}
-.links a:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
-.note{font-size:12.5px;color:var(--m);margin-top:9px;line-height:1.55}
-.note b{color:var(--t)}
-code{font-family:"JetBrains Mono",monospace;font-size:.9em;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.25);padding:1px 6px;border-radius:6px;color:#a5f3fc}
-@media(max-width:620px){.row{grid-template-columns:1fr}.badge{margin-left:0}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.spark{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:95}
+footer{max-width:1080px;margin:0 auto;padding:22px 15px calc(30px + env(safe-area-inset-bottom));border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--dim);font-size:12px}
+footer a{margin-left:auto}
+@media(max-width:760px){.row{grid-template-columns:1fr}.plans{grid-template-columns:1fr}.gloss{grid-template-columns:1fr}.nlink span{display:none}.card,.checker{padding:16px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rev{opacity:1;transform:none}}
+@media print{
+  body{background:#fff;color:#000}
+  body::before,body::after,.nav,.btns,.checks,.log,.banner{display:none!important}
+  .rev{opacity:1;transform:none}
+  .card,.mock,.qa,.checker{border:1px solid #999;background:#fff;color:#000;page-break-inside:avoid}
+  h1,h2,.card h3,.card p,.ol li,.qa-a-in,.lead{color:#000}
+  .qa-a{max-height:none!important}
+  code,.ui{background:#eee;border:1px solid #999;color:#000}
+  a{color:#000}
+}
 </style>
 </head>
 <body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V7a1.5 1.5 0 0 1 1.5-1.5H10"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4L2.5 20h19L12 4z"/><path d="M12 10v4.5M12 17.5v.5"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3.5V8h-4.5"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19L16 8M14.5 4.5l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="14" r="4.5"/><path d="M11.5 10.5L20 4M16 7l2.5 2.5"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 18.2 10 4 4 0 0 1 17.5 18H7z"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.3 3.9 5.2 3.9 8.5s-1.3 6.2-3.9 8.5c-2.6-2.3-3.9-5.2-3.9-8.5s1.3-6.2 3.9-8.5z"/></symbol>
+<symbol id="i-dns" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="6" rx="2"/><rect x="3.5" y="14" width="17" height="6" rx="2"/><path d="M7 7h.5M7 17h.5M11 7h5M11 17h5"/></symbol>
+<symbol id="i-server" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="6" rx="2"/><rect x="3.5" y="14" width="17" height="6" rx="2"/><path d="M7 7h.5M7 17h.5"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M15.5 9.5a4 4 0 0 1 0 5"/></symbol>
+<symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h12v16H7a2 2 0 0 0-2 2V5z"/><path d="M5 19a2 2 0 0 1 2-2h12"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7V5z"/></symbol>
+<symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 18H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="7" y="14" width="10" height="6" rx="1"/></symbol>
+</svg>
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="orb"></div><span class="nbrand">СИНАПС · ДОМЕН ДЛЯ РЕЛЕ</span>
+    <div class="nlinks">
+      <a class="nlink" href="docs.html"><svg class="ic"><use href="#i-book"/></svg><span>Все инструкции</span></a>
+      <a class="nlink" href="beget-vps.html"><svg class="ic"><use href="#i-server"/></svg><span>Beget VPS</span></a>
+      <a class="nlink" href="index.html"><svg class="ic"><use href="#i-play"/></svg><span>Синапс</span></a>
+      <button class="nsound on" id="soundBtn" aria-label="Звук"><svg class="ic"><use href="#i-sound"/></svg></button>
+    </div>
+  </div>
+  <div class="nbar" id="nbar"></div>
+</nav>
+
 <div class="wrap">
 
-  <div class="head">
-    <div class="orb"></div>
-    <h1>Проверка <em>реле и домена</em></h1>
-    <span class="badge" id="badge"><span class="dot"></span><span id="badgeText">запуск…</span></span>
-  </div>
-
   <div class="banner err" id="errBanner"></div>
-  <div class="banner info" id="fileBanner">Страница открыта как файл с диска. Проверки работают, но автозапись настроек в Синапс — только если открыть эту страницу по адресу сайта (например <code>логин.github.io/synapse/check.html</code>).</div>
+  <div class="banner info" id="originBanner"></div>
 
-  <p class="lead">Каждое нажатие пишется в журнал внизу — видно, что реально происходит. Если что-то не работает, ошибка появится на экране, а не «молча».</p>
+  <section id="top" class="rev">
+    <span class="kick"><svg class="ic"><use href="#i-globe"/></svg>домен · cloudflare · проверки</span>
+    <h1>Подключаем купленный домен —<br><em>и проверяем каждый шаг</em></h1>
+    <p class="lead">Домен остаётся у вашего регистратора, продлевать там же. Мы направляем его на Cloudflare через NS-серверы, а затем вешаем на воркер адрес вида <code>relay.вашдомен.ru</code>. Ниже — четыре этапа с картинками нужных экранов и живыми проверками.</p>
 
-  <div class="card">
-    <h2>Данные</h2>
-    <div class="f"><label>Старый адрес реле (workers.dev)</label><input id="oldRelay" type="url" spellcheck="false" value="https://synapse-relay.amicus0206.workers.dev"></div>
-    <div class="row">
-      <div class="f"><label>Новый домен (если купили)</label><input id="domain" type="text" spellcheck="false" placeholder="mydomain.ru"><div class="h">Без https:// и без www</div></div>
-      <div class="f"><label>Поддомен</label><input id="prefix" type="text" spellcheck="false" value="relay"><div class="h">Получится relay.домен</div></div>
+    <div class="card warn">
+      <h3><svg class="ic" style="color:var(--am)"><use href="#i-alert"/></svg>Сначала прочитайте: для Синапса это уже не обязательно</h3>
+      <p>С тех пор, как писалась эта инструкция, изменились две вещи.</p>
+      <ol class="ol">
+        <li><b>Продавец включил CORS</b> на <code>ai.starimg.ru</code> — приложение подключается напрямую, без реле и без VPN. Поле «CORS-реле» в настройках можно оставить пустым.</li>
+        <li><b>Cloudflare блокируется российскими операторами.</b> Свой домен поверх Cloudflare это не лечит: имя другое, а IP-адреса те же. Поэтому путь «домен + Cloudflare» не даёт выигрыша.</li>
+      </ol>
+      <div class="note good"><span><b>Куда деть домен с пользой:</b> направить его на российский VPS и разместить там сайт и реле (этап 5 ниже), либо использовать для вашего проекта обучения вокалу. Домен — актив, он не пропадёт.</span></div>
+      <div class="btns">
+        <a class="b b3" href="beget-vps.html"><svg class="ic"><use href="#i-server"/></svg>Актуальный путь: Beget VPS</a>
+        <a class="b b2" href="network-fix.html"><svg class="ic"><use href="#i-search"/></svg>Что блокирует оператор</a>
+        <button class="b b2" id="printBtn"><svg class="ic"><use href="#i-print"/></svg>Печать</button>
+      </div>
     </div>
-    <div class="f"><label>API-ключ ai.starimg.ru (для полного теста)</label><input id="apiKey" type="password" spellcheck="false" placeholder="sk-…" autocomplete="off"><div class="h">Хранится только в этом браузере, уходит только на ваше реле.</div></div>
-    <div class="btns">
-      <button class="b b2" id="btnSelf">Тест страницы</button>
-      <button class="b b1" id="btnBoth">Проверить оба адреса</button>
-    </div>
-    <div class="res" id="resSelf"></div>
-    <div class="res" id="resOld"></div>
-    <div class="res" id="resNew"></div>
-  </div>
 
-  <div class="card">
-    <h2>Цепочка до провайдера</h2>
-    <p class="note">Проверяем, что запрос проходит: страница → ваше реле → ai.starimg.ru. Без ключа ожидаем ответ «нужен ключ» — это успех.</p>
-    <div class="btns">
-      <button class="b b2" id="btnChain">Цепочка без ключа</button>
-      <button class="b b3" id="btnFull">Полный тест с ключом</button>
+    <div class="card">
+      <h3><svg class="ic" style="color:var(--cy)"><use href="#i-key"/></svg>Ваши данные</h3>
+      <p>Заполните поля — все примеры, ссылки и проверки подстроятся под ваш домен.</p>
+      <div class="row">
+        <div class="f"><label>Купленный домен</label><input data-field="domain" type="text" spellcheck="false" placeholder="mnetaknado.ru"><div class="h">Без https:// и без www</div></div>
+        <div class="f"><label>Поддомен для реле</label><input data-field="prefix" type="text" spellcheck="false" placeholder="relay"><div class="h">Можно оставить relay</div></div>
+      </div>
+      <div class="row">
+        <div class="f"><label>NS-сервер 1 из Cloudflare</label><input data-field="ns1" type="text" spellcheck="false" placeholder="lara.ns.cloudflare.com"></div>
+        <div class="f"><label>NS-сервер 2 из Cloudflare</label><input data-field="ns2" type="text" spellcheck="false" placeholder="ned.ns.cloudflare.com"></div>
+      </div>
+      <div class="f"><label>API-ключ ai.starimg.ru (для проверок, необязательно)</label><input data-field="key" type="password" spellcheck="false" placeholder="sk-…" autocomplete="off"><div class="h">Хранится только в этом браузере.</div></div>
+      <div class="urlcard">
+        <span class="lbl">адрес реле на вашем домене</span>
+        <svg class="ic"><use href="#i-globe"/></svg>
+        <span class="u" data-bind="relayUrl">https://relay.вашдомен.ru</span>
+        <button class="copybtn" data-copy-bind="relayUrl"><svg class="ic"><use href="#i-copy"/></svg>Скопировать</button>
+      </div>
     </div>
-    <div class="res" id="resChain"></div>
-    <div class="res" id="resFull"></div>
-  </div>
 
-  <div class="card">
-    <h2>Домен: NS и DNS-запись</h2>
-    <p class="note">Опрос публичных DNS через HTTPS. В России dns.google и Cloudflare DNS иногда недоступны — страница попробует несколько серверов подряд и покажет, какой ответил.</p>
-    <div class="btns">
-      <button class="b b2" id="btnNs">NS домена</button>
-      <button class="b b2" id="btnDns">A-запись поддомена</button>
+    <div class="progress"><i id="progressFill"></i></div>
+    <div class="checks" id="checks">
+      <button class="check" data-check="d1"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Домен добавлен в Cloudflare, план Free</span><span class="cn">01</span></button>
+      <button class="check" data-check="d2"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Два NS-сервера скопированы</span><span class="cn">02</span></button>
+      <button class="check" data-check="d3"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">NS заменены у регистратора</span><span class="cn">03</span></button>
+      <button class="check" data-check="d4"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Домен стал Active в Cloudflare</span><span class="cn">04</span></button>
+      <button class="check" data-check="d5"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Custom Domain привязан к воркеру</span><span class="cn">05</span></button>
+      <button class="check" data-check="d6"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Адрес отвечает JSON про x-target-url</span><span class="cn">06</span></button>
+      <button class="check" data-check="d7"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Адрес записан в настройки Синапса</span><span class="cn">07</span></button>
     </div>
-    <div class="res" id="resNs"></div>
-    <div class="res" id="resDns"></div>
-    <div class="links" id="manualLinks"></div>
-  </div>
+    <div class="note good" id="allDone" hidden><svg class="ic"><use href="#i-check"/></svg><span><b>Все шаги пройдены.</b> Если проверки зелёные — адрес работает. Помните про блокировку Cloudflare: без VPN он может не открываться у вашего оператора.</span></div>
+  </section>
 
-  <div class="card">
-    <h2>Записать адрес в Синапс</h2>
-    <p class="note">Если новый домен уже отвечает — записываем его, иначе старый workers.dev.</p>
-    <div class="btns">
-      <button class="b b3" id="btnSave">Записать в настройки</button>
-      <button class="b b2" id="btnCopy">Скопировать адрес</button>
-      <a class="b b1" href="index.html">Открыть Синапс</a>
+  <section id="s1" class="rev">
+    <h2><span class="stage">01</span>Добавьте домен в Cloudflare</h2>
+    <div class="card cf">
+      <ol class="ol">
+        <li>Откройте <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">dash.cloudflare.com</a> и войдите.</li>
+        <li>На главной странице аккаунта нажмите <span class="ui o">Add a site</span> (или «+ Add» → «Domain»). Не видно кнопки — используйте ссылку ниже.</li>
+        <li>В поле <span class="ui">Enter your domain</span> впишите <code data-bind="domainOr">вашдомен.ru</code> → <span class="ui o">Continue</span>.</li>
+        <li>Выберите план <span class="ui g">Free — $0</span> (внизу списка) → <span class="ui o">Continue</span>.</li>
+        <li>На экране «Review DNS records» ничего не меняйте → <span class="ui o">Continue</span>. DNSSEC и «Quick scan» не включайте.</li>
+        <li>Появится экран <span class="ui">Change your nameservers</span> с двумя NS. Скопируйте оба в поля вверху страницы.</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="md" style="background:#fb7185"></span><span class="md" style="background:#fbbf24"></span><span class="md" style="background:#a3e635"></span><span class="mock-url">dash.cloudflare.com → Add a site</span></div>
+        <div class="mock-b">
+          <div class="mrow"><span class="mn">1</span>Enter your domain<span class="mval" data-bind="domainOr">вашдомен.ru</span><span class="mbtn">Continue</span></div>
+          <div class="plans">
+            <div class="plan hl"><b>Free</b><span>$0 — наш выбор</span></div>
+            <div class="plan dim"><b>Pro</b><span>$20 — не нужно</span></div>
+            <div class="plan dim"><b>Business</b><span>$200 — не нужно</span></div>
+          </div>
+          <div class="mrow hl"><span class="mn">2</span><b>Change your nameservers</b> — скопируйте оба значения:</div>
+          <div class="nsbox"><span class="tag">NS 1</span><span class="ns" data-bind="ns1Or">lara.ns.cloudflare.com</span><button class="copybtn" data-copy-bind="ns1"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+          <div class="nsbox"><span class="tag">NS 2</span><span class="ns" data-bind="ns2Or">ned.ns.cloudflare.com</span><button class="copybtn" data-copy-bind="ns2"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        </div>
+      </div>
+      <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/add-site" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть Add a site</a></div>
+      <div class="note warn"><span>Имена NS у каждого домена <b>свои</b>. Примеры выше — условные, копируйте именно те, что показал Cloudflare вам.</span></div>
     </div>
-    <div class="res" id="resSave"></div>
-  </div>
+  </section>
 
-  <div class="card">
-    <h2>Журнал действий</h2>
-    <div class="log" id="log"></div>
-    <div class="btns"><button class="b b2" id="btnClearLog">Очистить журнал</button></div>
-  </div>
+  <section id="s2" class="rev">
+    <h2><span class="stage">02</span>Замените NS у регистратора</h2>
+    <div class="card">
+      <p>Здесь вы говорите регистратору: «DNS этого домена обслуживает Cloudflare». Выберите своего регистратора.</p>
+      <div class="tabs" id="regTabs">
+        <button class="tab on" data-reg="regru">REG.RU</button>
+        <button class="tab" data-reg="nicru">NIC.RU</button>
+        <button class="tab" data-reg="other">Другой</button>
+      </div>
+      <div class="pan show" data-pan="regru">
+        <ol class="ol">
+          <li>Войдите на <a href="https://www.reg.ru/user/account/" target="_blank" rel="noopener">reg.ru</a> → раздел <span class="ui">Домены</span>.</li>
+          <li>Нажмите на домен <code data-bind="domainOr">вашдомен.ru</code>.</li>
+          <li>Блок <span class="ui">DNS-серверы</span> (или «NS-серверы») → <span class="ui">Изменить</span>.</li>
+          <li>Выберите <span class="ui g">Свои DNS-серверы</span> / снимите галочку «серверы регистратора».</li>
+          <li>NS1 = <code data-bind="ns1Or">lara.ns.cloudflare.com</code>, NS2 = <code data-bind="ns2Or">ned.ns.cloudflare.com</code>. NS3/NS4 пустые.</li>
+          <li><span class="ui g">Сохранить</span> → подтвердите по SMS или письму, если попросят.</li>
+        </ol>
+        <div class="mock">
+          <div class="mock-bar"><span class="md" style="background:#fb7185"></span><span class="md" style="background:#fbbf24"></span><span class="md" style="background:#a3e635"></span><span class="mock-url">reg.ru → Домены → <span data-bind="domainOr">вашдомен.ru</span></span></div>
+          <div class="mock-b">
+            <div class="side-menu"><span><svg class="ic"><use href="#i-globe"/></svg>Мои домены</span><span class="hl"><svg class="ic"><use href="#i-dns"/></svg>DNS-серверы → Изменить</span><span><svg class="ic"><use href="#i-lock"/></svg>DNSSEC / блокировки</span></div>
+            <div class="mrow"><span class="mn">1</span>Вариант<span class="mval">Свои DNS-серверы</span></div>
+            <div class="mrow"><span class="mn">2</span>NS1<span class="mval" data-bind="ns1Or">lara.ns.cloudflare.com</span></div>
+            <div class="mrow"><span class="mn">3</span>NS2<span class="mval" data-bind="ns2Or">ned.ns.cloudflare.com</span></div>
+            <div class="mrow ok"><span class="mn">4</span><span class="mbtn g">Сохранить</span></div>
+          </div>
+        </div>
+        <div class="btns"><a class="b b1" href="https://www.reg.ru/user/account/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Кабинет REG.RU</a></div>
+      </div>
+      <div class="pan" data-pan="nicru">
+        <ol class="ol">
+          <li>Войдите на <a href="https://www.nic.ru/manager/" target="_blank" rel="noopener">nic.ru</a> → <span class="ui">Мои домены</span>.</li>
+          <li>Нажмите на домен → <span class="ui">DNS-серверы</span> → <span class="ui">Изменить</span>.</li>
+          <li>Выберите «указать свои DNS-серверы», впишите оба NS из Cloudflare.</li>
+          <li>Сохраните. Для .ru изменения обычно применяются в течение часа.</li>
+        </ol>
+        <div class="btns"><a class="b b1" href="https://www.nic.ru/manager/" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Кабинет NIC.RU</a></div>
+      </div>
+      <div class="pan" data-pan="other">
+        <ol class="ol">
+          <li>Войдите в кабинет регистратора, где куплен домен.</li>
+          <li>Найдите раздел <span class="ui">DNS-серверы</span> / <span class="ui">Nameservers</span> / <span class="ui">Делегирование</span>.</li>
+          <li>Переключите на «свои / custom nameservers», впишите оба NS из Cloudflare, сохраните.</li>
+        </ol>
+        <div class="note info"><span>Не путайте <b>NS-серверы домена</b> (делегирование — то, что нужно) с <b>NS-записями внутри DNS-зоны</b>. Редактировать нужно делегирование у регистратора.</span></div>
+      </div>
+      <div class="note bad"><svg class="ic"><use href="#i-alert"/></svg><span><b>DNSSEC:</b> если он включён у регистратора — сначала выключите и подождите пару часов, иначе после смены NS домен может перестать открываться. У свежекупленных .ru обычно выключен.</span></div>
+      <div class="note warn"><svg class="ic"><use href="#i-clock"/></svg><span><b>Сколько ждать:</b> для .ru обычно 15–60 минут, по правилам до 24 часов. Ускорить нельзя — изменения расходятся по DNS постепенно.</span></div>
+    </div>
+  </section>
+
+  <section id="s3" class="rev">
+    <h2><span class="stage">03</span>Дождитесь Active и проверьте NS</h2>
+    <div class="card cf">
+      <ol class="ol">
+        <li>Вернитесь в Cloudflare → ваш домен. Статус пока <span class="ui">Pending nameserver update</span>.</li>
+        <li>Нажимайте <span class="ui o">Check nameservers</span> раз в 15–20 минут — это запускает проверку сразу.</li>
+        <li>Когда применится, статус станет <span class="ui g">Active</span>, придёт письмо от Cloudflare.</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="md" style="background:#fb7185"></span><span class="md" style="background:#fbbf24"></span><span class="md" style="background:#a3e635"></span><span class="mock-url">Cloudflare → <span data-bind="domainOr">вашдомен.ru</span> → Overview</span></div>
+        <div class="mock-b">
+          <div class="mrow"><span class="mn">!</span>Статус<span class="mval" style="color:#fde68a">Pending nameserver update</span></div>
+          <div class="mrow hl"><span class="mn">1</span><span class="mbtn">Check nameservers</span></div>
+          <div class="mrow ok"><span class="mn">✓</span>Статус<span class="mval" style="color:#d9f99d">Active</span></div>
+        </div>
+      </div>
+      <div class="checker">
+        <h3><svg class="ic"><use href="#i-dns"/></svg>Живая проверка NS</h3>
+        <div class="cs">Страница спросит публичные DNS, какие NS сейчас у домена. В России dns.google и Cloudflare DNS часто недоступны — тогда пробуются другие сервисы, а если и они молчат, будут ссылки для ручной проверки.</div>
+        <div class="btns"><button class="b b1" data-act="check-ns"><svg class="ic"><use href="#i-search"/></svg>Проверить NS</button><a class="b b2" href="https://dash.cloudflare.com" target="_blank" rel="noopener"><svg class="ic"><use href="#i-cloud"/></svg>Cloudflare</a></div>
+        <div class="res" id="nsRes"></div>
+        <div class="links" id="dnsLinks"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s4" class="rev">
+    <h2><span class="stage">04</span>Привяжите поддомен к воркеру</h2>
+    <div class="card cf">
+      <p>Домен Active? Вешаем на воркер адрес <code data-bind="relayHost">relay.вашдомен.ru</code>. Делается со стороны воркера — Cloudflare сам создаст DNS-запись и выпустит сертификат.</p>
+      <ol class="ol">
+        <li>Cloudflare → <span class="ui">Workers &amp; Pages</span> → откройте воркер <code>synapse-relay</code>.</li>
+        <li>Вкладка <span class="ui">Settings</span> → раздел <span class="ui">Domains &amp; Routes</span>.</li>
+        <li><span class="ui o">Add</span> → тип <span class="ui g">Custom Domain</span> (не Route!).</li>
+        <li>Впишите <code data-bind="relayHost">relay.вашдомен.ru</code> → <span class="ui o">Add Custom Domain</span>.</li>
+        <li>Подождите 2–10 минут: выпускается SSL-сертификат. Запись в DNS появится сама, с оранжевым облаком.</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="md" style="background:#fb7185"></span><span class="md" style="background:#fbbf24"></span><span class="md" style="background:#a3e635"></span><span class="mock-url">synapse-relay → Settings → Domains &amp; Routes</span></div>
+        <div class="mock-b">
+          <div class="mrow"><span class="mn">1</span>Workers &amp; Pages → synapse-relay</div>
+          <div class="mrow"><span class="mn">2</span>Settings → Domains &amp; Routes</div>
+          <div class="mrow hl"><span class="mn">3</span>Add → тип<span class="mval">Custom Domain</span></div>
+          <div class="mrow"><span class="mn">4</span><span class="mval" data-bind="relayHost">relay.вашдомен.ru</span><span class="mbtn">Add</span></div>
+          <div class="mrow ok"><span class="mn">5</span>Запись создана <span class="cloud on"><span class="cd"></span>Proxied</span> · сертификат 2–10 мин</div>
+        </div>
+      </div>
+      <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener"><svg class="ic"><use href="#i-cloud"/></svg>Открыть Workers</a></div>
+      <div class="note warn"><span><b>Custom Domain, а не Route.</b> Route требует уже существующую запись и работает иначе. Custom Domain сам создаёт запись и сертификат — это наш путь.</span></div>
+
+      <div class="checker">
+        <h3><svg class="ic"><use href="#i-wand"/></svg>Проверка нового адреса</h3>
+        <div class="cs">Четыре ступени по порядку: DNS-запись → ответ реле → цепочка до провайдера → полный тест с ключом.</div>
+        <div class="btns">
+          <button class="b b2" data-act="check-dns"><svg class="ic"><use href="#i-dns"/></svg>1 · DNS-запись</button>
+          <button class="b b1" data-act="check-relay"><svg class="ic"><use href="#i-search"/></svg>2 · Реле отвечает?</button>
+          <button class="b b2" data-act="chain"><svg class="ic"><use href="#i-arrow"/></svg>3 · Цепочка</button>
+          <button class="b b3" data-act="full"><svg class="ic"><use href="#i-key"/></svg>4 · С ключом</button>
+        </div>
+        <div class="res" id="dnsRes"></div>
+        <div class="res" id="relayRes"></div>
+        <div class="res" id="chainRes"></div>
+        <div class="res" id="fullRes"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s5" class="rev">
+    <h2><span class="stage">05</span>Рабочая альтернатива: домен на российский сервер</h2>
+    <div class="card good">
+      <p>Этот вариант решает проблему блокировки по-настоящему: домен указывает <b>напрямую на IP российского VPS</b>, минуя Cloudflare. Сайт и реле живут на одном адресе, поэтому CORS не мешает вовсе.</p>
+      <div class="row">
+        <div class="card" style="margin:0;background:rgba(251,113,133,.06);border-color:rgba(251,113,133,.45)">
+          <h3 style="font-size:13px"><svg class="ic" style="color:var(--rd)"><use href="#i-x"/></svg>Через Cloudflare</h3>
+          <span class="cloud on"><span class="cd"></span>Proxied</span>
+          <p style="font-size:12.5px;margin-top:8px">relay → IP Cloudflare → блокировка оператором</p>
+        </div>
+        <div class="card" style="margin:0;background:rgba(163,230,53,.06);border-color:rgba(163,230,53,.45)">
+          <h3 style="font-size:13px"><svg class="ic" style="color:var(--gr)"><use href="#i-check"/></svg>Напрямую на VPS</h3>
+          <span class="cloud off"><span class="cd"></span>DNS only</span>
+          <p style="font-size:12.5px;margin-top:8px">@ → IP вашего сервера → работает без VPN</p>
+        </div>
+      </div>
+      <ol class="ol">
+        <li>Арендуйте VPS у российского провайдера (Beget, Timeweb, RuVDS) с Ubuntu 24.04.</li>
+        <li>Cloudflare → домен → DNS → <b>удалите</b> запись <code>relay</code> и все записи, указывающие на Cloudflare.</li>
+        <li>Создайте запись: тип <span class="ui g">A</span>, имя <span class="ui g">@</span>, значение — <b>IP вашего VPS</b>, облако <span class="ui g">серое (DNS only)</span>.</li>
+        <li>Разверните сайт и реле на сервере — подробная инструкция с готовым скриптом в разделе Beget VPS.</li>
+        <li>Адрес реле станет <code data-bind="vpsRelay">https://вашдомен.ru/relay</code> — проверьте его кнопкой ниже.</li>
+      </ol>
+      <div class="btns">
+        <a class="b b3" href="beget-vps.html"><svg class="ic"><use href="#i-server"/></svg>Инструкция по Beget VPS</a>
+        <button class="b b1" data-act="check-vps"><svg class="ic"><use href="#i-search"/></svg>Проверить адрес на сервере</button>
+      </div>
+      <div class="res" id="vpsRes"></div>
+    </div>
+  </section>
+
+  <section id="s6" class="rev">
+    <h2><span class="stage">06</span>Запишите адрес в Синапс</h2>
+    <div class="card good">
+      <p>Кнопка запишет адрес в настройки приложения — она сработает, если эта страница открыта <b>по адресу сайта</b> и в том же браузере, где вы пользуетесь Синапсом.</p>
+      <div class="row">
+        <div class="f"><label>Какой адрес записать</label><input data-field="writeUrl" type="url" spellcheck="false" placeholder="оставьте пустым — возьмётся адрес реле"></div>
+        <div class="f"><label>API Host провайдера</label><input data-field="provider" type="url" spellcheck="false" placeholder="https://ai.starimg.ru/v1"></div>
+      </div>
+      <div class="btns">
+        <button class="b b3" data-act="save"><svg class="ic"><use href="#i-wand"/></svg>Записать в Синапс</button>
+        <button class="b b2" data-act="clear-relay"><svg class="ic"><use href="#i-x"/></svg>Убрать реле (прямое подключение)</button>
+        <button class="b b2" data-act="copy-addr"><svg class="ic"><use href="#i-copy"/></svg>Скопировать адрес</button>
+        <a class="b b1" href="index.html"><svg class="ic"><use href="#i-play"/></svg>Открыть Синапс</a>
+      </div>
+      <div class="res" id="saveRes"></div>
+      <div class="note info"><span><b>Прямое подключение сейчас работает:</b> продавец включил CORS, поэтому кнопка «Убрать реле» — самый простой вариант. Реле понадобится только если CORS снова отключат.</span></div>
+    </div>
+  </section>
+
+  <section id="faq" class="rev">
+    <h2><svg class="ic" style="color:var(--am)"><use href="#i-alert"/></svg>Если что-то пошло не так</h2>
+    <div id="faqBox"></div>
+    <div class="gloss">
+      <div class="gl"><b>NS-серверы</b>«Адресная книга», которая говорит интернету, где искать записи домена. Меняются у регистратора.</div>
+      <div class="gl"><b>DNS-зона</b>Список записей домена: какой поддомен куда ведёт. После смены NS редактируется в Cloudflare.</div>
+      <div class="gl"><b>Оранжевое облако</b>Трафик идёт через Cloudflare. Даёт SSL и защиту, но в РФ попадает под блокировку.</div>
+      <div class="gl"><b>Серое облако</b>DNS only: домен просто указывает на IP, трафик идёт напрямую. Именно это нужно для российского VPS.</div>
+    </div>
+  </section>
+
+  <section class="rev">
+    <h2><svg class="ic" style="color:var(--cy)"><use href="#i-info"/></svg>Журнал действий</h2>
+    <div class="card">
+      <p>Здесь видно каждое действие и результат — ничего не происходит молча.</p>
+      <div class="log" id="log"></div>
+      <div class="btns"><button class="b b2" data-act="reset"><svg class="ic"><use href="#i-refresh"/></svg>Сбросить отметки</button></div>
+    </div>
+  </section>
 
 </div>
+
+<footer>
+  <div class="orb" style="width:20px;height:20px"></div>
+  <span>Синапс · домен для реле · данные остаются в вашем браузере</span>
+  <a href="docs.html">← Все инструкции</a>
+</footer>
 
 <script>
 (function(){
 "use strict";
+var $=function(id){return document.getElementById(id);};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+var LS="synapse.domain.v1";
 
-var $ = function(id){ return document.getElementById(id); };
-var logEl = $("log");
+var st={domain:"",prefix:"relay",ns1:"",ns2:"",key:"",writeUrl:"",provider:"https://ai.starimg.ru/v1",sound:true,checks:{}};
+try{var raw=localStorage.getItem(LS);if(raw){var p=JSON.parse(raw);for(var k in st){if(p[k]!=null)st[k]=p[k];}}}catch(e){}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function cleanDomain(v){return String(v||"").trim().toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,"").replace(/\.$/,"");}
+function norm(v){v=String(v||"").trim();if(!v)return"";if(!/^https?:\/\//i.test(v))v="https://"+v;return v.replace(/\/+$/,"");}
+function D(){return cleanDomain(st.domain);}
+function host(){var d=D();if(!d)return"";var p=String(st.prefix||"relay").trim().toLowerCase().replace(/[^a-z0-9-]/g,"")||"relay";return p+"."+d;}
+function relayUrl(){var h=host();return h?"https://"+h:"";}
+function vpsRelay(){var d=D();return d?"https://"+d+"/relay":"";}
+function targetUrl(){return norm(st.writeUrl)||relayUrl()||vpsRelay();}
 
-function esc(s){
-  return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function showError(m){var b=$("errBanner");b.className="banner err show";b.textContent="Ошибка скрипта: "+m;}
+window.addEventListener("error",function(e){showError((e.message||"неизвестно")+(e.lineno?" (строка "+e.lineno+")":""));});
+
+function log(msg,kind){
+  var t=new Date().toLocaleTimeString("ru-RU");
+  var l=document.createElement("div");
+  l.className="ll"+(kind?" "+kind:"");
+  l.textContent="["+t+"] "+msg;
+  $("log").appendChild(l);
+  $("log").scrollTop=$("log").scrollHeight;
 }
-function log(msg, kind){
-  var t = new Date().toLocaleTimeString("ru-RU");
-  var line = document.createElement("div");
-  line.className = "ll" + (kind ? " " + kind : "");
-  line.textContent = "[" + t + "] " + msg;
-  logEl.appendChild(line);
-  logEl.scrollTop = logEl.scrollHeight;
+var AC=null;
+function beep(kind){
+  if(!st.sound)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended")AC.resume();
+    var t=AC.currentTime;
+    var n=function(f,s,d,v){var o=AC.createOscillator(),g=AC.createGain();o.type="sine";o.frequency.setValueAtTime(f,t+s);
+      g.gain.setValueAtTime(0,t+s);g.gain.linearRampToValueAtTime(v||0.035,t+s+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+s+d);
+      o.connect(g);g.connect(AC.destination);o.start(t+s);o.stop(t+s+d+0.02);};
+    if(kind==="ok"){n(660,0,0.1);n(990,0.07,0.14);}
+    else if(kind==="err")n(190,0,0.17,0.045);
+    else if(kind==="win"){n(523,0,0.13);n(659,0.09,0.13);n(784,0.18,0.17);}
+    else n(1180,0,0.045);
+  }catch(e){}
 }
-function showError(msg){
-  var b = $("errBanner");
-  b.className = "banner err show";
-  b.textContent = "Ошибка скрипта: " + msg + " — сообщите этот текст, если кнопки не работают.";
-  log("ОШИБКА: " + msg, "err");
+function sparks(el){
+  try{
+    var r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    var cols=["#22d3ee","#8b5cf6","#e879f9","#a3e635","#fbbf24"];
+    for(var i=0;i<16;i++){
+      var s=document.createElement("span");
+      s.className="spark";s.style.background=cols[i%cols.length];
+      s.style.left=cx+"px";s.style.top=cy+"px";
+      document.body.appendChild(s);
+      var a=Math.random()*Math.PI*2,d=50+Math.random()*70;
+      s.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate("+Math.cos(a)*d+"px,"+(Math.sin(a)*d+30)+"px) scale(.2)",opacity:0}],{duration:700+Math.random()*400,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=(function(n){return function(){n.remove();};})(s);
+    }
+  }catch(e){}
 }
-window.addEventListener("error", function(e){
-  showError((e.message || "неизвестно") + (e.lineno ? " (строка " + e.lineno + ")" : ""));
+function res(el,kind,title,body,raw){
+  el.className="res "+kind+" show";
+  var h='<div class="rt">'+(kind==="load"?'<span class="spin"></span> ':'')+esc(title)+'</div>';
+  if(body)h+='<div>'+body+'</div>';
+  if(raw)h+='<pre class="raw">'+esc(raw)+'</pre>';
+  el.innerHTML=h;
+}
+function vals(){
+  var d=D();
+  return {
+    domainOr:d||"вашдомен.ru",
+    relayHost:host()||"relay.вашдомен.ru",
+    relayUrl:relayUrl()||"https://relay.вашдомен.ru",
+    vpsRelay:vpsRelay()||"https://вашдомен.ru/relay",
+    ns1Or:String(st.ns1||"").trim()||"имя1.ns.cloudflare.com",
+    ns2Or:String(st.ns2||"").trim()||"имя2.ns.cloudflare.com",
+    ns1:String(st.ns1||"").trim(),
+    ns2:String(st.ns2||"").trim()
+  };
+}
+function syncAll(){
+  var v=vals();
+  $$("[data-bind]").forEach(function(el){var k=el.dataset.bind;if(v[k]!=null)el.textContent=v[k];});
+  $$("[data-field]").forEach(function(inp){if(inp!==document.activeElement){var val=st[inp.dataset.field]||"";if(inp.value!==val)inp.value=val;}});
+  var d=D(),links=$("dnsLinks");
+  if(d){
+    var e=encodeURIComponent(d);
+    links.innerHTML='<a href="https://dns.google/resolve?name='+e+'&type=NS" target="_blank" rel="noopener">NS вручную (Google)</a>'+
+      '<a href="https://www.nic.ru/whois/?searchWord='+e+'" target="_blank" rel="noopener">WHOIS на NIC.RU</a>'+
+      '<a href="https://www.reg.ru/whois/?dname='+e+'" target="_blank" rel="noopener">WHOIS на REG.RU</a>';
+  }else{
+    links.innerHTML='<span style="font-size:11.5px;color:var(--dim)">Впишите домен вверху — появятся ссылки для ручной проверки.</span>';
+  }
+}
+$$("[data-field]").forEach(function(inp){
+  inp.addEventListener("input",function(){st[inp.dataset.field]=inp.value;persist();syncAll();});
 });
 
-function card(el, kind, title, body, raw){
-  el.className = "res " + kind + " show";
-  var html = '<div class="rt">' + (kind === "load" ? '<span class="spin"></span>' : '') + '<span>' + esc(title) + '</span></div>';
-  if (body) html += '<div class="rb">' + body + '</div>';
-  if (raw) html += '<pre class="raw">' + esc(raw) + '</pre>';
-  el.innerHTML = html;
+var CHECKS=["d1","d2","d3","d4","d5","d6","d7"];
+function updateChecks(){
+  var n=0;
+  $$(".check").forEach(function(c){var on=!!st.checks[c.dataset.check];c.classList.toggle("on",on);if(on)n++;});
+  $("progressFill").style.width=(n/CHECKS.length*100)+"%";
+  var was=$("allDone").hidden;
+  $("allDone").hidden=n<CHECKS.length;
+  if(n===CHECKS.length&&was){beep("win");sparks($("allDone"));log("Все шаги отмечены","ok");}
 }
+function mark(id,val){st.checks[id]=val;persist();updateChecks();}
+$$(".check").forEach(function(c){
+  c.onclick=function(){var id=c.dataset.check,on=!st.checks[id];mark(id,on);if(on){beep("ok");sparks(c);}else beep("tick");};
+});
 
-var LS = "synapse.check.v2";
-var st = { oldRelay:"https://synapse-relay.amicus0206.workers.dev", domain:"", prefix:"relay", apiKey:"" };
-try {
-  var raw0 = localStorage.getItem(LS);
-  if (raw0) { var p = JSON.parse(raw0); for (var k in st) if (p[k] != null) st[k] = p[k]; }
-} catch(e){}
-function persist(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e){} }
-
-function normUrl(v){
-  v = String(v || "").trim();
-  if (!v) return "";
-  if (!/^https?:\/\//i.test(v)) v = "https://" + v;
-  return v.replace(/\/+$/,"");
-}
-function cleanDomain(v){
-  return String(v || "").trim().toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,"").replace(/\.$/,"");
-}
-function newHost(){
-  var d = cleanDomain(st.domain);
-  if (!d) return "";
-  var p = String(st.prefix || "relay").trim().toLowerCase().replace(/[^a-z0-9-]/g,"") || "relay";
-  return p + "." + d;
-}
-function newUrl(){ var h = newHost(); return h ? "https://" + h : ""; }
-function bestUrl(){ return newUrl() || normUrl(st.oldRelay); }
-
-function bindInput(id, key){
-  var el = $(id);
-  el.value = st[key] || "";
-  el.addEventListener("input", function(){ st[key] = el.value; persist(); refreshLinks(); });
-}
-
-async function req(url, opts, ms, label){
-  opts = opts || {};
-  var method = opts.method || "GET";
-  log("→ " + label + ": " + method + " " + url, "act");
-  var c = new AbortController();
-  var timer = setTimeout(function(){ c.abort(); }, ms || 15000);
-  var t0 = Date.now();
-  try {
-    var r = await fetch(url, Object.assign({}, opts, { signal: c.signal }));
-    var text = await r.text();
-    var dt = Date.now() - t0;
-    log("← " + label + ": HTTP " + r.status + ", " + text.length + " байт, " + dt + " мс", r.ok ? "ok" : "warn");
-    return { ok:r.ok, status:r.status, text:text };
-  } catch(e){
-    var why = (e && e.name === "AbortError") ? "таймаут" : "сеть недоступна или запрос заблокирован (CORS/DNS)";
-    log("✗ " + label + ": " + why + " (" + (Date.now()-t0) + " мс)", "err");
-    throw new Error(why);
-  } finally { clearTimeout(timer); }
-}
-
-function parseJson(t){ try { return JSON.parse(t); } catch(e){ return null; } }
-
-async function testRelay(url, el, label){
-  if (!url){ card(el, "warn", "Адрес не задан", "Заполните поле выше."); return false; }
-  card(el, "load", "Проверяю " + label, esc(url));
-  try {
-    var r = await req(url, { method:"GET" }, 15000, label);
-    var j = parseJson(r.text);
-    if (j && typeof j.error === "string" && j.error.indexOf("x-target-url") >= 0){
-      card(el, "ok", "Реле работает — это не ошибка",
-        "Воркер отвечает нашим JSON. Код задеплоен, CORS-заголовки есть. Такой ответ при открытии адреса вручную — признак успеха.", r.text);
-      return true;
-    }
-    if (j && typeof j.error === "string"){
-      card(el, "ok", "Наш код на месте", "Воркер отвечает нашим JSON: " + esc(j.error) + ". Поправьте переменные воркера, если мешает.", r.text);
-      return true;
-    }
-    if (r.status === 200 && /hello world/i.test(r.text)){
-      card(el, "warn", "Отдаёт Hello World — код не опубликован",
-        "Откройте воркер → Edit code → вставьте наш код → нажмите <b>Deploy</b> (не Save). Подождите 20 секунд и повторите.", r.text);
-      return false;
-    }
-    if (r.status === 404 || /nothing here/i.test(r.text)){
-      card(el, "err", "404 — адрес не обслуживается",
-        "Для workers.dev: проверьте имя воркера и что маршрут включён. Для своего домена: привяжите воркер → Settings → Domains &amp; Routes → Add → <b>Custom Domain</b>.", r.text);
-      return false;
-    }
-    if (r.status >= 500 || /1101|worker threw exception/i.test(r.text)){
-      card(el, "err", "Воркер падает (Error 1101)",
-        "Код вставлен повреждённым. Удалите всё в редакторе, вставьте код целиком, нажмите Deploy.", r.text);
-      return false;
-    }
-    card(el, "warn", "Неожиданный ответ HTTP " + r.status, "Посмотрите текст ниже.", r.text);
-    return false;
-  } catch(e){
-    card(el, "err", "Адрес не отвечает",
-      esc(e.message) + ". Варианты: опечатка в адресе; деплой не применился (подождите минуту); сертификат ещё выпускается; оператор блокирует workers.dev — тогда нужен свой домен.", String(e));
-    return false;
-  }
-}
-
-async function bothTest(){
-  log("Нажата кнопка: проверить оба адреса", "act");
-  var oldU = normUrl(st.oldRelay);
-  var newU = newUrl();
-  var tasks = [ testRelay(oldU, $("resOld"), "старый адрес") ];
-  if (newU) tasks.push(testRelay(newU, $("resNew"), "новый домен"));
-  else card($("resNew"), "warn", "Новый домен не указан", "Впишите купленный домен в поле выше — проверю и его.");
-  await Promise.all(tasks);
-  log("Проверка адресов завершена");
-}
-
-async function chainTest(){
-  var url = bestUrl();
-  if (!url){ card($("resChain"), "err", "Нет адреса реле", "Заполните поля выше."); return; }
-  card($("resChain"), "load", "Иду через реле к провайдеру", esc(url));
-  try {
-    var target = "https://ai.starimg.ru/v1/models";
-    var r = await req(url + "?target=" + encodeURIComponent(target), { method:"GET" }, 25000, "цепочка");
-    if (r.status === 401 || r.status === 403){
-      card($("resChain"), "ok", "Цепочка работает!",
-        "Запрос дошёл до ai.starimg.ru, провайдер ответил «нужен ключ» (HTTP " + r.status + "). Это успех. Вставьте ключ и нажмите «Полный тест».", r.text);
-      return;
-    }
-    if (r.ok){
-      var j = parseJson(r.text);
-      var n = (j && j.data) ? j.data.length : 0;
-      card($("resChain"), "ok", "Цепочка работает, провайдер ответил", "Получено моделей: " + n + ".", r.text);
-      return;
-    }
-    card($("resChain"), "warn", "Ответ HTTP " + r.status, "Разберём по тексту ниже.", r.text);
-  } catch(e){
-    card($("resChain"), "err", "Соединение не удалось", esc(e.message) + ". Сначала проверьте адреса реле кнопкой выше.", String(e));
-  }
-}
-
-async function fullTest(){
-  var url = bestUrl();
-  var key = String(st.apiKey || "").trim();
-  if (!url){ card($("resFull"), "err", "Нет адреса реле", "Заполните поля выше."); return; }
-  if (!key){ card($("resFull"), "err", "Нет ключа", "Вставьте API-ключ в поле «Данные»."); return; }
-  card($("resFull"), "load", "Запрашиваю модели с ключом", esc(url));
-  try {
-    var r = await req(url, { method:"GET", headers:{ "x-target-url":"https://ai.starimg.ru/v1/models", "Authorization":"Bearer " + key } }, 25000, "полный тест");
-    if (!r.ok){
-      var msg = "HTTP " + r.status;
-      if (r.status === 401 || r.status === 403) msg = "Ключ отклонён. Скопируйте ключ целиком без пробелов; если задавали RELAY_SECRET — он должен совпадать.";
-      else if (r.status === 429) msg = "HTTP 429 — лимит или баланс у продавца.";
-      card($("resFull"), "err", "Провайдер отклонил запрос", esc(msg), r.text);
-      return;
-    }
-    var j = parseJson(r.text);
-    var ids = ((j && j.data) || []).map(function(x){ return x.id; }).filter(Boolean).sort();
-    var chips = ids.slice(0,20).map(function(m){ return '<span class="chip">' + esc(m) + '</span>'; }).join("");
-    card($("resFull"), "ok", "Полная цепочка работает!",
-      "Доступно моделей: <b>" + ids.length + "</b>. Можно записывать адрес в Синапс." + (chips ? '<div class="chips">' + chips + '</div>' : ""), null);
-    log("Моделей получено: " + ids.length, "ok");
-  } catch(e){
-    card($("resFull"), "err", "Соединение не удалось", esc(e.message), String(e));
-  }
-}
-
-var DOH = [
-  { name:"Google DNS", url:function(n,t){ return "https://dns.google/resolve?name=" + encodeURIComponent(n) + "&type=" + t; }, headers:{ "Accept":"application/json" } },
-  { name:"Cloudflare DNS", url:function(n,t){ return "https://cloudflare-dns.com/dns-query?name=" + encodeURIComponent(n) + "&type=" + t; }, headers:{ "Accept":"application/dns-json" } },
-  { name:"AliDNS", url:function(n,t){ return "https://dns.alidns.com/resolve?name=" + encodeURIComponent(n) + "&type=" + t; }, headers:{ "Accept":"application/json" } }
-];
-
-async function doh(name, type){
-  var lastErr = null;
-  for (var i = 0; i < DOH.length; i++){
-    var p = DOH[i];
-    try {
-      var r = await req(p.url(name, type), { headers:p.headers }, 9000, "DNS " + p.name);
-      var j = parseJson(r.text);
-      if (j){ log("Ответил " + p.name, "ok"); return { json:j, via:p.name }; }
-      lastErr = new Error(p.name + ": не JSON");
-    } catch(e){ lastErr = e; }
-  }
-  throw lastErr || new Error("все DNS-сервисы недоступны");
-}
-
-async function nsCheck(){
-  var d = cleanDomain(st.domain);
-  if (!d){ card($("resNs"), "warn", "Домен не указан", "Впишите купленный домен в поле «Данные»."); return; }
-  card($("resNs"), "load", "Спрашиваю NS для " + d, "Пробую несколько DNS-сервисов подряд…");
-  try {
-    var res = await doh(d, 2);
-    var j = res.json;
-    if (j.Status === 3){
-      card($("resNs"), "err", "Домен не найден в DNS", "Проверьте написание домена. Если куплен только что — подождите 20–30 минут.");
-      return;
-    }
-    var list = (j.Answer || []).filter(function(a){ return a.type === 2; }).map(function(a){ return String(a.data).replace(/\.$/,"").toLowerCase(); });
-    if (!list.length){
-      card($("resNs"), "warn", "NS-записи не видны", "Делегирование ещё не применилось. Подождите и повторите. Ответ через " + esc(res.via) + ".", JSON.stringify(j));
-      return;
-    }
-    var cf = list.filter(function(n){ return n.indexOf("cloudflare.com") >= 0; });
-    var items = list.map(function(n){
-      var isCf = n.indexOf("cloudflare.com") >= 0;
-      return '<div class="nsi ' + (isCf ? "cf" : "old") + '">' + (isCf ? "✓" : "…") + " " + esc(n) + '</div>';
-    }).join("");
-    if (cf.length >= 2){
-      card($("resNs"), "ok", "NS указывают на Cloudflare",
-        "Делегирование применилось (ответ через " + esc(res.via) + "). В Cloudflare нажмите Check nameservers — домен станет Active. Дальше привяжите Custom Domain к воркеру." + '<div class="nsl">' + items + '</div>');
-    } else {
-      card($("resNs"), "warn", "Пока старые NS (" + cf.length + " из 2 Cloudflare)",
-        "Смена NS ещё расходится по интернету: для .ru обычно 15–60 минут, до 24 часов. Проверьте, что у регистратора вписаны <b>оба</b> NS и сохранены." + '<div class="nsl">' + items + '</div>');
-    }
-  } catch(e){
-    card($("resNs"), "err", "DNS-опрос не удался",
-      "Все публичные DNS-сервисы недоступны из вашей сети (в РФ dns.google и Cloudflare DNS часто блокируются). Это <b>не</b> значит, что домен не работает. Откройте проверку вручную по ссылке ниже или просто дождитесь письма «Active» от Cloudflare.", String(e));
-  }
-}
-
-async function dnsCheck(){
-  var h = newHost();
-  if (!h){ card($("resDns"), "warn", "Домен не указан", "Впишите домен и поддомен в поле «Данные»."); return; }
-  card($("resDns"), "load", "Ищу A-запись для " + h, "Пробую несколько DNS-сервисов…");
-  try {
-    var res = await doh(h, 1);
-    var j = res.json;
-    var ips = (j.Answer || []).filter(function(a){ return a.type === 1; }).map(function(a){ return a.data; });
-    if (ips.length){
-      card($("resDns"), "ok", "DNS-запись есть",
-        esc(h) + " → <code>" + esc(ips.join(", ")) + "</code> (IP Cloudflare). Значит Custom Domain привязан. Ждите сертификат и проверяйте реле.", JSON.stringify(j.Answer));
-    } else if (j.Status === 3){
-      card($("resDns"), "warn", "Записи нет (NXDOMAIN)",
-        "Custom Domain ещё не привязан к воркеру или DNS не применился. Воркер → Settings → Domains &amp; Routes → Add → Custom Domain → " + esc(h));
-    } else {
-      card($("resDns"), "warn", "A-запись не видна", "Подождите пару минут и повторите.", JSON.stringify(j));
-    }
-  } catch(e){
-    card($("resDns"), "err", "DNS-опрос не удался",
-      "Публичные DNS недоступны из вашей сети. Это не показатель проблемы с доменом — decisive-проверка это кнопка «Проверить оба адреса» выше.", String(e));
-  }
-}
-
-function saveToApp(){
-  var url = bestUrl();
-  if (!url){ card($("resSave"), "err", "Нет адреса", "Заполните поля выше."); return; }
-  log("Запись настроек в localStorage: " + url, "act");
-  var wrote = false;
-  try {
-    var raw = localStorage.getItem("synapse.v1");
-    var app = raw ? JSON.parse(raw) : { chats:[], activeId:null, settings:{} };
-    if (app && typeof app === "object"){
-      app.settings = Object.assign({}, app.settings || {}, { relayUrl:url, provider:"custom", baseUrl:"https://ai.starimg.ru/v1" });
-      if (String(st.apiKey||"").trim()) app.settings.apiKey = String(st.apiKey).trim();
-      localStorage.setItem("synapse.v1", JSON.stringify(app));
-      wrote = true;
-    }
-  } catch(e){ log("localStorage недоступен: " + e.message, "err"); }
-  try {
-    var g = JSON.parse(localStorage.getItem("synapse.guide.v1") || "{}");
-    g.workerUrl = url; localStorage.setItem("synapse.guide.v1", JSON.stringify(g));
-  } catch(e){}
-  if (wrote){
-    card($("resSave"), "ok", "Записано в Синапс",
-      "Адрес <code>" + esc(url) + "</code> сохранён в настройках приложения на этом устройстве. Откройте Синапс и выберите модель." +
-      (location.protocol === "file:" ? "<br><br>Страница открыта как файл — запись видна только этому браузеру. На айфоне откройте страницу по адресу сайта и нажмите кнопку снова." : ""));
-    log("Настройки записаны", "ok");
-  } else {
-    card($("resSave"), "warn", "Автозапись недоступна",
-      "Скопируйте адрес кнопкой рядом и вставьте вручную: Синапс → Настройки → CORS-реле.");
-  }
-}
-
-function copyAddr(){
-  var url = bestUrl();
-  if (!url){ card($("resSave"), "err", "Нет адреса", "Заполните поля выше."); return; }
-  var done = function(){ card($("resSave"), "ok", "Скопировано", "<code>" + esc(url) + "</code>"); log("Адрес скопирован", "ok"); };
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(url).then(done).catch(fallback);
-  } else fallback();
-  function fallback(){
-    var ta = document.createElement("textarea");
-    ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand("copy"); done(); }
-    catch(e){ card($("resSave"), "warn", "Скопируйте вручную", "<code>" + esc(url) + "</code>"); }
+$$("[data-copy-bind]").forEach(function(b){
+  b.onclick=function(){
+    var v=vals(),k=b.dataset.copyBind,text=v[k];
+    if(k==="ns1"&&!text)text=v.ns1Or;
+    if(k==="ns2"&&!text)text=v.ns2Or;
+    if(k==="relayUrl"&&!relayUrl()){log("Сначала впишите домен","warn");beep("err");return;}
+    copyText(text,b);
+  };
+});
+function copyText(text,btn){
+  var done=function(){
+    log("Скопировано: "+text.slice(0,60),"ok");beep("ok");
+    if(btn){var old=btn.innerHTML;btn.classList.add("ok");btn.innerHTML='<svg class="ic"><use href="#i-check"/></svg>';setTimeout(function(){btn.classList.remove("ok");btn.innerHTML=old;},1400);}
+  };
+  var fb=function(){
+    var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}catch(e){log("Не удалось скопировать — выделите вручную","warn");}
     ta.remove();
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();
+}
+
+$$("#regTabs .tab").forEach(function(t){
+  t.onclick=function(){
+    $$("#regTabs .tab").forEach(function(x){x.classList.toggle("on",x===t);});
+    $$("[data-pan]").forEach(function(p){p.classList.toggle("show",p.dataset.pan===t.dataset.reg);});
+    beep("tick");
+  };
+});
+
+async function tf(url,opts,ms){
+  var c=new AbortController(),timer=setTimeout(function(){c.abort();},ms||14000),t0=Date.now();
+  try{var r=await fetch(url,Object.assign({},opts,{signal:c.signal}));return {r:r,ms:Date.now()-t0};}
+  catch(e){e._ms=Date.now()-t0;throw e;}
+  finally{clearTimeout(timer);}
+}
+function pj(t){try{return JSON.parse(t);}catch(e){return null;}}
+var DOH=[
+  {n:"Google DNS",u:function(n,t){return "https://dns.google/resolve?name="+encodeURIComponent(n)+"&type="+t;}},
+  {n:"Cloudflare DNS",u:function(n,t){return "https://cloudflare-dns.com/dns-query?name="+encodeURIComponent(n)+"&type="+t;}},
+  {n:"AliDNS",u:function(n,t){return "https://dns.alidns.com/resolve?name="+encodeURIComponent(n)+"&type="+t;}}
+];
+async function doh(name,type){
+  var last=null;
+  for(var i=0;i<DOH.length;i++){
+    try{
+      var a=await tf(DOH[i].u(name,type),{headers:{Accept:"application/dns-json"}},9000);
+      var j=pj(await a.r.text());
+      if(j){log("Ответил "+DOH[i].n,"ok");return {j:j,via:DOH[i].n};}
+    }catch(e){last=e;log(DOH[i].n+" недоступен","warn");}
+  }
+  throw last||new Error("все DNS-сервисы недоступны");
+}
+function needDomain(){
+  if(!D()){log("Сначала впишите домен вверху страницы","warn");beep("err");return false;}
+  return true;
+}
+
+async function checkNS(){
+  if(!needDomain())return;
+  var d=D();
+  res($("nsRes"),"load","Проверяю NS для "+d,"Пробую несколько DNS-сервисов подряд…");
+  log("Проверка NS: "+d,"act");
+  try{
+    var out=await doh(d,2),j=out.j;
+    if(j.Status===3){res($("nsRes"),"err","Домен не найден в DNS","Проверьте написание. Если домен куплен только что — подождите 20–30 минут.");beep("err");return;}
+    var list=(j.Answer||[]).filter(function(a){return a.type===2;}).map(function(a){return String(a.data).replace(/\.$/,"").toLowerCase();});
+    if(!list.length){res($("nsRes"),"warn","NS пока не видны","Делегирование ещё не применилось. Подождите и повторите.",JSON.stringify(j));beep("err");return;}
+    var cf=list.filter(function(n){return n.indexOf("cloudflare.com")>=0;});
+    var items=list.map(function(n){var isCf=n.indexOf("cloudflare.com")>=0;return '<div class="nsi '+(isCf?"cf":"old")+'">'+(isCf?"✓":"…")+" "+esc(n)+'</div>';}).join("");
+    var e1=String(st.ns1||"").trim().toLowerCase().replace(/\.$/,""),e2=String(st.ns2||"").trim().toLowerCase().replace(/\.$/,"");
+    var note="";
+    if(e1&&e2){
+      var both=list.indexOf(e1)>=0&&list.indexOf(e2)>=0;
+      note='<div class="raw">'+(both?"Оба NS совпадают с выданными Cloudflare.":"Пока не совпадают с вашими: ожидалось "+e1+" и "+e2+".")+'</div>';
+    }
+    if(cf.length>=2){
+      res($("nsRes"),"ok","NS указывают на Cloudflare","Делегирование применилось (ответил "+esc(out.via)+"). Нажмите Check nameservers в Cloudflare — статус станет Active."+
+        '<div class="nslist">'+items+'</div>'+note);
+      mark("d3",true);mark("d4",true);beep("ok");sparks($("nsRes"));
+    }else{
+      res($("nsRes"),"warn","Пока старые NS ("+cf.length+" из 2 Cloudflare)","Смена NS расходится 15–60 минут, до 24 часов. Убедитесь, что у регистратора вписаны оба NS и нажато «Сохранить»."+
+        '<div class="nslist">'+items+'</div>'+note);
+      beep("err");
+    }
+  }catch(e){
+    res($("nsRes"),"err","DNS-опрос не удался","Публичные DNS недоступны из вашей сети — в РФ это обычное дело. <b>Это не значит, что с доменом проблема.</b> Ориентируйтесь на статус Active в Cloudflare и письмо, либо откройте ручную проверку по ссылкам ниже.",String(e.message||e));
+    beep("err");
+  }
+}
+async function checkDNS(){
+  if(!needDomain())return;
+  var h=host();
+  res($("dnsRes"),"load","Ищу A-запись для "+h,"Пробую DNS-сервисы…");
+  log("Проверка A-записи: "+h,"act");
+  try{
+    var out=await doh(h,1),j=out.j;
+    var ips=(j.Answer||[]).filter(function(a){return a.type===1;}).map(function(a){return a.data;});
+    if(ips.length){
+      res($("dnsRes"),"ok","DNS-запись есть",esc(h)+" → <code>"+esc(ips.join(", "))+"</code>. Это IP Cloudflare — Custom Domain привязан. Ждите сертификат и проверяйте реле.",JSON.stringify(j.Answer));
+      mark("d5",true);beep("ok");
+    }else if(j.Status===3){
+      res($("dnsRes"),"warn","Записи нет (NXDOMAIN)","Custom Domain ещё не привязан или DNS не применился. Выполните этап 4 и подождите 5–10 минут.");beep("err");
+    }else{
+      res($("dnsRes"),"warn","A-запись не видна","Подождите пару минут и повторите. Если привязывали Route вместо Custom Domain — удалите и привяжите именно Custom Domain.",JSON.stringify(j));beep("err");
+    }
+  }catch(e){
+    res($("dnsRes"),"err","DNS-опрос не удался","Публичные DNS недоступны. Решающая проверка — кнопка «Реле отвечает?».",String(e.message||e));beep("err");
+  }
+}
+async function probeRelay(url,el,label){
+  res(el,"load","Проверяю "+url,"Отправляю запрос…");
+  log(label+": "+url,"act");
+  try{
+    var a=await tf(url+(url.indexOf("?")>=0?"&":"?")+"_="+Date.now(),{cache:"no-store"},15000);
+    var text=await a.r.text(),j=pj(text);
+    log(label+": HTTP "+a.r.status+" ("+a.ms+" мс)",a.r.ok?"ok":"warn");
+    if(j&&typeof j.error==="string"&&j.error.indexOf("x-target-url")>=0){
+      res(el,"ok","Реле работает!","Воркер отвечает нашим JSON. Такой «error» при открытии адреса вручную — <b>признак успеха</b>: код задеплоен, CORS отдаётся.",text);
+      mark("d5",true);mark("d6",true);beep("win");sparks(el);return true;
+    }
+    if(j&&typeof j.error==="string"){
+      res(el,"ok","Наш код на месте","Воркер отвечает: "+esc(j.error)+". Поправьте переменные воркера, если мешает.",text);beep("ok");return true;
+    }
+    if(/hello world/i.test(text)){
+      res(el,"warn","Отдаёт Hello World","Код не опубликован. Воркер → Edit code → вставьте наш код → нажмите <b>Deploy</b> (не Save).",text);beep("err");return false;
+    }
+    if(a.r.status===404||/nothing here/i.test(text)){
+      res(el,"err","404 — адрес не обслуживается","Для Cloudflare: привяжите Custom Domain к воркеру. Для VPS: проверьте, что Caddy направляет /relay на Node-сервис.",text);beep("err");return false;
+    }
+    if(a.r.status>=500||/1101|worker threw exception/i.test(text)){
+      res(el,"err","Воркер падает (1101)","Код вставлен повреждённым. Удалите всё в редакторе, вставьте код целиком, нажмите Deploy.",text);beep("err");return false;
+    }
+    res(el,"warn","Ответ HTTP "+a.r.status,"Посмотрите текст ниже.",text.slice(0,400));beep("err");return false;
+  }catch(e){
+    log(label+": сеть недоступна","err");
+    res(el,"err","Адрес не открывается",esc(e.message||"сеть недоступна")+". Варианты: сертификат ещё выпускается (подождите 5–10 минут); DNS не применился; поддомен не привязан; либо <b>оператор блокирует Cloudflare</b> — тогда нужен вариант с российским VPS (этап 5).");
+    beep("err");return false;
+  }
+}
+async function chain(){
+  var url=relayUrl();
+  if(!url){res($("chainRes"),"err","Домен не указан","Заполните поле вверху.");return;}
+  res($("chainRes"),"load","Проверяю цепочку","Страница → ваше реле → ai.starimg.ru");
+  log("Цепочка без ключа","act");
+  try{
+    var a=await tf(url+"?target="+encodeURIComponent("https://ai.starimg.ru/v1/models"),{},25000);
+    var text=await a.r.text();
+    if(a.r.status===401||a.r.status===403){
+      res($("chainRes"),"ok","Цепочка работает!","Провайдер ответил «нужен ключ» (HTTP "+a.r.status+") — запрос дошёл. Вставьте ключ вверху и нажмите «С ключом».",text);
+      mark("d6",true);beep("ok");sparks($("chainRes"));
+    }else if(a.r.ok){
+      res($("chainRes"),"ok","Цепочка работает, провайдер ответил","Всё готово.",text.slice(0,300));beep("ok");
+    }else{
+      res($("chainRes"),"warn","Ответ HTTP "+a.r.status,"Разберём по тексту ниже.",text.slice(0,400));beep("err");
+    }
+  }catch(e){
+    res($("chainRes"),"err","Соединение не удалось","Сначала добейтесь успеха на ступени 2.",String(e.message||e));beep("err");
+  }
+}
+async function full(){
+  var url=relayUrl(),key=String(st.key||"").trim();
+  if(!url){res($("fullRes"),"err","Домен не указан","Заполните поле вверху.");return;}
+  if(!key){res($("fullRes"),"err","Нет ключа","Вставьте API-ключ в блоке «Ваши данные».");beep("err");return;}
+  res($("fullRes"),"load","Запрашиваю модели с ключом","Через ваше реле…");
+  log("Полный тест с ключом","act");
+  try{
+    var a=await tf(url,{headers:{"x-target-url":"https://ai.starimg.ru/v1/models",Authorization:"Bearer "+key}},25000);
+    var text=await a.r.text();
+    if(!a.r.ok){
+      var msg="HTTP "+a.r.status;
+      if(a.r.status===401||a.r.status===403)msg="Ключ отклонён. Скопируйте его целиком без пробелов.";
+      else if(a.r.status===429)msg="HTTP 429 — лимит или баланс у продавца.";
+      res($("fullRes"),"err","Провайдер отклонил запрос",esc(msg),text);beep("err");return;
+    }
+    var j=pj(text),ids=((j&&j.data)||[]).map(function(x){return x.id;}).filter(Boolean).sort();
+    var chips=ids.slice(0,18).map(function(m){return '<span class="mchip">'+esc(m)+'</span>';}).join("");
+    res($("fullRes"),"ok","Полная цепочка работает","Моделей доступно: <b>"+ids.length+"</b>. Записывайте адрес в Синапс — этап 6."+(chips?'<div class="chips">'+chips+'</div>':""));
+    mark("d6",true);beep("win");sparks($("fullRes"));
+  }catch(e){
+    res($("fullRes"),"err","Соединение не удалось",String(e.message||e));beep("err");
+  }
+}
+function writeSettings(clearRelay){
+  var el=$("saveRes");
+  var url=clearRelay?"":targetUrl();
+  if(!clearRelay&&!url){res(el,"err","Нет адреса","Впишите домен вверху или укажите адрес вручную.");beep("err");return;}
+  var app=null;
+  try{var raw=localStorage.getItem("synapse.v1");if(raw)app=JSON.parse(raw);}catch(e){}
+  if(!app||typeof app!=="object")app={chats:[],activeId:null,settings:{}};
+  if(!app.settings)app.settings={};
+  app.settings.provider="custom";
+  app.settings.baseUrl=norm(st.provider)||"https://ai.starimg.ru/v1";
+  app.settings.relayUrl=url;
+  if(String(st.key||"").trim())app.settings.apiKey=String(st.key).trim();
+  var ok=false;
+  try{localStorage.setItem("synapse.v1",JSON.stringify(app));ok=true;}catch(e){}
+  if(ok){
+    res(el,"ok",clearRelay?"Реле убрано — прямое подключение":"Адрес записан",
+      "API Host: <code>"+esc(app.settings.baseUrl)+"</code><br>Реле: <code>"+esc(url||"не используется")+"</code><br><br>Откройте Синапс и начните <b>новый чат</b>."+
+      (location.protocol==="file:"?"<br><br>Страница открыта как файл — запись видна только этому браузеру. На айфоне откройте её по адресу сайта и нажмите кнопку снова.":""));
+    if(!clearRelay)mark("d7",true);
+    log(clearRelay?"Реле очищено":"Записан адрес: "+url,"ok");beep("win");sparks(el);
+  }else{
+    res(el,"err","Запись недоступна","Браузер запретил доступ к хранилищу. Скопируйте адрес и вставьте вручную: Синапс → Настройки → CORS-реле.");beep("err");
   }
 }
 
-function selfTest(){
-  log("Нажата кнопка: тест страницы", "act");
-  var ok = [];
-  ok.push("скрипт выполняется");
-  ok.push("fetch: " + (typeof fetch === "function" ? "есть" : "НЕТ"));
-  ok.push("AbortController: " + (typeof AbortController === "function" ? "есть" : "НЕТ"));
-  ok.push("localStorage: " + (function(){ try { localStorage.setItem("__t","1"); localStorage.removeItem("__t"); return "есть"; } catch(e){ return "недоступен"; } })());
-  ok.push("протокол страницы: " + location.protocol);
-  ok.push("кнопок подключено: " + wired);
-  card($("resSelf"), "ok", "Страница живая, кнопки работают", ok.map(esc).join("<br>"));
+var FAQ=[
+ {q:"NS не меняются больше суток",a:"Проверьте по порядку: <b>1)</b> DNSSEC у регистратора выключен; <b>2)</b> домен не заблокирован (в кабинете нет красных статусов, почта владельца подтверждена); <b>3)</b> NS вписаны без опечаток, именно те, что выдал Cloudflare; <b>4)</b> изменения сохранены и подтверждены по SMS/письму. Для .ru допустимо до 24 часов."},
+ {q:"Cloudflare пишет «домен уже добавлен в другой аккаунт»",a:"Так бывает, если домен раньше кто-то добавлял. Нажмите «Request access» или обратитесь в поддержку Cloudflare. Для свежекупленного домена часто помогает подождать и повторить либо уточнить у регистратора, что домен полностью передан вам."},
+ {q:"Custom Domain добавлен, но адрес не открывается",a:"Сертификат выпускается 2–10 минут, иногда до 24 часов при первом добавлении домена. Убедитесь, что DNS-запись для поддомена существует и <b>проксируется</b> (оранжевое облако). Если запись серая — нажмите на облако. Ошибки сертификата в первые минуты нормальны."},
+ {q:"Ошибка 1001 / 1000 / 522 / 525",a:"<b>1001/1000</b> — DNS-запись указывает не туда: удалите ручные записи для поддомена и перепривяжите Custom Domain со стороны воркера. <b>522/525</b> — Cloudflare не может достучаться до воркера или сертификат не выпущен: проверьте Deployments и пересоздайте привязку."},
+ {q:"Всё зелёное, но без VPN не работает",a:"Это блокировка Cloudflare оператором, а не ошибка настройки. Свой домен поверх Cloudflare её не обходит. Решение — этап 5: направить домен серым облаком на российский VPS. Либо просто убрать реле: продавец включил CORS, и приложение работает напрямую."},
+ {q:"Можно ли этим же доменом пользоваться для сайта?",a:"Да. Поддомен <code>relay.вашдомен.ru</code> занят реле, а, например, <code>chat.вашдомен.ru</code> или сам домен можно отдать под сайт — на GitHub Pages или на российский VPS. Один домен обслуживает сколько угодно поддоменов."},
+ {q:"Нужно ли платить Cloudflare?",a:"Нет. План Free покрывает DNS, Custom Domain для воркера, SSL-сертификат и 100 000 запросов к воркеру в день. Платите только регистратору за продление домена раз в год."}
+];
+function renderFaq(){
+  $("faqBox").innerHTML=FAQ.map(function(f,i){
+    return '<div class="qa"><button class="qa-q"><span class="qn">'+(i+1)+'</span>'+esc(f.q)+'<svg class="ic cv"><use href="#i-chev"/></svg></button><div class="qa-a"><div class="qa-a-in">'+f.a+'</div></div></div>';
+  }).join("");
 }
+document.addEventListener("click",function(e){
+  var a=e.target.closest?e.target.closest("[data-act]"):null;
+  if(a){
+    var act=a.dataset.act;
+    try{
+      if(act==="check-ns")checkNS().catch(function(err){showError(err.message);});
+      else if(act==="check-dns")checkDNS().catch(function(err){showError(err.message);});
+      else if(act==="check-relay"){if(needDomain())probeRelay(relayUrl(),$("relayRes"),"Реле на домене").catch(function(err){showError(err.message);});}
+      else if(act==="check-vps"){if(needDomain())probeRelay(vpsRelay(),$("vpsRes"),"Реле на VPS").catch(function(err){showError(err.message);});}
+      else if(act==="chain")chain().catch(function(err){showError(err.message);});
+      else if(act==="full")full().catch(function(err){showError(err.message);});
+      else if(act==="save")writeSettings(false);
+      else if(act==="clear-relay")writeSettings(true);
+      else if(act==="copy-addr"){var u=targetUrl();if(u)copyText(u,null);else{log("Нет адреса для копирования","warn");beep("err");}}
+      else if(act==="reset"){st.checks={};persist();updateChecks();log("Отметки сброшены","act");beep("tick");}
+    }catch(err){showError(err.message||String(err));}
+    return;
+  }
+  var q=e.target.closest?e.target.closest(".qa-q"):null;
+  if(q){
+    var qa=q.parentElement,ans=qa.querySelector(".qa-a"),open=qa.classList.contains("open");
+    $$(".qa.open").forEach(function(o){if(o!==qa){o.classList.remove("open");o.querySelector(".qa-a").style.maxHeight="0";}});
+    if(open){qa.classList.remove("open");ans.style.maxHeight="0";}
+    else{qa.classList.add("open");ans.style.maxHeight=ans.scrollHeight+"px";}
+    beep("tick");
+  }
+});
+$("printBtn").addEventListener("click",function(){window.print();});
+$("soundBtn").addEventListener("click",function(){
+  st.sound=!st.sound;persist();
+  $("soundBtn").className="nsound"+(st.sound?" on":"");
+  $("soundBtn").innerHTML='<svg class="ic"><use href="#i-'+(st.sound?"sound":"mute")+'"/></svg>';
+  if(st.sound)beep("tick");
+});
+window.addEventListener("scroll",function(){
+  var h=document.documentElement;
+  $("nbar").style.width=(h.scrollTop/((h.scrollHeight-h.clientHeight)||1)*100)+"%";
+},{passive:true});
 
-function refreshLinks(){
-  var d = cleanDomain(st.domain);
-  var h = newHost();
-  var box = $("manualLinks");
-  var links = [];
-  if (d) links.push('<a href="https://dns.google/resolve?name=' + encodeURIComponent(d) + '&type=NS" target="_blank" rel="noopener">Открыть NS-проверку вручную</a>');
-  if (h) links.push('<a href="https://dns.google/resolve?name=' + encodeURIComponent(h) + '&type=A" target="_blank" rel="noopener">Открыть A-проверку вручную</a>');
-  var oldU = normUrl(st.oldRelay); if (oldU) links.push('<a href="' + esc(oldU) + '" target="_blank" rel="noopener">Открыть старый адрес реле</a>');
-  if (h) links.push('<a href="https://' + esc(h) + '" target="_blank" rel="noopener">Открыть новый адрес реле</a>');
-  box.innerHTML = links.join("");
-}
-
-var wired = 0;
-function wire(id, fn){
-  var el = $(id);
-  if (!el){ showError("не найден элемент #" + id); return; }
-  el.addEventListener("click", function(){
-    try {
-      var r = fn();
-      if (r && typeof r.catch === "function") r.catch(function(e){ showError(e.message || String(e)); });
-    } catch(e){ showError(e.message || String(e)); }
-  });
-  wired++;
-}
-
-try {
-  bindInput("oldRelay","oldRelay");
-  bindInput("domain","domain");
-  bindInput("prefix","prefix");
-  bindInput("apiKey","apiKey");
-
-  wire("btnSelf", selfTest);
-  wire("btnBoth", bothTest);
-  wire("btnChain", chainTest);
-  wire("btnFull", fullTest);
-  wire("btnNs", nsCheck);
-  wire("btnDns", dnsCheck);
-  wire("btnSave", saveToApp);
-  wire("btnCopy", copyAddr);
-  wire("btnClearLog", function(){ logEl.innerHTML = ""; log("Журнал очищен"); });
-
-  refreshLinks();
-  if (location.protocol === "file:") $("fileBanner").className = "banner info show";
-
-  $("badge").className = "badge ok";
-  $("badgeText").textContent = "готово · " + wired + " кнопок";
-  log("Инициализация завершена: подключено " + wired + " кнопок", "ok");
-  log("Автопроверка старого адреса реле…", "act");
-  testRelay(normUrl(st.oldRelay), $("resOld"), "автопроверка").catch(function(e){ showError(e.message); });
-} catch(e){
-  $("badge").className = "badge bad";
-  $("badgeText").textContent = "ошибка запуска";
-  showError(e.message || String(e));
-}
+try{
+  renderFaq();syncAll();updateChecks();
+  $("soundBtn").className="nsound"+(st.sound?" on":"");
+  $("soundBtn").innerHTML='<svg class="ic"><use href="#i-'+(st.sound?"sound":"mute")+'"/></svg>';
+  $("originBanner").className="banner info show";
+  $("originBanner").innerHTML=location.protocol==="file:"
+    ? "Страница открыта как файл с диска: проверки адресов работают, но автозапись настроек попадёт только в этот браузер. Откройте по адресу сайта на том устройстве, где пользуетесь Синапсом."
+    : "Адрес страницы: <code>"+esc(location.origin+location.pathname)+"</code>. Автозапись настроек работает для этого адреса и этого браузера.";
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target);}});},{threshold:.04});
+    $$(".rev").forEach(function(el){io.observe(el);});
+  }else{$$(".rev").forEach(function(el){el.classList.add("in");});}
+  log("Инструкция восстановлена и готова к работе","ok");
+}catch(e){showError(e.message||String(e));}
 
 })();
 </script>
