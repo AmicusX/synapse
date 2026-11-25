@@ -226,8 +226,8 @@ footer a{margin-left:auto}
         <div class="sh"><svg class="ic"><use href="#i-globe"/></svg>Видно всем</div>
         <ul>
           <li>Весь код всех HTML-файлов, включая инструкции</li>
-          <li>Домен <code>mnetaknado.ru</code> — вписан в примеры</li>
-          <li>Адрес воркера <code>synapse-relay.amicus0206.workers.dev</code></li>
+          <li>Домен <code>вашдомен.ru</code> — вписан в примеры</li>
+          <li>Адрес воркера <code>ваш-воркер.workers.dev</code></li>
           <li>Адрес провайдера <code>ai.starimg.ru</code> — значение по умолчанию</li>
           <li>История коммитов: удалённое позже остаётся в истории</li>
         </ul>
@@ -253,7 +253,7 @@ footer a{margin-left:auto}
     <div class="card">
       <p>Страница скачает файлы с того же адреса, где она открыта, и поищет в них ключи, домены, адреса воркеров, IP и почты. Ничего никуда не отправляется — всё считается в вашем браузере.</p>
       <div class="row">
-        <div class="f"><label>Ваш домен (искать как персональные данные)</label><input id="cfgDomain" type="text" spellcheck="false" placeholder="mnetaknado.ru"></div>
+        <div class="f"><label>Ваш домен (искать как персональные данные)</label><input id="cfgDomain" type="text" spellcheck="false" placeholder="вашдомен.ru"></div>
         <div class="f"><label>Поддомен аккаунта Cloudflare</label><input id="cfgCf" type="text" spellcheck="false" placeholder="amicus0206"></div>
       </div>
       <div class="f"><label>Дополнительные файлы для проверки (через запятую)</label><input id="cfgExtra" type="text" spellcheck="false" placeholder="backup.json, synapse.json"><div class="h">Полезно, если подозреваете, что загрузили бэкап с ключом.</div></div>
@@ -342,7 +342,7 @@ var LS="synapse.audit.v1";
 
 var BASE_FILES=["index.html","docs.html","guide.html","steps.html","cloudflare-help.html","fix-relay.html","relay-doctor.html","domain-setup.html","ns-status.html","check.html","app-doctor.html","network-fix.html","beget-vps.html","security-audit.html","sw.js","manifest.webmanifest","icon.svg","worker.js"];
 
-var st={domain:"mnetaknado.ru",cf:"amicus0206",extra:"",owner:"",repo:"",sound:true,checks:{},reveal:false};
+var st={domain:"вашдомен.ru",cf:"amicus0206",extra:"",owner:"",repo:"",sound:true,checks:{},reveal:false};
 try{var raw=localStorage.getItem(LS);if(raw){var p=JSON.parse(raw);for(var k in st){if(p[k]!=null)st[k]=p[k];}}}catch(e){}
 function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
 

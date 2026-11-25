@@ -103,7 +103,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.9em;background:rgba(34,21
 
   <div class="card">
     <h2>Данные</h2>
-    <div class="f"><label>Старый адрес реле (workers.dev)</label><input id="oldRelay" type="url" spellcheck="false" value="https://synapse-relay.amicus0206.workers.dev"></div>
+    <div class="f"><label>Старый адрес реле (workers.dev)</label><input id="oldRelay" type="url" spellcheck="false" value="https://ваш-воркер.workers.dev"></div>
     <div class="row">
       <div class="f"><label>Новый домен (если купили)</label><input id="domain" type="text" spellcheck="false" placeholder="mydomain.ru"><div class="h">Без https:// и без www</div></div>
       <div class="f"><label>Поддомен</label><input id="prefix" type="text" spellcheck="false" value="relay"><div class="h">Получится relay.домен</div></div>
@@ -197,7 +197,7 @@ function card(el, kind, title, body, raw){
 }
 
 var LS = "synapse.check.v2";
-var st = { oldRelay:"https://synapse-relay.amicus0206.workers.dev", domain:"", prefix:"relay", apiKey:"" };
+var st = { oldRelay:"https://ваш-воркер.workers.dev", domain:"", prefix:"relay", apiKey:"" };
 try {
   var raw0 = localStorage.getItem(LS);
   if (raw0) { var p = JSON.parse(raw0); for (var k in st) if (p[k] != null) st[k] = p[k]; }

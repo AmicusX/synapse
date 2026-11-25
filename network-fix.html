@@ -296,7 +296,7 @@ footer a{margin-left:auto}
   <section id="diag" class="rev">
     <span class="kick"><svg class="ic"><use href="#i-alert"/></svg>главная находка</span>
     <h1>Свой домен не спасает, если<br>блокируется <em>сам Cloudflare</em></h1>
-    <p class="lead">Вот в чём была ошибка прежнего совета: адрес <code>relay.mnetaknado.ru</code> — это только <b>имя</b>. За ним стоят те же самые IP-адреса Cloudflare, что и за <code>workers.dev</code>. Российские операторы режут именно инфраструктуру Cloudflare, а не имена доменов. Поэтому смена имени ничего не изменила: с VPN всё работает, без VPN — ничего.</p>
+    <p class="lead">Вот в чём была ошибка прежнего совета: адрес <code>relay.вашдомен.ru</code> — это только <b>имя</b>. За ним стоят те же самые IP-адреса Cloudflare, что и за <code>workers.dev</code>. Российские операторы режут именно инфраструктуру Cloudflare, а не имена доменов. Поэтому смена имени ничего не изменила: с VPN всё работает, без VPN — ничего.</p>
     <div class="card hot">
       <h3><svg class="ic" style="color:var(--red)"><use href="#i-alert"/></svg>Что это значит practically</h3>
       <p>Домен вы купили не зря — он пригодится. Но его нужно направить <b>не на Cloudflare</b>, а на площадку, которая доступна из России без VPN. Ниже три рабочих пути, и матрица проб покажет, какой из них сработает именно у вашего оператора.</p>
@@ -314,7 +314,7 @@ footer a{margin-left:auto}
     <p class="lead">Две пробы на каждый адрес: «сеть» — отвечает ли сервер вообще, «CORS» — может ли браузер прочитать ответ. Красная строка = адрес недоступен у вашего оператора. Жёлтая = доступен, но браузеру читать нельзя. Зелёная = готов к работе прямо из приложения.</p>
     <div class="card">
       <div class="row">
-        <div class="f"><label>Добавить свой адрес для проверки</label><input id="customUrl" type="url" placeholder="https://mnetaknado.ru/relay" spellcheck="false"></div>
+        <div class="f"><label>Добавить свой адрес для проверки</label><input id="customUrl" type="url" placeholder="https://вашдомен.ru/relay" spellcheck="false"></div>
         <div class="f"><label>&nbsp;</label><div class="btns" style="margin:0"><button class="b b2" id="addEp"><svg class="ic"><use href="#i-plus"/></svg>Добавить в матрицу</button><button class="b b1" id="runBtn"><svg class="ic"><use href="#i-refresh"/></svg>Запустить все пробы</button></div></div>
       </div>
       <div class="matrix">
@@ -360,11 +360,11 @@ footer a{margin-left:auto}
       <div class="tabpan show" data-bpan="steps">
         <ol class="ol">
           <li>Купите VPS с Ubuntu 24.04 (2 ГБ ОЗУ хватит). Получите IP, root-пароль и доступ по SSH.</li>
-          <li>Cloudflare → домен <code>mnetaknado.ru</code> → DNS → Records. Удалите запись <code>relay</code>, если она есть.</li>
+          <li>Cloudflare → домен <code>вашдомен.ru</code> → DNS → Records. Удалите запись <code>relay</code>, если она есть.</li>
           <li>Создайте запись: тип <span class="ui">A</span>, имя <span class="ui">@</span>, значение — <b>IP вашего VPS</b>, облако <span class="ui g">серое (DNS only)</span>. Сохраните.</li>
           <li>Подключитесь к серверу по SSH и вставьте скрипт со вкладки «Скрипт установки» одной командой. Он поставит Node, Caddy, реле и сам выпустит HTTPS-сертификат.</li>
           <li>Загрузите файлы Синапса в папку <code>/var/www/synapse</code> (вкладка «Файлы приложения»).</li>
-          <li>Откройте <code>https://mnetaknado.ru</code> — это ваш Синапс. В настройках укажите адрес реле <code>https://mnetaknado.ru/relay</code>.</li>
+          <li>Откройте <code>https://вашдомен.ru</code> — это ваш Синапс. В настройках укажите адрес реле <code>https://вашдомен.ru/relay</code>.</li>
           <li>Добавьте сайт на домашний экран айфона. VPN больше не нужен нигде.</li>
         </ol>
         <div class="note warn"><span>Порт 80 и 443 должны быть открыты в фаерволе VPS — у большинства провайдеров открыты по умолчанию. Caddy сам получит сертификат Let's Encrypt, но только если домен уже смотрит на IP сервера серым облаком.</span></div>
@@ -381,7 +381,7 @@ footer a{margin-left:auto}
         <div class="note info"><span>Альтернатива: загрузить файлы через SFTP (FileZilla на компьютере, Termius на айфоне) в папку <code>/var/www/synapse</code>.</span></div>
       </div>
       <div class="row" style="margin-top:14px">
-        <div class="f"><label>Адрес нового реле</label><input id="newRelay" type="url" value="https://mnetaknado.ru/relay" spellcheck="false"></div>
+        <div class="f"><label>Адрес нового реле</label><input id="newRelay" type="url" value="https://вашдомен.ru/relay" spellcheck="false"></div>
         <div class="f"><label>&nbsp;</label><div class="btns" style="margin:0"><button class="b b1" data-a="test-new"><svg class="ic"><use href="#i-refresh"/></svg>Проверить</button><button class="b b3" data-a="apply-new"><svg class="ic"><use href="#i-wand"/></svg>Применить</button></div></div>
       </div>
       <div class="verdict" id="newRes"></div>
@@ -405,7 +405,7 @@ footer a{margin-left:auto}
       <p>Настройки хранятся в браузере конкретного устройства. Открывайте эту страницу <b>на айфоне в Safari</b> по адресу сайта — тогда кнопка запишет их прямо в приложение.</p>
       <div class="row">
         <div class="f"><label>API Host</label><input id="setBase" type="url" value="https://ai.starimg.ru/v1" spellcheck="false"></div>
-        <div class="f"><label>CORS-реле (пусто = без реле)</label><input id="setRelay" type="url" placeholder="https://mnetaknado.ru/relay" spellcheck="false"></div>
+        <div class="f"><label>CORS-реле (пусто = без реле)</label><input id="setRelay" type="url" placeholder="https://вашдомен.ru/relay" spellcheck="false"></div>
       </div>
       <div class="row">
         <div class="f"><label>Модель</label><input id="setModel" type="text" placeholder="имя модели" spellcheck="false"></div>
@@ -428,7 +428,7 @@ footer a{margin-left:auto}
 <script type="text/plain" id="srcSetup">#!/usr/bin/env bash
 # Синапс: сайт + CORS-реле на российском VPS. Ubuntu 24.04. Запускать от root.
 set -e
-DOMAIN="mnetaknado.ru"
+DOMAIN="вашдомен.ru"
 ALLOWED="ai.starimg.ru"
 
 echo "=== 1/5 Пакеты ==="
@@ -561,8 +561,8 @@ var PROVIDERS=[
 ];
 
 var SEED=[
- {id:"you-relay",name:"Ваше реле на домене",url:"https://relay.mnetaknado.ru",group:"you"},
- {id:"you-workers",name:"Ваш воркер workers.dev",url:"https://synapse-relay.amicus0206.workers.dev",group:"you"},
+ {id:"you-relay",name:"Ваше реле на домене",url:"https://relay.вашдомен.ru",group:"you"},
+ {id:"you-workers",name:"Ваш воркер workers.dev",url:"https://ваш-воркер.workers.dev",group:"you"},
  {id:"you-provider",name:"Провайдер ai.starimg.ru",url:"https://ai.starimg.ru/v1/models",group:"you"},
  {id:"cf-site",name:"Cloudflare (сайт)",url:"https://www.cloudflare.com/cdn-cgi/trace",group:"cf"},
  {id:"cf-ip",name:"Cloudflare (IP 1.1.1.1)",url:"https://1.1.1.1/cdn-cgi/trace",group:"cf"},
@@ -572,7 +572,7 @@ var SEED=[
 ];
 PROVIDERS.forEach(function(p){ SEED.push({id:"prov-"+p.id,name:p.name,url:p.host+"/models",group:"ru"}); });
 
-var st={timeout:10,conc:4,retry:1,mode:"both",bust:true,sort:"group",filter:"all",auto:0,sound:true,custom:[],ghBase:"",provId:"proxyapi",provKey:"",newRelay:"https://mnetaknado.ru/relay",setBase:"https://ai.starimg.ru/v1",setRelay:"",setModel:"",setKey:""};
+var st={timeout:10,conc:4,retry:1,mode:"both",bust:true,sort:"group",filter:"all",auto:0,sound:true,custom:[],ghBase:"",provId:"proxyapi",provKey:"",newRelay:"https://вашдомен.ru/relay",setBase:"https://ai.starimg.ru/v1",setRelay:"",setModel:"",setKey:""};
 try{var raw=localStorage.getItem(LS);if(raw){var p=JSON.parse(raw);for(var k in st){if(p[k]!=null)st[k]=p[k];}}}catch(e){}
 function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
 
@@ -884,7 +884,7 @@ async function testProvider(){
 }
 async function testNewRelay(){
   var url=norm(st.newRelay);
-  if(!url){verdict($("newRes"),"err","Укажите адрес","Например https://mnetaknado.ru/relay");return;}
+  if(!url){verdict($("newRes"),"err","Укажите адрес","Например https://вашдомен.ru/relay");return;}
   verdict($("newRes"),"warn","Проверяю новое реле…",esc(url));
   log("Тест нового реле "+url,"act");
   try{

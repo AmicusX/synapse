@@ -265,7 +265,7 @@ footer a{margin-left:auto}
 
 <div class="gen">
   <div class="gen-in">
-    <div class="gi"><label>Домен</label><input id="gDomain" data-g="domain" type="text" spellcheck="false" placeholder="mnetaknado.ru"></div>
+    <div class="gi"><label>Домен</label><input id="gDomain" data-g="domain" type="text" spellcheck="false" placeholder="вашдомен.ru"></div>
     <div class="gi"><label>IP сервера Beget</label><input id="gIp" data-g="ip" type="text" spellcheck="false" placeholder="123.45.67.89"></div>
     <div class="gi"><label>Сайт на GitHub Pages</label><input id="gGh" data-g="ghBase" type="text" spellcheck="false" placeholder="https://логин.github.io/synapse"></div>
     <div class="gi"><label>API-ключ провайдера</label><input id="gKey" data-g="key" type="password" spellcheck="false" placeholder="sk-…" autocomplete="off"></div>
@@ -291,12 +291,12 @@ footer a{margin-left:auto}
     <div class="rack-body">
       <div>
         <h1>Синапс переезжает<br>на <em>российский сервер</em></h1>
-        <p class="lead">Один VPS на Beget будет отдавать и сам сайт, и реле для API — на одном адресе <code id="hostInline">mnetaknado.ru</code>. Раз адрес один, браузеру больше не нужно ничьё разрешение: CORS исчезает как проблема. Cloudflare из цепочки уходит совсем, а значит и блокировка оператора.</p>
+        <p class="lead">Один VPS на Beget будет отдавать и сам сайт, и реле для API — на одном адресе <code id="hostInline">вашдомен.ru</code>. Раз адрес один, браузеру больше не нужно ничьё разрешение: CORS исчезает как проблема. Cloudflare из цепочки уходит совсем, а значит и блокировка оператора.</p>
         <div class="flow">
           <div class="flow-t">как пойдёт запрос</div>
           <div class="flow-line">
             <span class="node">iPhone</span><span class="arw">→</span>
-            <span class="node hot" id="flowHost">mnetaknado.ru</span><span class="arw">→</span>
+            <span class="node hot" id="flowHost">вашдомен.ru</span><span class="arw">→</span>
             <span class="node">Caddy</span><span class="arw">→</span>
             <span class="node">/relay</span><span class="arw">→</span>
             <span class="node hot">ai.starimg.ru</span>
@@ -536,14 +536,14 @@ var $=function(id){return document.getElementById(id);};
 var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
 var LS="synapse.beget.v1";
 
-var st={domain:"mnetaknado.ru",ip:"",ghBase:"",key:"",model:"",provider:"https://ai.starimg.ru/v1",sound:true,done:{}};
+var st={domain:"вашдомен.ru",ip:"",ghBase:"",key:"",model:"",provider:"https://ai.starimg.ru/v1",sound:true,done:{}};
 try{var raw=localStorage.getItem(LS);if(raw){var p=JSON.parse(raw);for(var k in st){if(p[k]!=null)st[k]=p[k];}}}catch(e){}
 function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
 
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function cleanDomain(v){return String(v||"").trim().toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,"").replace(/\.$/,"");}
 function norm(v){v=String(v||"").trim();if(!v)return"";if(!/^https?:\/\//i.test(v))v="https://"+v;return v.replace(/\/+$/,"");}
-function D(){return cleanDomain(st.domain)||"mnetaknado.ru";}
+function D(){return cleanDomain(st.domain)||"вашдомен.ru";}
 function IP(){return String(st.ip||"").trim()||"IP_ВАШЕГО_СЕРВЕРА";}
 function GH(){return norm(st.ghBase)||"https://ЛОГИН.github.io/synapse";}
 function PROV(){return norm(st.provider)||"https://ai.starimg.ru/v1";}

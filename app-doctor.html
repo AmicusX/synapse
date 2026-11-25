@@ -193,7 +193,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
     <div class="settings" id="settingsBox"></div>
     <div class="verdict" id="readRes"></div>
     <div class="row" style="margin-top:14px">
-      <div class="f"><label>Правильный адрес реле</label><input data-field="relay" type="url" spellcheck="false" value="https://relay.mnetaknado.ru"></div>
+      <div class="f"><label>Правильный адрес реле</label><input data-field="relay" type="url" spellcheck="false" value="https://relay.вашдомен.ru"></div>
       <div class="f"><label>API Host провайдера</label><input data-field="base" type="url" spellcheck="false" value="https://ai.starimg.ru/v1"></div>
     </div>
     <div class="row">
@@ -207,7 +207,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
     <p>Четыре ступени повторяют поведение Синапса. Если нижние ступени падают, а верхние нет — проблема именно в CORS-preflight, и лечится обновлением кода воркера.</p>
     <div class="btns">
       <button class="b b1" data-action="ladder"><svg class="ic"><use href="#i-refresh"/></svg>Запустить лестницу</button>
-      <a class="b b2" id="openRelay" href="https://relay.mnetaknado.ru" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть реле</a>
+      <a class="b b2" id="openRelay" href="https://relay.вашдомен.ru" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть реле</a>
     </div>
     <div class="ladder" id="ladder"></div>
     <div class="verdict" id="ladderRes"></div>
@@ -305,7 +305,7 @@ export default {
 
 var $ = function(id){ return document.getElementById(id); };
 var LS = "synapse.appdoctor.v1";
-var st = { relay:"https://relay.mnetaknado.ru", base:"https://ai.starimg.ru/v1", model:"", key:"", sound:true };
+var st = { relay:"https://relay.вашдомен.ru", base:"https://ai.starimg.ru/v1", model:"", key:"", sound:true };
 try { var raw = localStorage.getItem(LS); if (raw){ var p = JSON.parse(raw); for (var k in st){ if (p[k] != null && p[k] !== "") st[k] = p[k]; } } } catch(e){}
 function persist(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e){} }
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }

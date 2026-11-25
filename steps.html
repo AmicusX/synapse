@@ -206,7 +206,7 @@ function persist(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function cleanDomain(v){ return String(v||"").trim().toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,"").replace(/\.$/,""); }
 function host(){ var d = cleanDomain(st.domain); if (!d) return ""; var p = String(st.prefix||"relay").trim().toLowerCase().replace(/[^a-z0-9-]/g,"") || "relay"; return p + "." + d; }
-function relayUrl(){ var h = host(); return h ? "https://" + h : "https://synapse-relay.amicus0206.workers.dev"; }
+function relayUrl(){ var h = host(); return h ? "https://" + h : "https://ваш-воркер.workers.dev"; }
 function domainOr(){ return cleanDomain(st.domain) || "вашдомен.ru"; }
 function hostOr(){ return host() || "relay.вашдомен.ru"; }
 function ns1Or(){ return String(st.ns1||"").trim() || "имя1.ns.cloudflare.com"; }
@@ -403,7 +403,7 @@ var STEPS = [
   {
     t:"Что мы делаем и зачем",
     b:function(){ return `
-      <p>Ваш воркер-посредник уже создан и работает по адресу <code>synapse-relay.amicus0206.workers.dev</code>. Проблема одна: домены <b>workers.dev</b> блокируют российские операторы, поэтому без VPN не открывается.</p>
+      <p>Ваш воркер-посредник уже создан и работает по адресу <code>ваш-воркер.workers.dev</code>. Проблема одна: домены <b>workers.dev</b> блокируют российские операторы, поэтому без VPN не открывается.</p>
       <p>Решение: дать этому же воркеру <b>второй адрес</b> на вашем домене — например <code>relay.вашдомен.ru</code>. Свой домен не блокируют.</p>
       <div class="note info"><span>Что <b>не</b> нужно делать: переносить домен к другому регистратору, менять код воркера, что-то переустанавливать. Домен остаётся у вас, продлевать там же.</span></div>
       <p>Впереди 11 коротких шагов. Каждый — несколько кликов. Отмечайте «Готово, дальше», прогресс сохранится.</p>`; },
@@ -567,7 +567,7 @@ var STEPS = [
       </ol>
       <div class="note good"><span>Если ответ пришёл со ссылками на источники — <b>всё работает без VPN</b>. Домен обслуживает ваше реле, блокировка workers.dev больше не мешает.</span></div>
       <div class="btns"><a class="b b3" href="index.html">Открыть Синапс</a><button class="b b2" data-action="finish">Завершить мастер</button></div>
-      <div class="note info"><span>Старый адрес <code>synapse-relay.amicus0206.workers.dev</code> можно не удалять — он останется запасным, но в настройках используйте новый.</span></div>`; },
+      <div class="note info"><span>Старый адрес <code>ваш-воркер.workers.dev</code> можно не удалять — он останется запасным, но в настройках используйте новый.</span></div>`; },
     hint:""
   }
 ];

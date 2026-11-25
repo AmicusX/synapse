@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#060a14">
 <meta name="color-scheme" content="dark">
-<title>Синапс · Починить relay.mnetaknado.ru</title>
+<title>Синапс · Починить relay.вашдомен.ru</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -182,18 +182,18 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
   <div class="banner err" id="errBanner"></div>
 
   <h1>Домен <em>Active</em> — осталось<br>починить один адрес</h1>
-  <p class="lead">Ваш домен <code>mnetaknado.ru</code> делегирован и активен. Проблема теперь только в поддомене <code>relay.mnetaknado.ru</code>. Проверка NS на шаге 7 мастера не работает, потому что публичные DNS-сервисы заблокированы в вашей сети — <b>это не показатель</b>, статус Active в Cloudflare важнее.</p>
+  <p class="lead">Ваш домен <code>вашдомен.ru</code> делегирован и активен. Проблема теперь только в поддомене <code>relay.вашдомен.ru</code>. Проверка NS на шаге 7 мастера не работает, потому что публичные DNS-сервисы заблокированы в вашей сети — <b>это не показатель</b>, статус Active в Cloudflare важнее.</p>
 
   <div class="card">
     <h3><svg class="ic" style="color:var(--cy)"><use href="#i-search"/></svg>Три пробы — узнаем, где обрыв</h3>
     <p>Обычная проба читает ответ. «Слепая» проба показывает, отвечает ли сервер вообще (даже если ответ нечитаемый). Третья — старый адрес для сравнения.</p>
     <div class="row">
-      <div class="f"><label>Новый адрес реле</label><input data-field="relay" type="url" spellcheck="false" value="https://relay.mnetaknado.ru"></div>
-      <div class="f"><label>Старый адрес (workers.dev)</label><input data-field="old" type="url" spellcheck="false" value="https://synapse-relay.amicus0206.workers.dev"></div>
+      <div class="f"><label>Новый адрес реле</label><input data-field="relay" type="url" spellcheck="false" value="https://relay.вашдомен.ru"></div>
+      <div class="f"><label>Старый адрес (workers.dev)</label><input data-field="old" type="url" spellcheck="false" value="https://ваш-воркер.workers.dev"></div>
     </div>
     <div class="btns">
       <button class="b b1" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Запустить проверку</button>
-      <a class="b b2" id="openRelay" href="https://relay.mnetaknado.ru" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть адрес в новой вкладке</a>
+      <a class="b b2" id="openRelay" href="https://relay.вашдомен.ru" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть адрес в новой вкладке</a>
     </div>
     <div class="probes" id="probes"></div>
     <div class="verdict" id="verdict"></div>
@@ -201,7 +201,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
   </div>
 
   <h2>Что показывает браузер при открытии адреса?</h2>
-  <p class="lead">Откройте <code>relay.mnetaknado.ru</code> в новой вкладке и нажмите карточку с тем, что видите. Каждая даёт точное решение.</p>
+  <p class="lead">Откройте <code>relay.вашдомен.ru</code> в новой вкладке и нажмите карточку с тем, что видите. Каждая даёт точное решение.</p>
   <div class="codes" id="codes">
     <button class="codebtn r" data-fix="nx"><div class="scr">Не удаётся получить доступ к сайту / DNS_PROBE / NXDOMAIN</div><b>Сайт не найден</b><span>нет DNS-записи или кэш</span></button>
     <button class="codebtn r" data-fix="1001"><div class="scr">Error 1001 · DNS resolution error</div><b>Ошибка 1001</b><span>запись не ведёт на воркер</span></button>
@@ -218,7 +218,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
     <h3><svg class="ic" style="color:var(--rd)"><use href="#i-x"/></svg>Сайт не найден — нет записи или кэш DNS</h3>
     <p>Cloudflare должен был создать DNS-запись автоматически при добавлении Custom Domain. Если адрес не резолвится — записи нет, она неправильная, или ваше устройство запомнило «адреса нет» с прошлой попытки.</p>
     <ol class="ol">
-      <li>Cloudflare → домен <code>mnetaknado.ru</code> → раздел <span class="ui">DNS</span> → <span class="ui">Records</span>.</li>
+      <li>Cloudflare → домен <code>вашдомен.ru</code> → раздел <span class="ui">DNS</span> → <span class="ui">Records</span>.</li>
       <li>Найдите запись с именем <code>relay</code>. Её <b>должна</b> быть ровно одна, и облако должно быть <span class="cloud on"><span class="cd"></span>оранжевым (Proxied)</span>.</li>
       <li>Если записи <b>нет</b> — Custom Domain не создался. Идите в воркер → Settings → Domains &amp; Routes → удалите запись, если есть, и добавьте заново именно как <b>Custom Domain</b>.</li>
       <li>Если запись есть, но облако <span class="cloud off"><span class="cd"></span>серое (DNS only)</span> — нажмите на облако, чтобы стало оранжевым, и сохраните.</li>
@@ -226,14 +226,14 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
       <li>Сбросьте кэш: откройте адрес в режиме инкогнито, или с мобильного интернета, или перезагрузите устройство. Отрицательный DNS-кэш живёт до 15 минут.</li>
     </ol>
     <div class="mock">
-      <div class="mock-bar"><span class="md" style="background:#fb7185"></span><span class="md" style="background:#fbbf24"></span><span class="md" style="background:#a3e635"></span><span class="mock-url">mnetaknado.ru → DNS → Records</span></div>
+      <div class="mock-bar"><span class="md" style="background:#fb7185"></span><span class="md" style="background:#fbbf24"></span><span class="md" style="background:#a3e635"></span><span class="mock-url">вашдомен.ru → DNS → Records</span></div>
       <div class="mock-b">
         <div class="mrow ok"><span class="mn">✓</span>Type <span class="mval">AAAA</span>Name <span class="mval">relay</span><span class="cloud on" style="margin-left:auto"><span class="cd"></span>Proxied</span></div>
         <div class="mrow bad"><span class="mn">✗</span>Записи relay нет → пересоздать Custom Domain</div>
         <div class="mrow bad"><span class="mn">✗</span>Облако серое → включить оранжевое</div>
       </div>
     </div>
-    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/mnetaknado.ru/dns/records" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть DNS-записи</a><button class="b b2" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Проверить снова</button></div>
+    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/вашдомен.ru/dns/records" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть DNS-записи</a><button class="b b2" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Проверить снова</button></div>
   </div>
 
   <div class="card fixpanel" data-panel="1001">
@@ -241,9 +241,9 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
     <p>Cloudflare видит запрос, но не понимает, какой воркер его обслуживает. Почти всегда это ручная DNS-запись или добавление через <b>Route</b> вместо <b>Custom Domain</b>.</p>
     <ol class="ol">
       <li>Воркер <code>synapse-relay</code> → <span class="ui">Settings</span> → <span class="ui">Domains &amp; Routes</span>.</li>
-      <li>Удалите всё, что относится к <code>relay.mnetaknado.ru</code> (и Route, и Custom Domain).</li>
+      <li>Удалите всё, что относится к <code>relay.вашдомен.ru</code> (и Route, и Custom Domain).</li>
       <li>Домен → DNS → Records: удалите <b>все</b> ручные записи с именем <code>relay</code>.</li>
-      <li>Вернитесь в воркер → <span class="ui o">Add</span> → тип <span class="ui g">Custom Domain</span> → впишите <code>relay.mnetaknado.ru</code> → Add.</li>
+      <li>Вернитесь в воркер → <span class="ui o">Add</span> → тип <span class="ui g">Custom Domain</span> → впишите <code>relay.вашдомен.ru</code> → Add.</li>
       <li>Подождите 3–10 минут и проверьте снова.</li>
     </ol>
     <div class="note warn"><span><b>Route ≠ Custom Domain.</b> Route — это шаблон пути для уже существующей записи, он сам ничего не создаёт. Нам нужен именно Custom Domain.</span></div>
@@ -259,7 +259,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
       <li>Воркер → Settings → Domains &amp; Routes → удалите привязку и добавьте заново как <b>Custom Domain</b>.</li>
       <li>Cloudflare создаст корректную запись сам. Подождите 5 минут.</li>
     </ol>
-    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/mnetaknado.ru/dns/records" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть DNS-записи</a></div>
+    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/вашдомен.ru/dns/records" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть DNS-записи</a></div>
   </div>
 
   <div class="card fixpanel" data-panel="52x">
@@ -272,7 +272,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
       <li>Если прошло больше часа — удалите Custom Domain и добавьте заново.</li>
       <li>Проверьте, что в Domains &amp; Routes статус привязки активный, без пометок pending.</li>
     </ol>
-    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/mnetaknado.ru/ssl-tls" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть SSL/TLS</a></div>
+    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/вашдомен.ru/ssl-tls" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть SSL/TLS</a></div>
   </div>
 
   <div class="card fixpanel" data-panel="1101">
@@ -307,7 +307,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
     <h3><svg class="ic" style="color:var(--am)"><use href="#i-alert"/></svg>Долго грузится или таймаут</h3>
     <ol class="ol">
       <li>Проверьте с <b>другой сети</b>: мобильный интернет вместо Wi-Fi или наоборот. Если с другой сети открывается — дело в операторе.</li>
-      <li>Откройте старый адрес <code>synapse-relay.amicus0206.workers.dev</code>. Если и он не грузится, а новый грузится — всё правильно, вы ушли от блокировки.</li>
+      <li>Откройте старый адрес <code>ваш-воркер.workers.dev</code>. Если и он не грузится, а новый грузится — всё правильно, вы ушли от блокировки.</li>
       <li>Убедитесь, что DNS-запись <code>relay</code> проксируется (оранжевое облако).</li>
       <li>Подождите 10 минут после создания Custom Domain: идёт выпуск сертификата.</li>
       <li>Попробуйте режим инкогнито — исключите кэш браузера.</li>
@@ -344,7 +344,7 @@ code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,2
     <div class="verdict" id="chainRes"></div>
     <div class="verdict" id="fullRes"></div>
     <div class="verdict" id="saveRes"></div>
-    <div class="note info"><span><b>Вручную в Синапсе:</b> Настройки → Режим «Свой OpenAI-совместимый API» → API Host <code>https://ai.starimg.ru/v1</code> → ключ → модель → поле <span class="ui">CORS-реле</span> = <code>https://relay.mnetaknado.ru</code>. Старый workers.dev замените.</span></div>
+    <div class="note info"><span><b>Вручную в Синапсе:</b> Настройки → Режим «Свой OpenAI-совместимый API» → API Host <code>https://ai.starimg.ru/v1</code> → ключ → модель → поле <span class="ui">CORS-реле</span> = <code>https://relay.вашдомен.ru</code>. Старый workers.dev замените.</span></div>
     <div class="btns"><a class="b b3" href="index.html"><svg class="ic"><use href="#i-play"/></svg>Открыть Синапс</a></div>
   </div>
 
@@ -391,7 +391,7 @@ export default {
 
 var $ = function(id){ return document.getElementById(id); };
 var LS = "synapse.fixrelay.v1";
-var st = { relay:"https://relay.mnetaknado.ru", old:"https://synapse-relay.amicus0206.workers.dev", key:"", sound:true, fix:"" };
+var st = { relay:"https://relay.вашдомен.ru", old:"https://ваш-воркер.workers.dev", key:"", sound:true, fix:"" };
 try { var raw = localStorage.getItem(LS); if (raw){ var p = JSON.parse(raw); for (var k in st){ if (p[k] != null) st[k] = p[k]; } } } catch(e){}
 function persist(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e){} }
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
@@ -627,7 +627,7 @@ function save(){
     }
   } catch(e){}
   try { var g = JSON.parse(localStorage.getItem("synapse.guide.v1")||"{}"); g.workerUrl = url; localStorage.setItem("synapse.guide.v1", JSON.stringify(g)); } catch(e){}
-  try { var w = JSON.parse(localStorage.getItem("synapse.wizard.v1")||"{}"); w.domain = "mnetaknado.ru"; w.prefix = "relay"; localStorage.setItem("synapse.wizard.v1", JSON.stringify(w)); } catch(e){}
+  try { var w = JSON.parse(localStorage.getItem("synapse.wizard.v1")||"{}"); w.domain = "вашдомен.ru"; w.prefix = "relay"; localStorage.setItem("synapse.wizard.v1", JSON.stringify(w)); } catch(e){}
   if (wrote){
     verdict($("saveRes"),"ok","Записано в Синапс",
       "Адрес <code>" + esc(url) + "</code> сохранён в настройках приложения на этом устройстве. Откройте Синапс, выберите модель и спросите что-нибудь с включённым поиском." +

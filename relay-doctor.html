@@ -290,15 +290,15 @@ export default {
 
     <div class="urlcard">
       <svg class="ic"><use href="#i-link"/></svg>
-      <span class="u" id="urlDisplay">https://synapse-relay.amicus0206.workers.dev</span>
+      <span class="u" id="urlDisplay">https://ваш-воркер.workers.dev</span>
       <button class="copybtn" id="copyUrlBtn" type="button"><svg class="ic"><use href="#i-copy"/></svg>Скопировать</button>
-      <a class="btn btn-ghost" id="openUrl" href="https://synapse-relay.amicus0206.workers.dev" target="_blank" rel="noopener" style="padding:8px 13px;font-size:12px"><svg class="ic"><use href="#i-ext"/></svg>Открыть</a>
+      <a class="btn btn-ghost" id="openUrl" href="https://ваш-воркер.workers.dev" target="_blank" rel="noopener" style="padding:8px 13px;font-size:12px"><svg class="ic"><use href="#i-ext"/></svg>Открыть</a>
     </div>
 
     <div class="diag">
       <h3><svg class="ic"><use href="#i-wand"/></svg>Живая диагностика</h3>
       <div class="ds">Страница сама отправит запрос на ваш воркер и расшифрует ответ. Ничего никуда не передаётся, кроме запроса к вашему реле.</div>
-      <div class="field"><label>Адрес реле</label><input type="url" id="relayUrl" value="https://synapse-relay.amicus0206.workers.dev" spellcheck="false" autocomplete="off"></div>
+      <div class="field"><label>Адрес реле</label><input type="url" id="relayUrl" value="https://ваш-воркер.workers.dev" spellcheck="false" autocomplete="off"></div>
       <div class="btn-row">
         <button class="btn btn-primary" id="diagBtn" type="button"><svg class="ic"><use href="#i-refresh"/></svg>Проверить ещё раз</button>
         <button class="btn btn-ghost" id="chainBtn" type="button"><svg class="ic"><use href="#i-arrow"/></svg>Тест цепочки до ai.starimg.ru</button>
@@ -449,7 +449,7 @@ export default {
 "use strict";
 const $=id=>document.getElementById(id);
 const $$=s=>Array.from(document.querySelectorAll(s));
-const USER_URL="https://synapse-relay.amicus0206.workers.dev";
+const USER_URL="https://ваш-воркер.workers.dev";
 const LS="synapse.doctor.v1";
 let state={sound:true,relayUrl:USER_URL,apiKey:""};
 try{const raw=localStorage.getItem(LS);if(raw)state=Object.assign(state,JSON.parse(raw))}catch(e){}
