@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a14">
+<meta name="color-scheme" content="dark">
+<title>Синапс · Почему приложение не подключается</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060a14;--s:rgba(15,22,44,.78);--s2:rgba(24,33,64,.55);--l:rgba(122,142,222,.18);--l2:rgba(122,142,222,.34);
+--t:#e9edfb;--m:#93a0c4;--d:#5d6890;--cy:#22d3ee;--vi:#8b5cf6;--mg:#e879f9;--gr:#a3e635;--am:#fbbf24;--rd:#fb7185;--bl:#60a5fa;--cf:#f6821f;
+--g:linear-gradient(135deg,var(--cy),var(--vi) 55%,var(--mg))}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.45) rgba(10,17,34,.6)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:rgba(10,17,34,.6)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--cy),var(--vi));border-radius:10px;border:2px solid rgba(10,17,34,.6)}
+body{background:var(--bg);color:var(--t);font-family:"Manrope",-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.65;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;
+background:radial-gradient(620px 480px at 14% 12%,rgba(34,211,238,.16),transparent 62%),radial-gradient(720px 540px at 86% 10%,rgba(139,92,246,.2),transparent 62%),radial-gradient(820px 620px at 74% 92%,rgba(232,121,249,.12),transparent 62%),linear-gradient(180deg,#060a14,#0a1122);
+animation:au 32s ease-in-out infinite alternate}
+@keyframes au{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-2%,2%) scale(1.04)}}
+a{color:var(--cy)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px;border-radius:8px}
+.wrap{max-width:880px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 15px calc(60px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.orb{width:30px;height:30px;border-radius:50%;background:var(--g);position:relative;flex:none;box-shadow:0 0 18px rgba(34,211,238,.5)}
+.orb::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#060a14}
+.orb::before{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--g);z-index:1}
+.brand{font-family:"Unbounded";font-weight:900;font-size:12.5px;letter-spacing:.1em;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+.top-r{margin-left:auto;display:flex;gap:8px}
+.tbtn{padding:8px 13px;border-radius:11px;font-size:12.5px;font-weight:800;color:var(--m);border:1px solid var(--l2);background:var(--s2);display:flex;align-items:center;gap:7px;text-decoration:none}
+.tbtn:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.tbtn.on{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+h1{font-family:"Unbounded";font-weight:900;font-size:clamp(20px,4.2vw,30px);line-height:1.22;margin-bottom:11px}
+h1 em{font-style:normal;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-family:"Unbounded";font-weight:700;font-size:16px;letter-spacing:.04em;margin:30px 0 12px;display:flex;align-items:center;gap:11px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--l2),transparent)}
+.lead{color:var(--m);font-size:15px;margin-bottom:16px}
+.card{border:1px solid var(--l2);border-radius:19px;background:var(--s);backdrop-filter:blur(13px);padding:19px;margin-bottom:14px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--g)}
+.card.good{border-color:rgba(163,230,53,.45);background:linear-gradient(150deg,rgba(163,230,53,.08),rgba(34,211,238,.06))}
+.card.good::before{background:linear-gradient(180deg,var(--gr),var(--cy))}
+.card.bad{border-color:rgba(251,113,133,.45);background:linear-gradient(150deg,rgba(251,113,133,.08),rgba(139,92,246,.06))}
+.card.bad::before{background:linear-gradient(180deg,var(--rd),var(--mg))}
+.card h3{font-family:"Unbounded";font-weight:700;font-size:14.5px;margin-bottom:9px;display:flex;align-items:center;gap:9px}
+.card p{font-size:14px;color:#cdd6f4;margin:.45em 0}
+.ol{list-style:none;counter-reset:s;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.ol li{counter-increment:s;position:relative;padding-left:36px;font-size:14px;line-height:1.6;color:#cdd6f4}
+.ol li::before{content:counter(s);position:absolute;left:0;top:2px;width:25px;height:25px;border-radius:8px;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-weight:600;font-size:12px;color:var(--cy);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.35)}
+.ui{display:inline-flex;padding:1px 9px;border-radius:8px;font-weight:800;font-size:.92em;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.35);color:#a5f3fc;white-space:nowrap}
+.ui.g{background:rgba(163,230,53,.12);border-color:rgba(163,230,53,.4);color:#d9f99d}
+.ui.o{background:rgba(246,130,31,.14);border-color:rgba(246,130,31,.5);color:#fdba74}
+.ui.r{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.4);color:#fecdd3}
+code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.25);padding:1px 7px;border-radius:6px;color:#a5f3fc;word-break:break-all}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:13px;font-size:13px;line-height:1.55;margin:12px 0}
+.note.warn{border:1px solid rgba(251,191,36,.4);background:rgba(251,191,36,.07);color:#fde68a}
+.note.info{border:1px solid rgba(96,165,250,.4);background:rgba(96,165,250,.07);color:#bfdbfe}
+.note.good{border:1px solid rgba(163,230,53,.4);background:rgba(163,230,53,.07);color:#d9f99d}
+.note.bad{border:1px solid rgba(251,113,133,.4);background:rgba(251,113,133,.07);color:#fecdd3}
+.f{margin:11px 0}
+.f label{display:block;font-size:12px;font-weight:800;color:var(--m);margin-bottom:5px}
+.f input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--l2);background:rgba(8,13,28,.75);color:var(--t);font-size:15px;font-family:"JetBrains Mono",monospace}
+.f input:focus{outline:none;border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.13)}
+.f input::placeholder{color:var(--d);font-family:"Manrope",sans-serif}
+.f .h{font-size:11.5px;color:var(--d);margin-top:5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.btns{display:flex;gap:9px;flex-wrap:wrap;margin:13px 0}
+.b{display:inline-flex;align-items:center;gap:8px;padding:11px 17px;border-radius:12px;font-size:13.5px;font-weight:800;border:1px solid transparent;text-decoration:none;transition:.18s}
+.b1{color:#04121a;background:var(--g);box-shadow:0 4px 16px rgba(34,211,238,.3)}
+.b2{color:var(--m);border-color:var(--l2);background:var(--s2)}
+.b2:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.b3{color:#0c1a04;background:linear-gradient(135deg,var(--gr),var(--cy))}
+.bcf{color:#1a0e02;background:linear-gradient(135deg,#f6821f,#fbad41)}
+.brd{color:#fecdd3;border-color:rgba(251,113,133,.45);background:rgba(251,113,133,.08)}
+.settings{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.srow{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border-radius:12px;border:1px solid var(--l);background:rgba(8,13,28,.6)}
+.srow .sk{font-size:11.5px;font-weight:800;color:var(--d);min-width:120px;text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+.srow .sv{flex:1;min-width:0;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#a5f3fc;word-break:break-all}
+.srow .sv.empty{color:var(--rd);font-family:"Manrope",sans-serif;font-style:italic}
+.srow .tag{flex:none;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--l2);color:var(--m)}
+.srow.ok{border-color:rgba(163,230,53,.4)}
+.srow.ok .tag{color:#d9f99d;border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.1)}
+.srow.warn{border-color:rgba(251,191,36,.45)}
+.srow.warn .tag{color:#fde68a;border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
+.srow.err{border-color:rgba(251,113,133,.5)}
+.srow.err .tag{color:#fecdd3;border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.1)}
+.ladder{display:flex;flex-direction:column;gap:9px;margin-top:13px}
+.rung{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-radius:14px;border:1px solid var(--l2);background:rgba(8,13,28,.6)}
+.rung .rn{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;flex:none;border:1px solid var(--l2);color:var(--m)}
+.rung .rb{flex:1;min-width:0}
+.rung .rt{font-size:13.5px;font-weight:800;margin-bottom:3px}
+.rung .rd{font-size:12.5px;color:var(--m);line-height:1.5;word-break:break-word}
+.rung .pill{margin-left:auto;flex:none;padding:4px 11px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--l2);color:var(--m)}
+.rung.ok{border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.06)}
+.rung.ok .rn{background:rgba(163,230,53,.15);border-color:rgba(163,230,53,.5);color:#d9f99d}
+.rung.ok .pill{color:#d9f99d;border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.1)}
+.rung.warn{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.06)}
+.rung.warn .rn{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.5);color:#fde68a}
+.rung.warn .pill{color:#fde68a;border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
+.rung.err{border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.06)}
+.rung.err .rn{background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.5);color:#fecdd3}
+.rung.err .pill{color:#fecdd3;border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.1)}
+.rung.load .rn{border-color:rgba(96,165,250,.5);color:var(--bl)}
+.verdict{display:none;margin-top:13px;border-radius:14px;padding:15px;font-size:13.5px;line-height:1.6}
+.verdict.show{display:block;animation:up .3s both}
+@keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.verdict.ok{border:1px solid rgba(163,230,53,.55);background:rgba(163,230,53,.09);color:#d9f99d}
+.verdict.warn{border:1px solid rgba(251,191,36,.55);background:rgba(251,191,36,.09);color:#fde68a}
+.verdict.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.09);color:#fecdd3}
+.vt{font-family:"Unbounded";font-weight:700;font-size:14px;margin-bottom:7px}
+.raw{margin-top:9px;padding:9px 11px;border-radius:9px;background:rgba(6,10,20,.6);border:1px solid var(--l);font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--m);white-space:pre-wrap;word-break:break-all;max-height:160px;overflow:auto}
+.spin{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid rgba(96,165,250,.25);border-top-color:var(--bl);animation:rot .8s linear infinite;display:inline-block;vertical-align:-2px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.codebox{margin:12px 0;border-radius:14px;border:1px solid var(--l2);background:#080d1c;overflow:hidden}
+.codebox-h{display:flex;align-items:center;gap:9px;padding:9px 13px;background:rgba(20,28,54,.7);border-bottom:1px solid var(--l);font-size:11.5px;color:var(--m);font-family:"JetBrains Mono",monospace;flex-wrap:wrap}
+.codebox-h .b{margin-left:auto;padding:7px 12px;font-size:11.5px}
+.codebox pre{padding:13px 15px;overflow:auto;font-size:11px;line-height:1.6;color:#c7d5ff;max-height:300px}
+.log{margin-top:11px;border-radius:12px;border:1px solid var(--l);background:#080d1c;padding:10px 12px;height:170px;overflow:auto;font-family:"JetBrains Mono",monospace;font-size:11px;line-height:1.6}
+.ll{color:var(--m);white-space:pre-wrap;word-break:break-word}
+.ll.ok{color:#a3e635}.ll.warn{color:#fbbf24}.ll.err{color:#fb7185}.ll.act{color:#22d3ee}
+.banner{display:none;padding:12px 14px;border-radius:13px;font-size:13px;margin-bottom:14px;line-height:1.55}
+.banner.show{display:block}
+.banner.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.1);color:#fecdd3}
+.banner.info{border:1px solid rgba(96,165,250,.45);background:rgba(96,165,250,.08);color:#bfdbfe}
+.banner.warn{border:1px solid rgba(251,191,36,.5);background:rgba(251,191,36,.09);color:#fde68a}
+.spark{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:95}
+@media(max-width:680px){.row{grid-template-columns:1fr}.card{padding:16px}.top-r{margin-left:0}.srow{flex-wrap:wrap}.srow .sk{min-width:100%}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4L2.5 20h19L12 4z"/><path d="M12 10v4.5M12 17.5v.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V7a1.5 1.5 0 0 1 1.5-1.5H10"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3.5V8h-4.5"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19L16 8M14.5 4.5l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="14" r="4.5"/><path d="M11.5 10.5L20 4M16 7l2.5 2.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M15.5 9.5a4 4 0 0 1 0 5"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7V5z"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6.5 7l1 13h9l1-13"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></symbol>
+</svg>
+
+<div class="wrap">
+
+  <div class="top">
+    <div class="orb"></div>
+    <span class="brand">ДИАГНОСТИКА ПРИЛОЖЕНИЯ</span>
+    <div class="top-r">
+      <a class="tbtn" href="index.html"><svg class="ic"><use href="#i-play"/></svg>Синапс</a>
+      <button class="tbtn on" id="soundBtn" aria-label="Звук"><svg class="ic"><use href="#i-sound"/></svg></button>
+    </div>
+  </div>
+
+  <div class="banner err" id="errBanner"></div>
+  <div class="banner warn" id="originBanner"></div>
+
+  <h1>Реле работает, а приложение — нет.<br><em>Значит, оно шлёт запрос не туда</em></h1>
+  <p class="lead">Тестовые страницы делали простой GET-запрос. Приложение делает <b>POST с заголовками</b> — это другой запрос, с предварительной проверкой CORS. Плюс настройки приложения хранятся <b>в том браузере, где вы его открывали</b>: если вы правили их на компьютере, на айфоне они остались старыми. Сейчас проверим и то, и другое.</p>
+
+  <div class="card bad" id="phoneCard">
+    <h3><svg class="ic" style="color:var(--rd)"><use href="#i-phone"/></svg>Самая частая причина</h3>
+    <p>Настройки Синапса (в том числе адрес реле) лежат в памяти конкретного браузера на конкретном устройстве. Автозапись из инструкций работала только там, где вы нажимали кнопку.</p>
+    <ol class="ol">
+      <li>Откройте <b>эту страницу на айфоне</b>, по адресу сайта: <code>https://ваш-логин.github.io/synapse/app-doctor.html</code></li>
+      <li>Именно в Safari, где стоит Синапс (не в Chrome, не в другом браузере).</li>
+      <li>Нажмите «Прочитать настройки» ниже — увидите, что реально записано.</li>
+      <li>Если поле реле пустое или там workers.dev — нажмите «Исправить настройки».</li>
+    </ol>
+    <div class="note warn"><span>Если открыть страницу как файл с диска или на другом домене — она <b>не увидит</b> настройки приложения. Это ограничение браузера, а не ошибка.</span></div>
+  </div>
+
+  <h2>1 · Что реально записано в Синапсе</h2>
+  <div class="card">
+    <div class="btns">
+      <button class="b b1" data-action="read"><svg class="ic"><use href="#i-search"/></svg>Прочитать настройки</button>
+      <button class="b b3" data-action="fix"><svg class="ic"><use href="#i-wand"/></svg>Исправить настройки</button>
+      <button class="b b2" data-action="copy-settings"><svg class="ic"><use href="#i-copy"/></svg>Скопировать для ручной вставки</button>
+    </div>
+    <div class="settings" id="settingsBox"></div>
+    <div class="verdict" id="readRes"></div>
+    <div class="row" style="margin-top:14px">
+      <div class="f"><label>Правильный адрес реле</label><input data-field="relay" type="url" spellcheck="false" value="https://relay.mnetaknado.ru"></div>
+      <div class="f"><label>API Host провайдера</label><input data-field="base" type="url" spellcheck="false" value="https://ai.starimg.ru/v1"></div>
+    </div>
+    <div class="row">
+      <div class="f"><label>Модель (если знаете)</label><input data-field="model" type="text" spellcheck="false" placeholder="например gemini-3-pro"></div>
+      <div class="f"><label>API-ключ</label><input data-field="key" type="password" spellcheck="false" placeholder="sk-…" autocomplete="off"><div class="h">Нужен для теста 3–4 и записи в настройки.</div></div>
+    </div>
+  </div>
+
+  <h2>2 · Лестница запросов — как у приложения</h2>
+  <div class="card">
+    <p>Четыре ступени повторяют поведение Синапса. Если нижние ступени падают, а верхние нет — проблема именно в CORS-preflight, и лечится обновлением кода воркера.</p>
+    <div class="btns">
+      <button class="b b1" data-action="ladder"><svg class="ic"><use href="#i-refresh"/></svg>Запустить лестницу</button>
+      <a class="b b2" id="openRelay" href="https://relay.mnetaknado.ru" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть реле</a>
+    </div>
+    <div class="ladder" id="ladder"></div>
+    <div class="verdict" id="ladderRes"></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <h2>3 · Если падают ступени 3–4 (preflight)</h2>
+  <div class="card">
+    <p>Значит, воркер не отвечает правильно на предварительный запрос <code>OPTIONS</code>. Ниже — усиленная версия кода: она возвращает CORS-заголовки на любой запрос и «эхом» отдаёт список запрошенных заголовков. Замените код воркера целиком и нажмите <b>Deploy</b>.</p>
+    <div class="codebox">
+      <div class="codebox-h"><svg class="ic" style="width:13px;height:13px"><use href="#i-code"/></svg>worker.js v2 — усиленный CORS<button class="b b1" data-action="copy-code"><svg class="ic"><use href="#i-copy"/></svg>Скопировать</button></div>
+      <pre id="codeView"></pre>
+    </div>
+    <div class="verdict" id="codeRes"></div>
+    <ol class="ol">
+      <li>Cloudflare → Workers → <code>synapse-relay</code> → <span class="ui">Edit code</span>.</li>
+      <li>Ctrl+A → Delete → вставить код выше → <span class="ui o">Deploy</span> (не Save).</li>
+      <li>Подождите 20 секунд и запустите лестницу снова.</li>
+    </ol>
+    <div class="note info"><span>Если и это не помогло: Cloudflare → домен → <span class="ui">Security</span> → <span class="ui">Events</span> — посмотрите, не блокирует ли WAF запросы OPTIONS/POST. Также отключите <span class="ui">Browser Integrity Check</span> и «Under Attack Mode».</span></div>
+    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть Workers</a></div>
+  </div>
+
+  <h2>4 · Если приложение старой версии</h2>
+  <div class="card">
+    <p>Синапс кэширует себя для офлайн-работы. Иногда после обновления файла на GitHub приложение продолжает крутить старую копию. Кнопка ниже сбросит кэш и перезагрузит приложение — <b>чаты и настройки не пострадают</b>, они хранятся отдельно.</p>
+    <div class="btns">
+      <button class="b brd" data-action="reset-cache"><svg class="ic"><use href="#i-trash"/></svg>Сбросить кэш и открыть Синапс</button>
+      <a class="b b3" href="index.html"><svg class="ic"><use href="#i-play"/></svg>Просто открыть Синапс</a>
+    </div>
+    <div class="verdict" id="cacheRes"></div>
+  </div>
+
+</div>
+
+<script type="text/plain" id="workerCode">const DEFAULT_ALLOWED = ["ai.starimg.ru"];
+
+function corsHeaders(req) {
+  const want = req.headers.get("Access-Control-Request-Headers");
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, HEAD, OPTIONS",
+    "Access-Control-Allow-Headers": want || "authorization, content-type, x-target-url, x-relay-key",
+    "Access-Control-Max-Age": "86400",
+    "Access-Control-Expose-Headers": "*",
+    "Vary": "Origin"
+  };
+}
+
+export default {
+  async fetch(req, env) {
+    const CORS = corsHeaders(req);
+    if (req.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS });
+    }
+    const url = new URL(req.url);
+    const target = req.headers.get("x-target-url") || url.searchParams.get("target");
+    const json = (obj, status) => new Response(JSON.stringify(obj), {
+      status,
+      headers: Object.assign({}, CORS, { "Content-Type": "application/json" })
+    });
+    if (!target) return json({ error: "Передайте целевой URL в заголовке x-target-url или ?target=" }, 400);
+    let t;
+    try { t = new URL(target); } catch (e) { return json({ error: "Некорректный целевой URL" }, 400); }
+    if (t.protocol !== "https:") return json({ error: "Разрешён только https" }, 403);
+    const allowed = (env.ALLOWED_TARGETS || DEFAULT_ALLOWED.join(",")).split(",").map(s => s.trim()).filter(Boolean);
+    if (allowed.length && allowed.indexOf(t.hostname) < 0) return json({ error: "Хост не в списке разрешённых: " + t.hostname }, 403);
+    if (env.RELAY_SECRET && req.headers.get("x-relay-key") !== env.RELAY_SECRET) return json({ error: "Неверный секрет реле" }, 401);
+
+    const headers = new Headers(req.headers);
+    ["x-target-url","x-relay-key","host","origin","referer","cf-connecting-ip","cf-ray","cf-visitor","cf-ipcountry","x-forwarded-for","x-forwarded-proto","x-real-ip"].forEach(h => headers.delete(h));
+
+    let resp;
+    try {
+      resp = await fetch(t.toString(), {
+        method: req.method,
+        headers: headers,
+        body: (req.method === "GET" || req.method === "HEAD") ? undefined : req.body,
+        redirect: "follow"
+      });
+    } catch (e) {
+      return json({ error: "Реле не смогло связаться с провайдером: " + (e && e.message ? e.message : String(e)) }, 502);
+    }
+
+    const out = new Headers(resp.headers);
+    Object.keys(CORS).forEach(k => out.set(k, CORS[k]));
+    return new Response(resp.body, { status: resp.status, statusText: resp.statusText, headers: out });
+  }
+};
+</script>
+
+<script>
+(function(){
+"use strict";
+
+var $ = function(id){ return document.getElementById(id); };
+var LS = "synapse.appdoctor.v1";
+var st = { relay:"https://relay.mnetaknado.ru", base:"https://ai.starimg.ru/v1", model:"", key:"", sound:true };
+try { var raw = localStorage.getItem(LS); if (raw){ var p = JSON.parse(raw); for (var k in st){ if (p[k] != null && p[k] !== "") st[k] = p[k]; } } } catch(e){}
+function persist(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e){} }
+function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function norm(v){ v = String(v||"").trim(); if (!v) return ""; if (!/^https?:\/\//i.test(v)) v = "https://" + v; return v.replace(/\/+$/,""); }
+function apiUrl(base, path){
+  var b = norm(base);
+  if (!b) return "";
+  if (b.slice(-(path.length+1)) === "/" + path) return b;
+  if (/\/v\d+$/.test(b)) return b + "/" + path;
+  return b + "/v1/" + path;
+}
+function showError(m){ var b = $("errBanner"); b.className = "banner err show"; b.textContent = "Ошибка скрипта: " + m; }
+window.addEventListener("error", function(e){ showError((e.message||"неизвестно") + (e.lineno ? " (строка " + e.lineno + ")" : "")); });
+
+function log(msg, kind){
+  var t = new Date().toLocaleTimeString("ru-RU");
+  var l = document.createElement("div");
+  l.className = "ll" + (kind ? " " + kind : "");
+  l.textContent = "[" + t + "] " + msg;
+  $("log").appendChild(l);
+  $("log").scrollTop = $("log").scrollHeight;
+}
+var AC = null;
+function beep(kind){
+  if (!st.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === "suspended") AC.resume();
+    var t = AC.currentTime;
+    var note = function(f,s,d,v){
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(f, t+s);
+      g.gain.setValueAtTime(0, t+s);
+      g.gain.linearRampToValueAtTime(v||0.04, t+s+0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+s+d);
+      o.connect(g); g.connect(AC.destination); o.start(t+s); o.stop(t+s+d+0.02);
+    };
+    if (kind === "ok"){ note(660,0,0.11); note(990,0.08,0.15); }
+    else if (kind === "err") note(196,0,0.18,0.05);
+    else if (kind === "win"){ note(523,0,0.14); note(659,0.1,0.14); note(784,0.2,0.18); }
+    else note(1180,0,0.05);
+  } catch(e){}
+}
+function sparks(el){
+  try {
+    var r = el.getBoundingClientRect(), cx = r.left+r.width/2, cy = r.top+r.height/2;
+    var cols = ["#22d3ee","#8b5cf6","#e879f9","#a3e635","#fbbf24"];
+    for (var i=0;i<16;i++){
+      var s = document.createElement("span");
+      s.className = "spark"; s.style.background = cols[i%cols.length];
+      s.style.left = cx+"px"; s.style.top = cy+"px";
+      document.body.appendChild(s);
+      var a = Math.random()*Math.PI*2, d = 50+Math.random()*70;
+      s.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate("+Math.cos(a)*d+"px,"+(Math.sin(a)*d+30)+"px) scale(.2)",opacity:0}],{duration:700+Math.random()*400,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish = (function(n){ return function(){ n.remove(); }; })(s);
+    }
+  } catch(e){}
+}
+function verdict(el, kind, title, body, raw){
+  el.className = "verdict " + kind + " show";
+  var h = '<div class="vt">' + esc(title) + '</div>';
+  if (body) h += '<div>' + body + '</div>';
+  if (raw) h += '<pre class="raw">' + esc(raw) + '</pre>';
+  el.innerHTML = h;
+}
+function srow(k, v, kind, tag){
+  var empty = !v;
+  return '<div class="srow ' + kind + '"><div class="sk">' + esc(k) + '</div><div class="sv' + (empty ? " empty" : "") + '">' + (empty ? "пусто" : esc(v)) + '</div><div class="tag">' + esc(tag) + '</div></div>';
+}
+function rung(n, title, desc, kind, pill){
+  return '<div class="rung ' + kind + '"><div class="rn">' + n + '</div><div class="rb"><div class="rt">' + esc(title) + '</div><div class="rd">' + desc + '</div></div><div class="pill">' + esc(pill) + '</div></div>';
+}
+
+function readApp(){
+  var box = $("settingsBox");
+  var app = null, err = null;
+  try {
+    var raw = localStorage.getItem("synapse.v1");
+    if (raw) app = JSON.parse(raw);
+  } catch(e){ err = e; }
+  if (!app || !app.settings){
+    box.innerHTML = srow("Доступ к настройкам", "", "err", "нет доступа");
+    var why = location.protocol === "file:"
+      ? "Страница открыта как файл с диска — браузер не даёт читать данные сайта. Откройте её по адресу сайта: <code>https://ваш-логин.github.io/synapse/app-doctor.html</code>"
+      : "В этом браузере Синапс ещё не открывали (или это другой браузер/устройство). Откройте страницу <b>на айфоне в Safari</b>, где стоит Синапс, по адресу сайта.";
+    verdict($("readRes"),"err","Настройки приложения не найдены", why + "<br><br>Пока можно заполнить поля ниже вручную и нажать «Исправить настройки» — они запишутся в этот браузер.", err ? String(err) : "");
+    log("Настройки synapse.v1 не найдены", "warn");
+    beep("err");
+    return null;
+  }
+  var s = app.settings || {};
+  var relay = String(s.relayUrl || "").trim();
+  var base = String(s.baseUrl || "").trim();
+  var provider = String(s.provider || "demo");
+  var model = String(s.model || "").trim();
+  var key = String(s.apiKey || "").trim();
+  var want = norm(st.relay);
+
+  var relayKind = "err", relayTag = "проблема";
+  if (!relay){ relayKind = "err"; relayTag = "нет реле"; }
+  else if (relay.indexOf("workers.dev") >= 0){ relayKind = "warn"; relayTag = "блокируется"; }
+  else if (want && relay.replace(/\/+$/,"") === want){ relayKind = "ok"; relayTag = "верно"; }
+  else { relayKind = "warn"; relayTag = "другой адрес"; }
+
+  var provKind = provider === "custom" ? "ok" : "err";
+  var baseKind = base ? "ok" : "err";
+  var modelKind = model ? "ok" : "warn";
+  var keyKind = key ? "ok" : "err";
+
+  box.innerHTML =
+    srow("Режим", provider, provKind, provider === "custom" ? "свой API" : "демо") +
+    srow("API Host", base, baseKind, base ? "задан" : "пусто") +
+    srow("CORS-реле", relay, relayKind, relayTag) +
+    srow("Модель", model, modelKind, model ? "задана" : "пусто") +
+    srow("API-ключ", key ? key.slice(0,6) + "••••" + key.slice(-4) : "", keyKind, key ? "есть" : "нет") +
+    srow("Чатов в памяти", String((app.chats || []).length), "ok", "шт");
+
+  var problems = [];
+  if (provider !== "custom") problems.push("включён демо-режим вместо своего API");
+  if (!relay) problems.push("<b>поле CORS-реле пустое</b> — приложение ходит напрямую к ai.starimg.ru, отсюда и ошибка CORS");
+  else if (relay.indexOf("workers.dev") >= 0) problems.push("<b>указан старый workers.dev</b> — он блокируется оператором, нужен " + esc(want));
+  else if (want && relay.replace(/\/+$/,"") !== want) problems.push("адрес реле отличается от рабочего: " + esc(relay));
+  if (!base) problems.push("не задан API Host");
+  if (!key) problems.push("не задан API-ключ");
+  if (!model) problems.push("не выбрана модель");
+
+  if (!problems.length){
+    verdict($("readRes"),"ok","Настройки выглядят правильно",
+      "Значит, дело в запросе — запустите лестницу ниже. Если ступени 3–4 падают, обновите код воркера (блок 3).");
+    log("Настройки прочитаны: проблем не найдено", "ok");
+    beep("ok");
+  } else {
+    verdict($("readRes"),"err","Нашлись проблемы в настройках",
+      "<ul style='margin:6px 0 0 18px'>" + problems.map(function(p){ return "<li>" + p + "</li>"; }).join("") + "</ul><br>Нажмите <b>«Исправить настройки»</b> — адрес реле, Host и режим будут записаны автоматически. Ключ и модель подставятся из полей ниже, если вы их заполнили.");
+    log("Настройки прочитаны: " + problems.length + " проблем", "warn");
+    beep("err");
+  }
+  if (!st.model && model){ st.model = model; persist(); syncInputs(); }
+  if (!st.key && key){ st.key = key; persist(); syncInputs(); }
+  return app;
+}
+
+function fixApp(){
+  var app = null;
+  try { var raw = localStorage.getItem("synapse.v1"); if (raw) app = JSON.parse(raw); } catch(e){}
+  if (!app || typeof app !== "object") app = { chats:[], activeId:null, settings:{} };
+  if (!app.settings) app.settings = {};
+  var before = JSON.stringify(app.settings);
+  app.settings.provider = "custom";
+  app.settings.baseUrl = apiUrl(st.base, "chat/completions").replace(/\/chat\/completions$/,"");
+  app.settings.relayUrl = norm(st.relay);
+  if (String(st.model||"").trim()) app.settings.model = String(st.model).trim();
+  if (String(st.key||"").trim()) app.settings.apiKey = String(st.key).trim();
+  if (!app.settings.searchMode) app.settings.searchMode = "context";
+  var ok = false;
+  try { localStorage.setItem("synapse.v1", JSON.stringify(app)); ok = true; } catch(e){}
+  if (ok){
+    verdict($("readRes"),"ok","Настройки исправлены",
+      "Записано: режим «свой API», Host <code>" + esc(app.settings.baseUrl) + "</code>, реле <code>" + esc(app.settings.relayUrl) + "</code>" +
+      (app.settings.model ? ", модель <code>" + esc(app.settings.model) + "</code>" : "") +
+      ". Откройте Синапс и <b>начните новый чат</b>." +
+      (before === JSON.stringify(app.settings) ? "<br><br>Настройки уже были такими — значит проблема в запросе, запустите лестницу." : ""), "");
+    log("Настройки записаны: реле " + app.settings.relayUrl, "ok");
+    beep("win"); sparks($("readRes"));
+    readApp();
+  } else {
+    verdict($("readRes"),"err","Не удалось записать",
+      "Браузер запретил доступ к хранилищу (приватный режим или файл с диска). Вставьте настройки вручную — кнопка «Скопировать для ручной вставки».");
+    beep("err");
+  }
+}
+
+function copySettings(){
+  var text = "Режим: Свой OpenAI-совместимый API\n" +
+    "API Host: " + apiUrl(st.base, "chat/completions").replace(/\/chat\/completions$/,"") + "\n" +
+    "CORS-реле: " + norm(st.relay) + "\n" +
+    "Модель: " + (st.model || "(получить кнопкой «Список»)") + "\n" +
+    "API-ключ: " + (st.key || "(ваш ключ)") + "\n" +
+    "Режим поиска: Контекст: искать до ответа";
+  var done = function(){ verdict($("readRes"),"ok","Скопировано","Вставьте эти значения в Синапс → Настройки.", text); beep("ok"); };
+  var fb = function(){
+    var ta = document.createElement("textarea"); ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch(e){ verdict($("readRes"),"warn","Скопируйте вручную","", text); }
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(fb); else fb();
+}
+
+async function tf(url, opts, ms){
+  var c = new AbortController();
+  var timer = setTimeout(function(){ c.abort(); }, ms||15000);
+  var t0 = Date.now();
+  try {
+    var r = await fetch(url, Object.assign({}, opts, { signal:c.signal }));
+    return { r:r, ms:Date.now()-t0 };
+  } finally { clearTimeout(timer); }
+}
+
+async function ladder(){
+  var relay = norm(st.relay);
+  var target = apiUrl(st.base, "chat/completions");
+  var key = String(st.key||"").trim();
+  var model = String(st.model||"").trim() || "gpt-4o-mini";
+  if (!relay){ verdict($("ladderRes"),"err","Не указан адрес реле","Заполните поле выше."); return; }
+  $("openRelay").href = relay;
+  $("ladder").innerHTML =
+    rung(1,"GET без заголовков","Простой запрос, как в тестах…","load","…") +
+    rung(2,"POST без кастомных заголовков","Простой POST, без preflight…","load","…") +
+    rung(3,"POST как в приложении","С заголовками → вызывает CORS-preflight…","load","…") +
+    rung(4,"POST со стримингом","Как реальный ответ агента…","load","…");
+  verdict($("ladderRes"),"warn","Выполняю четыре запроса…","Смотрите журнал ниже.");
+  log("Лестница запросов к " + relay, "act");
+
+  var r1 = { kind:"err", desc:"", pill:"—" };
+  try {
+    var a = await tf(relay + "?_=" + Date.now(), { method:"GET", cache:"no-store" }, 14000);
+    var t1 = await a.r.text();
+    log("Ступень 1: HTTP " + a.r.status + " (" + a.ms + " мс)", a.r.ok ? "ok" : "warn");
+    var j1 = null; try { j1 = JSON.parse(t1); } catch(e){}
+    if (j1 && typeof j1.error === "string" && j1.error.indexOf("x-target-url") >= 0)
+      r1 = { kind:"ok", desc:"Реле отвечает нашим JSON. Базовая доступность есть.", pill:"HTTP " + a.r.status };
+    else if (/hello world/i.test(t1))
+      r1 = { kind:"warn", desc:"Отдаёт Hello World — код воркера не задеплоен.", pill:"HTTP " + a.r.status };
+    else
+      r1 = { kind:"warn", desc:"Ответ: <code>" + esc(t1.slice(0,120)) + "</code>", pill:"HTTP " + a.r.status };
+  } catch(e){
+    log("Ступень 1: сеть недоступна", "err");
+    r1 = { kind:"err", desc:"Адрес не отвечает: DNS, сертификат или блокировка.", pill:"нет ответа" };
+  }
+
+  var r2 = { kind:"err", desc:"", pill:"—" };
+  try {
+    var b = await tf(relay, { method:"POST", headers:{ "Content-Type":"text/plain" }, body:"ping", cache:"no-store" }, 14000);
+    var t2 = await b.r.text();
+    log("Ступень 2: HTTP " + b.r.status + " (" + b.ms + " мс)", "ok");
+    r2 = { kind:"ok", desc:"Простой POST проходит. Ответ: <code>" + esc(t2.slice(0,110)) + "</code>", pill:"HTTP " + b.r.status };
+  } catch(e2){
+    log("Ступень 2: POST не прошёл", "err");
+    r2 = { kind:"err", desc:"Даже простой POST не проходит — вероятно, WAF/метод блокируется или сеть рвёт соединение.", pill:"ошибка" };
+  }
+
+  var body3 = JSON.stringify({ model:model, messages:[{role:"user",content:"привет"}], max_tokens:20, stream:false });
+  var h3 = { "Content-Type":"application/json", "x-target-url":target };
+  if (key) h3["Authorization"] = "Bearer " + key;
+  var r3 = { kind:"err", desc:"", pill:"—" }, raw3 = "";
+  try {
+    var c = await tf(relay, { method:"POST", headers:h3, body:body3, cache:"no-store" }, 30000);
+    raw3 = await c.r.text();
+    log("Ступень 3: HTTP " + c.r.status + " (" + c.ms + " мс)", c.r.ok ? "ok" : "warn");
+    if (c.r.ok){
+      var j3 = null; try { j3 = JSON.parse(raw3); } catch(e){}
+      var msg = j3 && j3.choices && j3.choices[0] && j3.choices[0].message ? String(j3.choices[0].message.content || "").slice(0,120) : "";
+      r3 = { kind:"ok", desc:"Preflight прошёл, провайдер ответил. " + (msg ? "Модель сказала: <code>" + esc(msg) + "</code>" : ""), pill:"HTTP " + c.r.status };
+    } else if (c.r.status === 401 || c.r.status === 403){
+      r3 = { kind:"ok", desc:"<b>Preflight прошёл!</b> Провайдер просит ключ (HTTP " + c.r.status + ") — значит CORS в порядке, нужен верный API-ключ.", pill:"HTTP " + c.r.status };
+    } else if (c.r.status === 404){
+      r3 = { kind:"warn", desc:"Preflight прошёл, но провайдер вернул 404 — проверьте API Host и имя модели.", pill:"HTTP 404" };
+    } else {
+      r3 = { kind:"warn", desc:"Ответ провайдера: HTTP " + c.r.status + ". CORS работает, разбираемся с провайдером.", pill:"HTTP " + c.r.status };
+    }
+  } catch(e3){
+    log("Ступень 3: TypeError — вероятно, провалился CORS-preflight", "err");
+    r3 = { kind:"err", desc:"<b>Запрос с заголовками заблокирован.</b> Это и есть ошибка приложения. Если ступень 2 прошла — виноват preflight (OPTIONS).", pill:"blocked" };
+  }
+
+  var body4 = JSON.stringify({ model:model, messages:[{role:"user",content:"привет"}], max_tokens:20, stream:true });
+  var r4 = { kind:"err", desc:"", pill:"—" };
+  if (!key){
+    r4 = { kind:"warn", desc:"Пропущено: нужен API-ключ. Вставьте ключ и запустите снова.", pill:"пропуск" };
+  } else {
+    try {
+      var d = await tf(relay, { method:"POST", headers:h3, body:body4, cache:"no-store" }, 30000);
+      var ct = d.r.headers.get("content-type") || "";
+      var txt4 = "";
+      if (d.r.body && d.r.body.getReader){
+        var reader = d.r.body.getReader();
+        var dec = new TextDecoder();
+        var got = 0;
+        while (got < 400){
+          var chunk = await reader.read();
+          if (chunk.done) break;
+          txt4 += dec.decode(chunk.value, { stream:true });
+          got = txt4.length;
+        }
+        try { reader.cancel(); } catch(e){}
+      } else {
+        txt4 = await d.r.text();
+      }
+      log("Ступень 4: HTTP " + d.r.status + ", content-type " + ct + ", получено " + txt4.length + " байт", d.r.ok ? "ok" : "warn");
+      if (d.r.ok && (ct.indexOf("event-stream") >= 0 || txt4.indexOf("data:") >= 0)){
+        r4 = { kind:"ok", desc:"Потоковый ответ идёт через реле — именно так работает Синапс. Всё в порядке.", pill:"stream ok" };
+      } else if (d.r.ok){
+        r4 = { kind:"warn", desc:"Ответ пришёл, но не потоком (content-type: <code>" + esc(ct) + "</code>). Приложение это тоже умеет читать.", pill:"HTTP " + d.r.status };
+      } else {
+        r4 = { kind:"warn", desc:"HTTP " + d.r.status + " — смотрите текст в ступени 3.", pill:"HTTP " + d.r.status };
+      }
+    } catch(e4){
+      log("Ступень 4: стриминг не прошёл", "err");
+      r4 = { kind:"err", desc:"Потоковый запрос не прошёл. Если ступень 3 зелёная — проблема в передаче SSE через реле.", pill:"ошибка" };
+    }
+  }
+
+  $("ladder").innerHTML =
+    rung(1,"GET без заголовков", r1.desc, r1.kind, r1.pill) +
+    rung(2,"POST без кастомных заголовков", r2.desc, r2.kind, r2.pill) +
+    rung(3,"POST как в приложении (preflight)", r3.desc, r3.kind, r3.pill) +
+    rung(4,"POST со стримингом", r4.desc, r4.kind, r4.pill);
+
+  if (r3.kind === "ok" && (r4.kind === "ok" || r4.kind === "warn")){
+    verdict($("ladderRes"),"ok","Запрос приложения проходит!",
+      "Реле и CORS работают именно так, как нужно Синапсу. Значит, в приложении были старые настройки — нажмите «Исправить настройки» в блоке 1 (на айфоне!), затем откройте Синапс и создайте новый чат.", raw3);
+    beep("win"); sparks($("ladderRes"));
+  } else if (r2.kind === "ok" && r3.kind === "err"){
+    verdict($("ladderRes"),"err","Провалился CORS-preflight (OPTIONS)",
+      "Простой POST проходит, а POST с заголовками — нет. Воркер неправильно отвечает на предварительный запрос. <b>Решение:</b> замените код воркера на версию v2 из блока 3 ниже и нажмите Deploy. Если не поможет — проверьте Security → Events и отключите Browser Integrity Check.", raw3);
+    beep("err");
+  } else if (r1.kind !== "ok"){
+    verdict($("ladderRes"),"err","Реле недоступно из этой сети",
+      "Первая ступень не прошла. Проверьте адрес, DNS-запись relay (оранжевое облако) и сертификат. Откройте <a href='fix-relay.html'>fix-relay.html</a> для подробной диагностики.", raw3);
+    beep("err");
+  } else {
+    verdict($("ladderRes"),"warn","Смешанный результат",
+      "Разберём по ступеням выше. Чаще всего: не задан ключ/модель, либо WAF блокирует POST. Текст ответа провайдера ниже.", raw3);
+    beep("err");
+  }
+  log("Лестница завершена");
+}
+
+async function resetCache(){
+  var el = $("cacheRes");
+  verdict(el,"warn","Сбрасиваю кэш…","Отключаю service worker и очищаю хранилище оболоч­ки.");
+  var removed = 0, unreg = 0;
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations){
+      var regs = await navigator.serviceWorker.getRegistrations();
+      for (var i=0;i<regs.length;i++){ try { await regs[i].unregister(); unreg++; } catch(e){} }
+    }
+  } catch(e){}
+  try {
+    if (window.caches && caches.keys){
+      var keys = await caches.keys();
+      for (var j=0;j<keys.length;j++){ try { await caches.delete(keys[j]); removed++; } catch(e){} }
+    }
+  } catch(e){}
+  log("Кэш сброшен: SW " + unreg + ", хранилищ " + removed, "ok");
+  verdict(el,"ok","Кэш сброшен",
+    "Отключено service worker: " + unreg + ", очищено хранилищ: " + removed + ". Чаты и настройки не тронуты. Сейчас откроется Синапс — он загрузит свежую версию.", "");
+  beep("ok");
+  setTimeout(function(){ location.href = "index.html"; }, 1400);
+}
+
+function copyCode(){
+  var code = $("workerCode").textContent.replace(/^\n/,"");
+  var done = function(){ verdict($("codeRes"),"ok","Код скопирован","Вставьте в редактор воркера целиком и нажмите <b>Deploy</b>."); beep("ok"); };
+  var fb = function(){
+    var ta = document.createElement("textarea"); ta.value = code; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch(e){ verdict($("codeRes"),"warn","Скопируйте вручную","Выделите код выше и скопируйте."); }
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done).catch(fb); else fb();
+}
+
+function syncInputs(){
+  var inputs = document.querySelectorAll("[data-field]");
+  for (var i=0;i<inputs.length;i++){
+    var f = inputs[i].getAttribute("data-field");
+    if (document.activeElement !== inputs[i] && st[f] != null) inputs[i].value = st[f];
+  }
+  $("openRelay").href = norm(st.relay) || "#";
+}
+
+document.addEventListener("input", function(e){
+  var f = e.target && e.target.getAttribute ? e.target.getAttribute("data-field") : null;
+  if (!f) return;
+  st[f] = e.target.value; persist();
+  if (f === "relay") $("openRelay").href = norm(st.relay) || "#";
+});
+
+document.addEventListener("click", function(e){
+  var a = e.target.closest ? e.target.closest("[data-action]") : null;
+  if (!a) return;
+  var act = a.getAttribute("data-action");
+  try {
+    if (act === "read") readApp();
+    else if (act === "fix") fixApp();
+    else if (act === "copy-settings") copySettings();
+    else if (act === "ladder") ladder().catch(function(err){ showError(err.message); });
+    else if (act === "copy-code") copyCode();
+    else if (act === "reset-cache") resetCache().catch(function(err){ showError(err.message); });
+  } catch(err){ showError(err.message || String(err)); }
+});
+
+$("soundBtn").addEventListener("click", function(){
+  st.sound = !st.sound; persist();
+  $("soundBtn").className = "tbtn" + (st.sound ? " on" : "");
+  $("soundBtn").innerHTML = '<svg class="ic"><use href="#i-' + (st.sound ? "sound" : "mute") + '"/></svg>';
+  if (st.sound) beep("tick");
+});
+
+try {
+  $("codeView").textContent = $("workerCode").textContent.replace(/^\n/,"");
+  syncInputs();
+  $("soundBtn").className = "tbtn" + (st.sound ? " on" : "");
+  $("soundBtn").innerHTML = '<svg class="ic"><use href="#i-' + (st.sound ? "sound" : "mute") + '"/></svg>';
+  if (location.protocol === "file:"){
+    $("originBanner").className = "banner warn show";
+    $("originBanner").innerHTML = "Страница открыта как файл с диска. Проверки запросов работают, но <b>настройки приложения прочитать нельзя</b>. Откройте её по адресу сайта, на том же устройстве, где пользуетесь Синапсом.";
+  } else {
+    $("originBanner").className = "banner info show";
+    $("originBanner").innerHTML = "Адрес страницы: <code>" + esc(location.origin + location.pathname) + "</code>. Настройки читаются только для этого адреса и этого браузера. Если Синапс вы открываете на айфоне — эту страницу тоже нужно открыть на айфоне.";
+  }
+  log("Страница готова", "ok");
+  readApp();
+} catch(e){
+  showError(e.message || String(e));
+}
+
+})();
+</script>
+</body>
+</html>

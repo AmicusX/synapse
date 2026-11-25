@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a14">
+<meta name="color-scheme" content="dark">
+<title>Синапс · Починить relay.mnetaknado.ru</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060a14;--s:rgba(15,22,44,.78);--s2:rgba(24,33,64,.55);--l:rgba(122,142,222,.18);--l2:rgba(122,142,222,.34);
+--t:#e9edfb;--m:#93a0c4;--d:#5d6890;--cy:#22d3ee;--vi:#8b5cf6;--mg:#e879f9;--gr:#a3e635;--am:#fbbf24;--rd:#fb7185;--bl:#60a5fa;--cf:#f6821f;
+--g:linear-gradient(135deg,var(--cy),var(--vi) 55%,var(--mg))}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.45) rgba(10,17,34,.6)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:rgba(10,17,34,.6)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--cy),var(--vi));border-radius:10px;border:2px solid rgba(10,17,34,.6)}
+body{background:var(--bg);color:var(--t);font-family:"Manrope",-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.65;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;
+background:radial-gradient(620px 480px at 14% 12%,rgba(34,211,238,.16),transparent 62%),radial-gradient(720px 540px at 86% 10%,rgba(139,92,246,.2),transparent 62%),radial-gradient(820px 620px at 74% 92%,rgba(232,121,249,.12),transparent 62%),linear-gradient(180deg,#060a14,#0a1122);
+animation:au 32s ease-in-out infinite alternate}
+@keyframes au{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-2%,2%) scale(1.04)}}
+a{color:var(--cy)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px;border-radius:8px}
+.wrap{max-width:880px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 15px calc(60px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.orb{width:30px;height:30px;border-radius:50%;background:var(--g);position:relative;flex:none;box-shadow:0 0 18px rgba(34,211,238,.5)}
+.orb::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#060a14}
+.orb::before{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--g);z-index:1}
+.brand{font-family:"Unbounded";font-weight:900;font-size:12.5px;letter-spacing:.1em;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+.top-r{margin-left:auto;display:flex;gap:8px}
+.tbtn{padding:8px 13px;border-radius:11px;font-size:12.5px;font-weight:800;color:var(--m);border:1px solid var(--l2);background:var(--s2);display:flex;align-items:center;gap:7px;text-decoration:none}
+.tbtn:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.tbtn.on{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+h1{font-family:"Unbounded";font-weight:900;font-size:clamp(20px,4.2vw,30px);line-height:1.22;margin-bottom:11px}
+h1 em{font-style:normal;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-family:"Unbounded";font-weight:700;font-size:16px;letter-spacing:.04em;margin:30px 0 12px;display:flex;align-items:center;gap:11px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--l2),transparent)}
+.lead{color:var(--m);font-size:15px;margin-bottom:16px}
+.card{border:1px solid var(--l2);border-radius:19px;background:var(--s);backdrop-filter:blur(13px);padding:19px;margin-bottom:14px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--g)}
+.card.good{border-color:rgba(163,230,53,.45);background:linear-gradient(150deg,rgba(163,230,53,.08),rgba(34,211,238,.06))}
+.card.good::before{background:linear-gradient(180deg,var(--gr),var(--cy))}
+.card h3{font-family:"Unbounded";font-weight:700;font-size:14.5px;margin-bottom:9px;display:flex;align-items:center;gap:9px}
+.card p{font-size:14px;color:#cdd6f4;margin:.45em 0}
+.ol{list-style:none;counter-reset:s;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.ol li{counter-increment:s;position:relative;padding-left:36px;font-size:14px;line-height:1.6;color:#cdd6f4}
+.ol li::before{content:counter(s);position:absolute;left:0;top:2px;width:25px;height:25px;border-radius:8px;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-weight:600;font-size:12px;color:var(--cy);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.35)}
+.ui{display:inline-flex;padding:1px 9px;border-radius:8px;font-weight:800;font-size:.92em;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.35);color:#a5f3fc;white-space:nowrap}
+.ui.g{background:rgba(163,230,53,.12);border-color:rgba(163,230,53,.4);color:#d9f99d}
+.ui.o{background:rgba(246,130,31,.14);border-color:rgba(246,130,31,.5);color:#fdba74}
+.ui.r{background:rgba(251,113,133,.12);border-color:rgba(251,113,133,.4);color:#fecdd3}
+code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.25);padding:1px 7px;border-radius:6px;color:#a5f3fc;word-break:break-all}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:13px;font-size:13px;line-height:1.55;margin:12px 0}
+.note.warn{border:1px solid rgba(251,191,36,.4);background:rgba(251,191,36,.07);color:#fde68a}
+.note.info{border:1px solid rgba(96,165,250,.4);background:rgba(96,165,250,.07);color:#bfdbfe}
+.note.good{border:1px solid rgba(163,230,53,.4);background:rgba(163,230,53,.07);color:#d9f99d}
+.note.bad{border:1px solid rgba(251,113,133,.4);background:rgba(251,113,133,.07);color:#fecdd3}
+.f{margin:11px 0}
+.f label{display:block;font-size:12px;font-weight:800;color:var(--m);margin-bottom:5px}
+.f input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--l2);background:rgba(8,13,28,.75);color:var(--t);font-size:15px;font-family:"JetBrains Mono",monospace}
+.f input:focus{outline:none;border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.13)}
+.f input::placeholder{color:var(--d);font-family:"Manrope",sans-serif}
+.f .h{font-size:11.5px;color:var(--d);margin-top:5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.btns{display:flex;gap:9px;flex-wrap:wrap;margin:13px 0}
+.b{display:inline-flex;align-items:center;gap:8px;padding:11px 17px;border-radius:12px;font-size:13.5px;font-weight:800;border:1px solid transparent;text-decoration:none;transition:.18s}
+.b1{color:#04121a;background:var(--g);box-shadow:0 4px 16px rgba(34,211,238,.3)}
+.b2{color:var(--m);border-color:var(--l2);background:var(--s2)}
+.b2:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.b3{color:#0c1a04;background:linear-gradient(135deg,var(--gr),var(--cy))}
+.bcf{color:#1a0e02;background:linear-gradient(135deg,#f6821f,#fbad41)}
+.probes{display:flex;flex-direction:column;gap:9px;margin-top:13px}
+.probe{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-radius:14px;border:1px solid var(--l2);background:rgba(8,13,28,.6)}
+.probe .pn{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;flex:none;border:1px solid var(--l2);color:var(--m)}
+.probe .pb{flex:1;min-width:0}
+.probe .pt{font-size:13.5px;font-weight:800;margin-bottom:3px}
+.probe .pd{font-size:12.5px;color:var(--m);line-height:1.5;word-break:break-word}
+.probe .pill{margin-left:auto;flex:none;padding:4px 11px;border-radius:999px;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--l2);color:var(--m)}
+.probe.ok{border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.06)}
+.probe.ok .pn{background:rgba(163,230,53,.15);border-color:rgba(163,230,53,.5);color:#d9f99d}
+.probe.ok .pill{color:#d9f99d;border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.1)}
+.probe.warn{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.06)}
+.probe.warn .pn{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.5);color:#fde68a}
+.probe.warn .pill{color:#fde68a;border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
+.probe.err{border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.06)}
+.probe.err .pn{background:rgba(251,113,133,.15);border-color:rgba(251,113,133,.5);color:#fecdd3}
+.probe.err .pill{color:#fecdd3;border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.1)}
+.probe.load .pn{border-color:rgba(96,165,250,.5);color:var(--bl)}
+.verdict{display:none;margin-top:13px;border-radius:14px;padding:15px;font-size:13.5px;line-height:1.6}
+.verdict.show{display:block;animation:up .3s both}
+@keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.verdict.ok{border:1px solid rgba(163,230,53,.55);background:rgba(163,230,53,.09);color:#d9f99d}
+.verdict.warn{border:1px solid rgba(251,191,36,.55);background:rgba(251,191,36,.09);color:#fde68a}
+.verdict.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.09);color:#fecdd3}
+.vt{font-family:"Unbounded";font-weight:700;font-size:14px;margin-bottom:7px}
+.raw{margin-top:9px;padding:9px 11px;border-radius:9px;background:rgba(6,10,20,.6);border:1px solid var(--l);font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--m);white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto}
+.spin{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid rgba(96,165,250,.25);border-top-color:var(--bl);animation:rot .8s linear infinite;display:inline-block;vertical-align:-2px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.codes{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:13px 0}
+.codebtn{text-align:left;padding:13px;border-radius:14px;border:1px solid var(--l2);background:var(--s2);transition:.18s}
+.codebtn:hover{transform:translateY(-2px);border-color:rgba(34,211,238,.5)}
+.codebtn.active{border-color:rgba(34,211,238,.7);background:linear-gradient(140deg,rgba(34,211,238,.12),rgba(139,92,246,.12))}
+.codebtn .scr{font-family:"JetBrains Mono",monospace;font-size:10.5px;padding:7px 9px;border-radius:8px;background:#080d1c;border:1px solid var(--l);color:var(--m);margin-bottom:8px;min-height:44px;display:flex;align-items:center;word-break:break-word;line-height:1.4}
+.codebtn b{display:block;font-size:12.5px;margin-bottom:2px}
+.codebtn span{font-size:11px;color:var(--m)}
+.codebtn.g .scr{color:#d9f99d;border-color:rgba(163,230,53,.4)}
+.codebtn.r .scr{color:#fecdd3;border-color:rgba(251,113,133,.4)}
+.codebtn.a .scr{color:#fde68a;border-color:rgba(251,191,36,.4)}
+.fixpanel{display:none}
+.fixpanel.show{display:block;animation:up .35s both}
+.mock{margin:13px 0;border-radius:14px;border:1px solid var(--l2);background:#0a0f1e;overflow:hidden}
+.mock-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(20,28,54,.8);border-bottom:1px solid var(--l)}
+.md{width:8px;height:8px;border-radius:50%}
+.mock-url{flex:1;margin-left:5px;font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mock-b{padding:13px}
+.mrow{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;border:1px solid var(--l);background:rgba(8,13,28,.6);font-size:12.5px;margin-bottom:7px;flex-wrap:wrap}
+.mrow:last-child{margin-bottom:0}
+.mrow.hl{border-color:rgba(246,130,31,.6);background:rgba(246,130,31,.07)}
+.mrow.ok{border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.06)}
+.mrow.bad{border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.06)}
+.mn{width:20px;height:20px;border-radius:6px;background:rgba(246,130,31,.14);border:1px solid rgba(246,130,31,.5);color:#fdba74;display:grid;place-items:center;font-size:11px;font-weight:800;font-family:"JetBrains Mono",monospace;flex:none}
+.mval{padding:5px 10px;border-radius:8px;border:1px solid rgba(34,211,238,.5);background:rgba(8,13,28,.8);font-family:"JetBrains Mono",monospace;font-size:11.5px;color:#a5f3fc}
+.cloud{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800}
+.cloud.on{background:rgba(246,130,31,.14);border:1px solid rgba(246,130,31,.5);color:#fdba74}
+.cloud.off{background:rgba(122,142,222,.12);border:1px solid var(--l2);color:var(--m)}
+.cloud .cd{width:9px;height:9px;border-radius:50%;background:currentColor}
+.pulse{position:relative}
+.pulse::after{content:"";position:absolute;inset:-4px;border-radius:12px;border:2px solid rgba(246,130,31,.6);animation:pl 1.8s ease-out infinite;pointer-events:none}
+@keyframes pl{0%{opacity:.9;transform:scale(.97)}70%{opacity:0;transform:scale(1.09)}100%{opacity:0}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.mchip{padding:5px 10px;border-radius:999px;font-family:"JetBrains Mono",monospace;font-size:11px;border:1px solid rgba(163,230,53,.45);background:rgba(163,230,53,.08);color:#d9f99d}
+.banner{display:none;padding:12px 14px;border-radius:13px;font-size:13px;margin-bottom:14px;line-height:1.55}
+.banner.show{display:block}
+.banner.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.1);color:#fecdd3}
+.spark{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:95}
+.log{margin-top:11px;border-radius:12px;border:1px solid var(--l);background:#080d1c;padding:10px 12px;height:160px;overflow:auto;font-family:"JetBrains Mono",monospace;font-size:11px;line-height:1.6}
+.ll{color:var(--m);white-space:pre-wrap;word-break:break-word}
+.ll.ok{color:#a3e635}.ll.warn{color:#fbbf24}.ll.err{color:#fb7185}.ll.act{color:#22d3ee}
+@media(max-width:680px){.row{grid-template-columns:1fr}.codes{grid-template-columns:1fr 1fr}.card{padding:16px}.top-r{margin-left:0}}
+@media(max-width:440px){.codes{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4L2.5 20h19L12 4z"/><path d="M12 10v4.5M12 17.5v.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V7a1.5 1.5 0 0 1 1.5-1.5H10"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3.5V8h-4.5"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19L16 8M14.5 4.5l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="14" r="4.5"/><path d="M11.5 10.5L20 4M16 7l2.5 2.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M15.5 9.5a4 4 0 0 1 0 5"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h12v16H7a2 2 0 0 0-2 2V5z"/><path d="M5 19a2 2 0 0 1 2-2h12"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7V5z"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 18.2 10 4 4 0 0 1 17.5 18H7z"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></symbol>
+</svg>
+
+<div class="wrap">
+
+  <div class="top">
+    <div class="orb"></div>
+    <span class="brand">ПОЧИНИТЬ РЕЛЕ</span>
+    <div class="top-r">
+      <a class="tbtn" href="steps.html"><svg class="ic"><use href="#i-book"/></svg>Мастер</a>
+      <button class="tbtn on" id="soundBtn" aria-label="Звук"><svg class="ic"><use href="#i-sound"/></svg></button>
+    </div>
+  </div>
+
+  <div class="banner err" id="errBanner"></div>
+
+  <h1>Домен <em>Active</em> — осталось<br>починить один адрес</h1>
+  <p class="lead">Ваш домен <code>mnetaknado.ru</code> делегирован и активен. Проблема теперь только в поддомене <code>relay.mnetaknado.ru</code>. Проверка NS на шаге 7 мастера не работает, потому что публичные DNS-сервисы заблокированы в вашей сети — <b>это не показатель</b>, статус Active в Cloudflare важнее.</p>
+
+  <div class="card">
+    <h3><svg class="ic" style="color:var(--cy)"><use href="#i-search"/></svg>Три пробы — узнаем, где обрыв</h3>
+    <p>Обычная проба читает ответ. «Слепая» проба показывает, отвечает ли сервер вообще (даже если ответ нечитаемый). Третья — старый адрес для сравнения.</p>
+    <div class="row">
+      <div class="f"><label>Новый адрес реле</label><input data-field="relay" type="url" spellcheck="false" value="https://relay.mnetaknado.ru"></div>
+      <div class="f"><label>Старый адрес (workers.dev)</label><input data-field="old" type="url" spellcheck="false" value="https://synapse-relay.amicus0206.workers.dev"></div>
+    </div>
+    <div class="btns">
+      <button class="b b1" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Запустить проверку</button>
+      <a class="b b2" id="openRelay" href="https://relay.mnetaknado.ru" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть адрес в новой вкладке</a>
+    </div>
+    <div class="probes" id="probes"></div>
+    <div class="verdict" id="verdict"></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <h2>Что показывает браузер при открытии адреса?</h2>
+  <p class="lead">Откройте <code>relay.mnetaknado.ru</code> в новой вкладке и нажмите карточку с тем, что видите. Каждая даёт точное решение.</p>
+  <div class="codes" id="codes">
+    <button class="codebtn r" data-fix="nx"><div class="scr">Не удаётся получить доступ к сайту / DNS_PROBE / NXDOMAIN</div><b>Сайт не найден</b><span>нет DNS-записи или кэш</span></button>
+    <button class="codebtn r" data-fix="1001"><div class="scr">Error 1001 · DNS resolution error</div><b>Ошибка 1001</b><span>запись не ведёт на воркер</span></button>
+    <button class="codebtn r" data-fix="1000"><div class="scr">Error 1000 · DNS points to prohibited IP</div><b>Ошибка 1000</b><span>ручная A-запись мешает</span></button>
+    <button class="codebtn r" data-fix="52x"><div class="scr">Error 522 / 523 / 525 / 526</div><b>Ошибки 52x</b><span>связь или сертификат</span></button>
+    <button class="codebtn r" data-fix="1101"><div class="scr">Error 1101 · Worker threw exception</div><b>Ошибка 1101</b><span>код воркера сломан</span></button>
+    <button class="codebtn a" data-fix="hello"><div class="scr">Hello World!</div><b>Hello World</b><span>код не задеплоен</span></button>
+    <button class="codebtn a" data-fix="timeout"><div class="scr">Долго грузится / таймаут / пусто</div><b>Не догружается</b><span>сеть или сертификат</span></button>
+    <button class="codebtn g" data-fix="json"><div class="scr">{"error":"Передайте целевой URL…"}</div><b>JSON про x-target-url</b><span>это успех!</span></button>
+    <button class="codebtn a" data-fix="other"><div class="scr">Другой текст или ошибка</div><b>Что-то другое</b><span>разберём</span></button>
+  </div>
+
+  <div class="card fixpanel" data-panel="nx">
+    <h3><svg class="ic" style="color:var(--rd)"><use href="#i-x"/></svg>Сайт не найден — нет записи или кэш DNS</h3>
+    <p>Cloudflare должен был создать DNS-запись автоматически при добавлении Custom Domain. Если адрес не резолвится — записи нет, она неправильная, или ваше устройство запомнило «адреса нет» с прошлой попытки.</p>
+    <ol class="ol">
+      <li>Cloudflare → домен <code>mnetaknado.ru</code> → раздел <span class="ui">DNS</span> → <span class="ui">Records</span>.</li>
+      <li>Найдите запись с именем <code>relay</code>. Её <b>должна</b> быть ровно одна, и облако должно быть <span class="cloud on"><span class="cd"></span>оранжевым (Proxied)</span>.</li>
+      <li>Если записи <b>нет</b> — Custom Domain не создался. Идите в воркер → Settings → Domains &amp; Routes → удалите запись, если есть, и добавьте заново именно как <b>Custom Domain</b>.</li>
+      <li>Если запись есть, но облако <span class="cloud off"><span class="cd"></span>серое (DNS only)</span> — нажмите на облако, чтобы стало оранжевым, и сохраните.</li>
+      <li>Если вы <b>создавали запись вручную</b> (A-запись на какой-то IP) — удалите её. Воркер сам создаёт правильную.</li>
+      <li>Сбросьте кэш: откройте адрес в режиме инкогнито, или с мобильного интернета, или перезагрузите устройство. Отрицательный DNS-кэш живёт до 15 минут.</li>
+    </ol>
+    <div class="mock">
+      <div class="mock-bar"><span class="md" style="background:#fb7185"></span><span class="md" style="background:#fbbf24"></span><span class="md" style="background:#a3e635"></span><span class="mock-url">mnetaknado.ru → DNS → Records</span></div>
+      <div class="mock-b">
+        <div class="mrow ok"><span class="mn">✓</span>Type <span class="mval">AAAA</span>Name <span class="mval">relay</span><span class="cloud on" style="margin-left:auto"><span class="cd"></span>Proxied</span></div>
+        <div class="mrow bad"><span class="mn">✗</span>Записи relay нет → пересоздать Custom Domain</div>
+        <div class="mrow bad"><span class="mn">✗</span>Облако серое → включить оранжевое</div>
+      </div>
+    </div>
+    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/mnetaknado.ru/dns/records" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть DNS-записи</a><button class="b b2" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Проверить снова</button></div>
+  </div>
+
+  <div class="card fixpanel" data-panel="1001">
+    <h3><svg class="ic" style="color:var(--rd)"><use href="#i-x"/></svg>Error 1001 — запись есть, но не привязана к воркеру</h3>
+    <p>Cloudflare видит запрос, но не понимает, какой воркер его обслуживает. Почти всегда это ручная DNS-запись или добавление через <b>Route</b> вместо <b>Custom Domain</b>.</p>
+    <ol class="ol">
+      <li>Воркер <code>synapse-relay</code> → <span class="ui">Settings</span> → <span class="ui">Domains &amp; Routes</span>.</li>
+      <li>Удалите всё, что относится к <code>relay.mnetaknado.ru</code> (и Route, и Custom Domain).</li>
+      <li>Домен → DNS → Records: удалите <b>все</b> ручные записи с именем <code>relay</code>.</li>
+      <li>Вернитесь в воркер → <span class="ui o">Add</span> → тип <span class="ui g">Custom Domain</span> → впишите <code>relay.mnetaknado.ru</code> → Add.</li>
+      <li>Подождите 3–10 минут и проверьте снова.</li>
+    </ol>
+    <div class="note warn"><span><b>Route ≠ Custom Domain.</b> Route — это шаблон пути для уже существующей записи, он сам ничего не создаёт. Нам нужен именно Custom Domain.</span></div>
+    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener"><svg class="ic"><use href="#i-cloud"/></svg>Открыть Workers</a></div>
+  </div>
+
+  <div class="card fixpanel" data-panel="1000">
+    <h3><svg class="ic" style="color:var(--rd)"><use href="#i-x"/></svg>Error 1000 — DNS указывает на запрещённый IP</h3>
+    <p>Кто-то (скорее всего вы) создал A-запись <code>relay</code>, указывающую на IP-адрес Cloudflare. Так делать нельзя: Cloudflare запрещает направлять записи на свои IP вручную.</p>
+    <ol class="ol">
+      <li>Домен → DNS → Records → найдите запись <code>relay</code> типа A или AAAA с IP вида <code>104.x</code> / <code>172.x</code>.</li>
+      <li><b>Удалите</b> эту запись.</li>
+      <li>Воркер → Settings → Domains &amp; Routes → удалите привязку и добавьте заново как <b>Custom Domain</b>.</li>
+      <li>Cloudflare создаст корректную запись сам. Подождите 5 минут.</li>
+    </ol>
+    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/mnetaknado.ru/dns/records" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть DNS-записи</a></div>
+  </div>
+
+  <div class="card fixpanel" data-panel="52x">
+    <h3><svg class="ic" style="color:var(--rd)"><use href="#i-x"/></svg>Ошибки 522 / 523 / 525 / 526</h3>
+    <p><b>522/523</b> — Cloudflare не может достучаться до «источника». Для воркера это значит, что запись ведёт не на воркер, а на несуществующий сервер. Лечится пересозданием Custom Domain (см. карточку 1001).</p>
+    <p><b>525/526</b> — проблема с SSL-сертификатом. Обычно сертификат ещё выпускается.</p>
+    <ol class="ol">
+      <li>Подождите 10–15 минут после добавления Custom Domain — сертификат выпускается автоматически.</li>
+      <li>Домен → <span class="ui">SSL/TLS</span> → <span class="ui">Overview</span>: режим должен быть <span class="ui g">Full</span> (не Flexible и не Off).</li>
+      <li>Если прошло больше часа — удалите Custom Domain и добавьте заново.</li>
+      <li>Проверьте, что в Domains &amp; Routes статус привязки активный, без пометок pending.</li>
+    </ol>
+    <div class="btns"><a class="b bcf" href="https://dash.cloudflare.com/?to=/:account/mnetaknado.ru/ssl-tls" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть SSL/TLS</a></div>
+  </div>
+
+  <div class="card fixpanel" data-panel="1101">
+    <h3><svg class="ic" style="color:var(--rd)"><use href="#i-x"/></svg>Error 1101 — код воркера падает</h3>
+    <p>Адрес работает, DNS и сертификат в порядке — но сам код выбрасывает исключение. Обычно код вставлен не полностью или скопирован сокращённый пример с «…».</p>
+    <ol class="ol">
+      <li>Воркер → <span class="ui">Edit code</span>.</li>
+      <li>Кликните в редактор → <span class="ui">Ctrl+A</span> → <span class="ui">Delete</span>. Поле должно стать пустым.</li>
+      <li>Скопируйте правильный код кнопкой ниже и вставьте целиком.</li>
+      <li>Нажмите оранжевую <span class="ui o">Deploy</span> (не Save!) и подтвердите.</li>
+      <li>Подождите 20 секунд и проверьте адрес снова.</li>
+    </ol>
+    <div class="btns"><button class="b b1" data-action="copy-code"><svg class="ic"><use href="#i-copy"/></svg>Скопировать правильный код</button><button class="b b2" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Проверить снова</button></div>
+    <div class="verdict" id="codeRes"></div>
+  </div>
+
+  <div class="card fixpanel" data-panel="hello">
+    <h3><svg class="ic" style="color:var(--am)"><use href="#i-alert"/></svg>Hello World — вы нажали Save, а нужен Deploy</h3>
+    <p>Отличная новость: DNS, сертификат и привязка <b>работают</b> — раз вы видите ответ воркера. Осталось опубликовать наш код.</p>
+    <ol class="ol">
+      <li>Воркер <code>synapse-relay</code> → <span class="ui">Edit code</span>.</li>
+      <li>Выделите всё и удалите, вставьте наш код (кнопка ниже).</li>
+      <li>Нажмите оранжевую <span class="ui o">Deploy</span> справа вверху → подтвердите.</li>
+      <li>Проверьте вкладку <span class="ui">Deployments</span>: верхняя запись должна быть свежей и активной.</li>
+      <li>Через 20 секунд нажмите «Проверить снова».</li>
+    </ol>
+    <div class="btns"><button class="b b1" data-action="copy-code"><svg class="ic"><use href="#i-copy"/></svg>Скопировать код</button><button class="b b2" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Проверить снова</button></div>
+    <div class="verdict" id="codeRes2"></div>
+  </div>
+
+  <div class="card fixpanel" data-panel="timeout">
+    <h3><svg class="ic" style="color:var(--am)"><use href="#i-alert"/></svg>Долго грузится или таймаут</h3>
+    <ol class="ol">
+      <li>Проверьте с <b>другой сети</b>: мобильный интернет вместо Wi-Fi или наоборот. Если с другой сети открывается — дело в операторе.</li>
+      <li>Откройте старый адрес <code>synapse-relay.amicus0206.workers.dev</code>. Если и он не грузится, а новый грузится — всё правильно, вы ушли от блокировки.</li>
+      <li>Убедитесь, что DNS-запись <code>relay</code> проксируется (оранжевое облако).</li>
+      <li>Подождите 10 минут после создания Custom Domain: идёт выпуск сертификата.</li>
+      <li>Попробуйте режим инкогнито — исключите кэш браузера.</li>
+    </ol>
+    <div class="btns"><button class="b b1" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Запустить три пробы</button></div>
+  </div>
+
+  <div class="card good fixpanel" data-panel="json">
+    <h3><svg class="ic" style="color:var(--gr)"><use href="#i-check"/></svg>Это успех! Реле работает</h3>
+    <p>JSON с текстом про <code>x-target-url</code> — это наш код отвечает «я жив, жду запрос от Синапса». Браузер показывает это как ошибку, но для приложения это идеальный ответ.</p>
+    <p>Осталось два действия: проверить цепочку до провайдера и записать адрес в настройки Синапса. Кнопки ниже.</p>
+    <div class="btns"><button class="b b1" data-action="chain"><svg class="ic"><use href="#i-arrow"/></svg>Проверить цепочку</button><button class="b b3" data-action="save"><svg class="ic"><use href="#i-wand"/></svg>Записать в Синапс</button></div>
+  </div>
+
+  <div class="card fixpanel" data-panel="other">
+    <h3><svg class="ic" style="color:var(--am)"><use href="#i-info"/></svg>Другой ответ — читаем вместе</h3>
+    <p>Запустите три пробы выше и посмотрите журнал: там будет точный HTTP-код и текст ответа. Ориентиры:</p>
+    <div class="mrow ok"><span class="mn">✓</span><code>{"error":"Передайте целевой URL…"}</code> — реле работает</div>
+    <div class="mrow hl"><span class="mn">!</span><code>{"error":"Хост не в списке разрешённых…"}</code> — в воркере переменная ALLOWED_TARGETS задана неверно, очистите её</div>
+    <div class="mrow hl"><span class="mn">!</span><code>{"error":"Неверный секрет реле"}</code> — RELAY_SECRET в воркере и в приложении не совпадают</div>
+    <div class="mrow bad"><span class="mn">✗</span>HTML-страница с «Error 1xxx» — выберите карточку с этим кодом выше</div>
+    <div class="btns"><button class="b b1" data-action="probe"><svg class="ic"><use href="#i-refresh"/></svg>Запустить пробы</button></div>
+  </div>
+
+  <h2>Финал: цепочка и запись в приложение</h2>
+  <div class="card">
+    <div class="f"><label>API-ключ ai.starimg.ru (для полного теста и записи)</label><input data-field="key" type="password" spellcheck="false" placeholder="sk-…" autocomplete="off"><div class="h">Хранится только в этом браузере, уходит только на ваше реле.</div></div>
+    <div class="btns">
+      <button class="b b2" data-action="chain"><svg class="ic"><use href="#i-arrow"/></svg>Цепочка без ключа</button>
+      <button class="b b1" data-action="full"><svg class="ic"><use href="#i-key"/></svg>Полный тест с ключом</button>
+      <button class="b b3" data-action="save"><svg class="ic"><use href="#i-wand"/></svg>Записать в Синапс</button>
+      <button class="b b2" data-action="copy-addr"><svg class="ic"><use href="#i-copy"/></svg>Скопировать адрес</button>
+    </div>
+    <div class="verdict" id="chainRes"></div>
+    <div class="verdict" id="fullRes"></div>
+    <div class="verdict" id="saveRes"></div>
+    <div class="note info"><span><b>Вручную в Синапсе:</b> Настройки → Режим «Свой OpenAI-совместимый API» → API Host <code>https://ai.starimg.ru/v1</code> → ключ → модель → поле <span class="ui">CORS-реле</span> = <code>https://relay.mnetaknado.ru</code>. Старый workers.dev замените.</span></div>
+    <div class="btns"><a class="b b3" href="index.html"><svg class="ic"><use href="#i-play"/></svg>Открыть Синапс</a></div>
+  </div>
+
+</div>
+
+<script type="text/plain" id="workerCode">const DEFAULT_ALLOWED = ["ai.starimg.ru"];
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "authorization, content-type, x-target-url, x-relay-key",
+  "Access-Control-Max-Age": "86400",
+};
+export default {
+  async fetch(req, env) {
+    if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+    const url = new URL(req.url);
+    const target = req.headers.get("x-target-url") || url.searchParams.get("target");
+    const json = (obj, status) => new Response(JSON.stringify(obj), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+    if (!target) return json({ error: "Передайте целевой URL в заголовке x-target-url или ?target=" }, 400);
+    let t;
+    try { t = new URL(target); } catch { return json({ error: "Некорректный целевой URL" }, 400); }
+    if (t.protocol !== "https:") return json({ error: "Разрешён только https" }, 403);
+    const allowed = (env.ALLOWED_TARGETS || DEFAULT_ALLOWED.join(",")).split(",").map(s => s.trim()).filter(Boolean);
+    if (allowed.length && !allowed.includes(t.hostname)) return json({ error: "Хост не в списке разрешённых: " + t.hostname }, 403);
+    if (env.RELAY_SECRET && req.headers.get("x-relay-key") !== env.RELAY_SECRET) return json({ error: "Неверный секрет реле" }, 401);
+    const headers = new Headers(req.headers);
+    ["x-target-url", "x-relay-key", "host", "origin", "referer", "cf-connecting-ip", "cf-ray", "cf-visitor", "x-forwarded-for", "x-real-ip"].forEach(h => headers.delete(h));
+    const resp = await fetch(t.toString(), {
+      method: req.method,
+      headers,
+      body: ["GET", "HEAD"].includes(req.method) ? undefined : req.body,
+      redirect: "follow",
+    });
+    const out = new Headers(resp.headers);
+    Object.entries(CORS).forEach(([k, v]) => out.set(k, v));
+    return new Response(resp.body, { status: resp.status, headers: out });
+  },
+};
+</script>
+
+<script>
+(function(){
+"use strict";
+
+var $ = function(id){ return document.getElementById(id); };
+var LS = "synapse.fixrelay.v1";
+var st = { relay:"https://relay.mnetaknado.ru", old:"https://synapse-relay.amicus0206.workers.dev", key:"", sound:true, fix:"" };
+try { var raw = localStorage.getItem(LS); if (raw){ var p = JSON.parse(raw); for (var k in st){ if (p[k] != null) st[k] = p[k]; } } } catch(e){}
+function persist(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e){} }
+function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function norm(v){ v = String(v||"").trim(); if (!v) return ""; if (!/^https?:\/\//i.test(v)) v = "https://" + v; return v.replace(/\/+$/,""); }
+
+function showError(m){ var b = $("errBanner"); b.className = "banner err show"; b.textContent = "Ошибка скрипта: " + m; }
+window.addEventListener("error", function(e){ showError((e.message||"неизвестно") + (e.lineno ? " (строка " + e.lineno + ")" : "")); });
+
+function log(msg, kind){
+  var t = new Date().toLocaleTimeString("ru-RU");
+  var l = document.createElement("div");
+  l.className = "ll" + (kind ? " " + kind : "");
+  l.textContent = "[" + t + "] " + msg;
+  $("log").appendChild(l);
+  $("log").scrollTop = $("log").scrollHeight;
+}
+var AC = null;
+function beep(kind){
+  if (!st.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === "suspended") AC.resume();
+    var t = AC.currentTime;
+    var note = function(f,s,d,v){
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(f, t+s);
+      g.gain.setValueAtTime(0, t+s);
+      g.gain.linearRampToValueAtTime(v||0.04, t+s+0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+s+d);
+      o.connect(g); g.connect(AC.destination); o.start(t+s); o.stop(t+s+d+0.02);
+    };
+    if (kind === "ok"){ note(660,0,0.11); note(990,0.08,0.15); }
+    else if (kind === "err") note(196,0,0.18,0.05);
+    else if (kind === "win"){ note(523,0,0.14); note(659,0.1,0.14); note(784,0.2,0.18); }
+    else note(1180,0,0.05);
+  } catch(e){}
+}
+function sparks(el){
+  try {
+    var r = el.getBoundingClientRect(), cx = r.left+r.width/2, cy = r.top+r.height/2;
+    var cols = ["#22d3ee","#8b5cf6","#e879f9","#a3e635","#fbbf24"];
+    for (var i=0;i<16;i++){
+      var s = document.createElement("span");
+      s.className = "spark"; s.style.background = cols[i%cols.length];
+      s.style.left = cx+"px"; s.style.top = cy+"px";
+      document.body.appendChild(s);
+      var a = Math.random()*Math.PI*2, d = 50+Math.random()*70;
+      s.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate("+Math.cos(a)*d+"px,"+(Math.sin(a)*d+30)+"px) scale(.2)",opacity:0}],{duration:700+Math.random()*400,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish = (function(n){ return function(){ n.remove(); }; })(s);
+    }
+  } catch(e){}
+}
+function verdict(el, kind, title, body, raw){
+  el.className = "verdict " + kind + " show";
+  var h = '<div class="vt">' + esc(title) + '</div>';
+  if (body) h += '<div>' + body + '</div>';
+  if (raw) h += '<pre class="raw">' + esc(raw) + '</pre>';
+  el.innerHTML = h;
+}
+function probeRow(n, title, desc, kind, pill){
+  return '<div class="probe ' + kind + '"><div class="pn">' + n + '</div><div class="pb"><div class="pt">' + esc(title) + '</div><div class="pd">' + desc + '</div></div><div class="pill">' + esc(pill) + '</div></div>';
+}
+function setFix(id){
+  st.fix = id; persist();
+  var btns = document.querySelectorAll("[data-fix]");
+  for (var i=0;i<btns.length;i++) btns[i].className = btns[i].className.replace(" active","") + (btns[i].getAttribute("data-fix") === id ? " active" : "");
+  var pans = document.querySelectorAll("[data-panel]");
+  for (var j=0;j<pans.length;j++) pans[j].className = "card fixpanel" + (pans[j].getAttribute("data-panel") === id ? " show" : "");
+}
+
+async function timedFetch(url, opts, ms){
+  var c = new AbortController();
+  var timer = setTimeout(function(){ c.abort(); }, ms||12000);
+  var t0 = Date.now();
+  try {
+    var r = await fetch(url, Object.assign({}, opts, { signal:c.signal }));
+    return { r:r, ms:Date.now()-t0 };
+  } finally { clearTimeout(timer); }
+}
+
+async function runProbes(){
+  var url = norm(st.relay), oldUrl = norm(st.old);
+  if (!url){ verdict($("verdict"),"err","Не указан адрес","Заполните поле «Новый адрес реле»."); return; }
+  $("openRelay").href = url;
+  var bust = url + (url.indexOf("?") >= 0 ? "&" : "?") + "_=" + Date.now();
+  $("probes").innerHTML =
+    probeRow(1,"Обычная проба","Читаем ответ воркера…","load","…") +
+    probeRow(2,"Слепая проба","Проверяем, отвечает ли сервер вообще…","load","…") +
+    probeRow(3,"Старый адрес","Для сравнения…","load","…");
+  verdict($("verdict"),"warn","Проверяю…","Три запроса отправлены, смотрите журнал ниже.");
+  log("Запуск проб для " + url, "act");
+
+  var p1 = { kind:"err", title:"Обычная проба", desc:"", pill:"ошибка" };
+  var body1 = "";
+  try {
+    var a = await timedFetch(bust, { method:"GET", cache:"no-store" }, 14000);
+    var text = await a.r.text();
+    body1 = text;
+    log("Проба 1: HTTP " + a.r.status + ", " + text.length + " байт, " + a.ms + " мс", a.r.ok ? "ok" : "warn");
+    var j = null; try { j = JSON.parse(text); } catch(e){}
+    if (j && typeof j.error === "string" && j.error.indexOf("x-target-url") >= 0){
+      p1 = { kind:"ok", title:"Обычная проба", desc:"Воркер ответил нашим JSON — <b>реле работает</b>. Ответ: <code>" + esc(text.slice(0,120)) + "</code>", pill:"HTTP " + a.r.status };
+    } else if (j && typeof j.error === "string"){
+      p1 = { kind:"ok", title:"Обычная проба", desc:"Отвечает наш код: " + esc(j.error), pill:"HTTP " + a.r.status };
+    } else if (/hello world/i.test(text)){
+      p1 = { kind:"warn", title:"Обычная проба", desc:"Отдаёт <b>Hello World</b> — код не опубликован. Нужен Deploy.", pill:"HTTP " + a.r.status };
+    } else {
+      p1 = { kind:"warn", title:"Обычная проба", desc:"Ответ получен, но это не наш JSON. Первые символы: <code>" + esc(text.slice(0,140)) + "</code>", pill:"HTTP " + a.r.status };
+    }
+  } catch(e){
+    log("Проба 1: не удалось прочитать ответ (" + (e.name === "AbortError" ? "таймаут" : "сеть/CORS") + ")", "err");
+    p1 = { kind:"err", title:"Обычная проба", desc:"Браузер не смог прочитать ответ: " + (e.name === "AbortError" ? "таймаут" : "сервер не ответил или ответ без CORS-заголовков") + ".", pill:"нет ответа" };
+  }
+
+  var p2 = { kind:"err", title:"Слепая проба", desc:"", pill:"…" };
+  try {
+    var b = await timedFetch(bust, { method:"GET", mode:"no-cors", cache:"no-store" }, 14000);
+    log("Проба 2: сервер ответил (opaque), " + b.ms + " мс", "ok");
+    p2 = { kind:"ok", title:"Слепая проба", desc:"Сервер <b>доступен по сети</b> — DNS и сертификат работают. Ответ просто нечитаемый для скрипта.", pill:"доступен" };
+  } catch(e2){
+    log("Проба 2: сервер недоступен (" + (e2.name === "AbortError" ? "таймаут" : "DNS/сеть") + ")", "err");
+    p2 = { kind:"err", title:"Слепая проба", desc:"Сервер <b>недоступен</b>: нет DNS-записи, не выпущен сертификат, или сеть блокирует адрес.", pill:"недоступен" };
+  }
+
+  var p3 = { kind:"warn", title:"Старый адрес", desc:"", pill:"…" };
+  if (oldUrl){
+    try {
+      var c = await timedFetch(oldUrl + "?_=" + Date.now(), { method:"GET", cache:"no-store" }, 12000);
+      var t3 = await c.r.text();
+      log("Проба 3 (старый): HTTP " + c.r.status + ", " + c.ms + " мс", "ok");
+      p3 = { kind:"ok", title:"Старый адрес", desc:"workers.dev отвечает (HTTP " + c.r.status + ") — значит в этой сети он не заблокирован.", pill:"HTTP " + c.r.status };
+    } catch(e3){
+      log("Проба 3 (старый): недоступен — вероятно, блокировка workers.dev", "warn");
+      p3 = { kind:"warn", title:"Старый адрес", desc:"workers.dev <b>не отвечает</b> — типичная блокировка оператором. Именно поэтому и нужен свой домен.", pill:"заблокирован" };
+    }
+  } else {
+    p3 = { kind:"warn", title:"Старый адрес", desc:"Не указан — пропускаем.", pill:"—" };
+  }
+
+  $("probes").innerHTML =
+    probeRow(1, p1.title, p1.desc, p1.kind, p1.pill) +
+    probeRow(2, p2.title, p2.desc, p2.kind, p2.pill) +
+    probeRow(3, p3.title, p3.desc, p3.kind, p3.pill);
+
+  if (p1.kind === "ok"){
+    verdict($("verdict"),"ok","Реле работает!",
+      "Адрес <code>" + esc(url) + "</code> отвечает нашим кодом. Осталось проверить цепочку и записать адрес в Синапс — кнопки в нижнем блоке.", body1);
+    setFix("json"); beep("ok"); sparks($("verdict"));
+  } else if (p1.kind === "warn" && /Hello World/i.test(p1.desc)){
+    verdict($("verdict"),"warn","Адрес работает, но код не опубликован",
+      "DNS и сертификат в порядке. Откройте воркер → Edit code → вставьте наш код → нажмите <b>Deploy</b>.", body1);
+    setFix("hello"); beep("err");
+  } else if (p2.kind === "ok"){
+    verdict($("verdict"),"warn","Сервер отвечает, но это не наш воркер",
+      "Адрес доступен по сети, но ответ не читается скриптом — почти всегда это <b>страница ошибки Cloudflare</b> (1001, 1000, 522, 525, 1101) или чужой контент. Откройте адрес в новой вкладке, посмотрите номер ошибки и нажмите соответствующую карточку ниже.", body1);
+    setFix("1001"); beep("err");
+  } else {
+    verdict($("verdict"),"err","Адрес недоступен по сети",
+      "Ни обычная, ни слепая проба не прошли. Значит: нет DNS-записи <code>relay</code>, или она не проксируется, или сертификат не выпущен, или устройство закэшировало «адреса нет». Откройте карточку <b>«Сайт не найден»</b> ниже и пройдитесь по пунктам.", "");
+    setFix("nx"); beep("err");
+  }
+  log("Пробы завершены");
+}
+
+async function chain(){
+  var url = norm(st.relay);
+  if (!url){ verdict($("chainRes"),"err","Нет адреса","Заполните поле выше."); return; }
+  verdict($("chainRes"),"warn","Проверяю цепочку…","Запрос: страница → ваше реле → ai.starimg.ru");
+  log("Цепочка без ключа", "act");
+  try {
+    var a = await timedFetch(url + "?target=" + encodeURIComponent("https://ai.starimg.ru/v1/models"), { method:"GET" }, 25000);
+    var text = await a.r.text();
+    log("Цепочка: HTTP " + a.r.status, a.r.ok ? "ok" : "warn");
+    if (a.r.status === 401 || a.r.status === 403){
+      verdict($("chainRes"),"ok","Цепочка работает!",
+        "Провайдер ответил «нужен ключ» (HTTP " + a.r.status + "). Это успех — запрос дошёл до ai.starimg.ru через ваш домен.", text);
+      beep("ok"); sparks($("chainRes"));
+    } else if (a.r.ok){
+      verdict($("chainRes"),"ok","Цепочка работает, провайдер ответил","Всё готово к записи в приложение.", text);
+      beep("ok");
+    } else {
+      verdict($("chainRes"),"warn","Ответ HTTP " + a.r.status, "Посмотрите текст ниже.", text);
+      beep("err");
+    }
+  } catch(e){
+    log("Цепочка: ошибка сети", "err");
+    verdict($("chainRes"),"err","Соединение не удалось","Сначала добейтесь успеха в трёх пробах выше.", String(e));
+    beep("err");
+  }
+}
+
+async function full(){
+  var url = norm(st.relay), key = String(st.key||"").trim();
+  if (!url){ verdict($("fullRes"),"err","Нет адреса","Заполните поле выше."); return; }
+  if (!key){ verdict($("fullRes"),"err","Нет ключа","Вставьте API-ключ."); beep("err"); return; }
+  verdict($("fullRes"),"warn","Запрашиваю модели…","Через ваше реле, с ключом.");
+  log("Полный тест с ключом", "act");
+  try {
+    var a = await timedFetch(url, { method:"GET", headers:{ "x-target-url":"https://ai.starimg.ru/v1/models", "Authorization":"Bearer " + key } }, 25000);
+    var text = await a.r.text();
+    log("Полный тест: HTTP " + a.r.status, a.r.ok ? "ok" : "warn");
+    if (!a.r.ok){
+      var msg = "HTTP " + a.r.status;
+      if (a.r.status === 401 || a.r.status === 403) msg = "Ключ отклонён. Скопируйте его целиком без пробелов; если задавали RELAY_SECRET — он должен совпадать.";
+      else if (a.r.status === 429) msg = "HTTP 429 — лимит или баланс у продавца.";
+      verdict($("fullRes"),"err","Провайдер отклонил запрос", esc(msg), text);
+      beep("err"); return;
+    }
+    var j = null; try { j = JSON.parse(text); } catch(e){}
+    var ids = ((j && j.data) || []).map(function(x){ return x.id; }).filter(Boolean).sort();
+    var chips = ids.slice(0,20).map(function(m){ return '<span class="mchip">' + esc(m) + '</span>'; }).join("");
+    verdict($("fullRes"),"ok","Полная цепочка работает без VPN!",
+      "Доступно моделей: <b>" + ids.length + "</b>. Записывайте адрес в Синапс." + (chips ? '<div class="chips">' + chips + '</div>' : ""), "");
+    beep("win"); sparks($("fullRes"));
+  } catch(e){
+    log("Полный тест: ошибка сети", "err");
+    verdict($("fullRes"),"err","Соединение не удалось", String(e));
+    beep("err");
+  }
+}
+
+function save(){
+  var url = norm(st.relay);
+  if (!url){ verdict($("saveRes"),"err","Нет адреса","Заполните поле выше."); return; }
+  var wrote = false;
+  try {
+    var raw = localStorage.getItem("synapse.v1");
+    var app = raw ? JSON.parse(raw) : { chats:[], activeId:null, settings:{} };
+    if (app && typeof app === "object"){
+      app.settings = Object.assign({}, app.settings || {}, { relayUrl:url, provider:"custom", baseUrl:"https://ai.starimg.ru/v1" });
+      if (String(st.key||"").trim()) app.settings.apiKey = String(st.key).trim();
+      localStorage.setItem("synapse.v1", JSON.stringify(app));
+      wrote = true;
+    }
+  } catch(e){}
+  try { var g = JSON.parse(localStorage.getItem("synapse.guide.v1")||"{}"); g.workerUrl = url; localStorage.setItem("synapse.guide.v1", JSON.stringify(g)); } catch(e){}
+  try { var w = JSON.parse(localStorage.getItem("synapse.wizard.v1")||"{}"); w.domain = "mnetaknado.ru"; w.prefix = "relay"; localStorage.setItem("synapse.wizard.v1", JSON.stringify(w)); } catch(e){}
+  if (wrote){
+    verdict($("saveRes"),"ok","Записано в Синапс",
+      "Адрес <code>" + esc(url) + "</code> сохранён в настройках приложения на этом устройстве. Откройте Синапс, выберите модель и спросите что-нибудь с включённым поиском." +
+      (location.protocol === "file:" ? "<br><br>Страница открыта как файл — запись действует только в этом браузере. На айфоне откройте страницу по адресу сайта и нажмите кнопку снова." : ""));
+    log("Настройки записаны: " + url, "ok"); beep("win"); sparks($("saveRes"));
+  } else {
+    verdict($("saveRes"),"warn","Автозапись недоступна","Скопируйте адрес и вставьте вручную: Синапс → Настройки → CORS-реле.", url);
+    beep("err");
+  }
+}
+
+function copyText(text, el, title){
+  var done = function(){ verdict(el,"ok",title,"<code>" + esc(text.slice(0,120)) + (text.length > 120 ? "…" : "") + "</code>"); beep("ok"); };
+  var fb = function(){
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch(e){ verdict(el,"warn","Скопируйте вручную","<pre class='raw'>" + esc(text) + "</pre>"); }
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(fb); else fb();
+}
+
+document.addEventListener("input", function(e){
+  var f = e.target && e.target.getAttribute ? e.target.getAttribute("data-field") : null;
+  if (!f) return;
+  st[f] = e.target.value; persist();
+  if (f === "relay") $("openRelay").href = norm(st.relay) || "#";
+});
+
+document.addEventListener("click", function(e){
+  var fx = e.target.closest ? e.target.closest("[data-fix]") : null;
+  if (fx){ setFix(fx.getAttribute("data-fix")); beep("tick"); return; }
+  var a = e.target.closest ? e.target.closest("[data-action]") : null;
+  if (!a) return;
+  var act = a.getAttribute("data-action");
+  try {
+    if (act === "probe") runProbes().catch(function(err){ showError(err.message); });
+    else if (act === "chain") chain().catch(function(err){ showError(err.message); });
+    else if (act === "full") full().catch(function(err){ showError(err.message); });
+    else if (act === "save") save();
+    else if (act === "copy-addr") copyText(norm(st.relay), $("saveRes"), "Адрес скопирован");
+    else if (act === "copy-code"){
+      var code = $("workerCode").textContent.replace(/^\n/,"");
+      var target = $("codeRes").className.indexOf("show") >= 0 ? $("codeRes") : $("codeRes2");
+      copyText(code, target, "Код скопирован — вставьте в редактор и нажмите Deploy");
+    }
+  } catch(err){ showError(err.message || String(err)); }
+});
+
+$("soundBtn").addEventListener("click", function(){
+  st.sound = !st.sound; persist();
+  $("soundBtn").className = "tbtn" + (st.sound ? " on" : "");
+  $("soundBtn").innerHTML = '<svg class="ic"><use href="#i-' + (st.sound ? "sound" : "mute") + '"/></svg>';
+  if (st.sound) beep("tick");
+});
+
+try {
+  var inputs = document.querySelectorAll("[data-field]");
+  for (var i=0;i<inputs.length;i++){
+    var f = inputs[i].getAttribute("data-field");
+    if (st[f] != null && st[f] !== "") inputs[i].value = st[f];
+  }
+  $("openRelay").href = norm(st.relay) || "#";
+  $("soundBtn").className = "tbtn" + (st.sound ? " on" : "");
+  $("soundBtn").innerHTML = '<svg class="ic"><use href="#i-' + (st.sound ? "sound" : "mute") + '"/></svg>';
+  if (st.fix) setFix(st.fix);
+  log("Страница готова. Автопроверка адреса " + norm(st.relay), "act");
+  runProbes().catch(function(err){ showError(err.message); });
+} catch(e){
+  showError(e.message || String(e));
+}
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a14">
+<meta name="color-scheme" content="dark">
+<title>Синапс · Проверка реле и домена</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#060a14;--s:rgba(15,22,44,.75);--s2:rgba(24,33,64,.55);--l:rgba(122,142,222,.18);--l2:rgba(122,142,222,.34);
+--t:#e9edfb;--m:#93a0c4;--d:#5d6890;--cy:#22d3ee;--vi:#8b5cf6;--mg:#e879f9;--gr:#a3e635;--am:#fbbf24;--rd:#fb7185;--bl:#60a5fa;
+--g:linear-gradient(135deg,var(--cy),var(--vi) 55%,var(--mg))}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.45) rgba(10,17,34,.6)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:rgba(10,17,34,.6)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--cy),var(--vi));border-radius:10px;border:2px solid rgba(10,17,34,.6)}
+body{background:var(--bg);color:var(--t);font-family:"Manrope",-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;
+background:radial-gradient(620px 480px at 14% 12%,rgba(34,211,238,.16),transparent 62%),radial-gradient(720px 540px at 86% 10%,rgba(139,92,246,.2),transparent 62%),radial-gradient(820px 620px at 74% 92%,rgba(232,121,249,.12),transparent 62%),linear-gradient(180deg,#060a14,#0a1122);
+animation:au 30s ease-in-out infinite alternate}
+@keyframes au{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-2%,2%) scale(1.04)}}
+a{color:var(--cy)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.wrap{max-width:900px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 15px calc(60px + env(safe-area-inset-bottom))}
+.head{display:flex;align-items:center;gap:11px;margin-bottom:18px;flex-wrap:wrap}
+.orb{width:30px;height:30px;border-radius:50%;background:var(--g);position:relative;flex:none;box-shadow:0 0 18px rgba(34,211,238,.5)}
+.orb::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#060a14}
+.orb::before{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--g);z-index:1}
+h1{font-family:"Unbounded";font-weight:900;font-size:clamp(19px,4vw,27px);line-height:1.2}
+h1 em{font-style:normal;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+.badge{margin-left:auto;display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-size:11.5px;font-weight:800;border:1px solid var(--l2);background:var(--s2);color:var(--m)}
+.badge.ok{color:var(--gr);border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.08)}
+.badge.bad{color:var(--rd);border-color:rgba(251,113,133,.5);background:rgba(251,113,133,.08)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+.lead{color:var(--m);font-size:14.5px;margin-bottom:16px}
+.card{border:1px solid var(--l2);border-radius:18px;background:var(--s);backdrop-filter:blur(12px);padding:17px;margin-bottom:14px}
+.card h2{font-family:"Unbounded";font-size:14px;font-weight:700;margin-bottom:10px;letter-spacing:.04em}
+.f{margin:10px 0}
+.f label{display:block;font-size:12px;font-weight:800;color:var(--m);margin-bottom:5px}
+.f input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--l2);background:rgba(8,13,28,.75);color:var(--t);font-size:15px;font-family:"JetBrains Mono",monospace}
+.f input:focus{outline:none;border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.13)}
+.f input::placeholder{color:var(--d);font-family:"Manrope",sans-serif}
+.f .h{font-size:11px;color:var(--d);margin-top:4px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.btns{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.b{display:inline-flex;align-items:center;gap:7px;padding:11px 16px;border-radius:12px;font-size:13.5px;font-weight:800;border:1px solid transparent;text-decoration:none;transition:.18s}
+.b1{color:#04121a;background:var(--g);box-shadow:0 4px 16px rgba(34,211,238,.3)}
+.b2{color:var(--m);border-color:var(--l2);background:var(--s2)}
+.b2:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.b3{color:#0c1a04;background:linear-gradient(135deg,var(--gr),var(--cy))}
+.res{display:none;margin-top:11px;border-radius:13px;padding:13px 14px;font-size:13.5px;line-height:1.55}
+.res.show{display:block;animation:up .3s both}
+@keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.res.ok{border:1px solid rgba(163,230,53,.55);background:rgba(163,230,53,.09);color:#d9f99d}
+.res.warn{border:1px solid rgba(251,191,36,.55);background:rgba(251,191,36,.09);color:#fde68a}
+.res.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.09);color:#fecdd3}
+.res.load{border:1px solid rgba(96,165,250,.5);background:rgba(96,165,250,.08);color:#bfdbfe}
+.rt{font-family:"Unbounded";font-weight:700;font-size:13.5px;margin-bottom:6px;display:flex;align-items:center;gap:9px}
+.rb{color:inherit;opacity:.95}
+.raw{margin-top:9px;padding:9px 11px;border-radius:9px;background:rgba(6,10,20,.6);border:1px solid var(--l);font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--m);white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto}
+.spin{width:15px;height:15px;flex:none;border-radius:50%;border:2px solid rgba(96,165,250,.25);border-top-color:var(--bl);animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.log{margin-top:10px;border-radius:12px;border:1px solid var(--l);background:#080d1c;padding:10px 12px;height:190px;overflow:auto;font-family:"JetBrains Mono",monospace;font-size:11.5px;line-height:1.65}
+.ll{color:var(--m);white-space:pre-wrap;word-break:break-word}
+.ll.ok{color:#a3e635}.ll.warn{color:#fbbf24}.ll.err{color:#fb7185}.ll.act{color:#22d3ee}
+.banner{display:none;padding:12px 14px;border-radius:13px;font-size:13px;margin-bottom:14px;line-height:1.55}
+.banner.show{display:block}
+.banner.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.1);color:#fecdd3}
+.banner.info{border:1px solid rgba(96,165,250,.45);background:rgba(96,165,250,.08);color:#bfdbfe}
+.nsl{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.nsi{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:12px;padding:6px 10px;border-radius:8px;background:rgba(6,10,20,.5);border:1px solid var(--l)}
+.nsi.cf{color:#d9f99d;border-color:rgba(163,230,53,.4)}
+.nsi.old{color:#fde68a}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.chip{padding:5px 10px;border-radius:999px;font-family:"JetBrains Mono",monospace;font-size:11px;border:1px solid rgba(163,230,53,.45);background:rgba(163,230,53,.08);color:#d9f99d}
+.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.links a{font-size:11.5px;padding:6px 11px;border-radius:9px;border:1px solid var(--l2);background:var(--s2);text-decoration:none;color:var(--m)}
+.links a:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.note{font-size:12.5px;color:var(--m);margin-top:9px;line-height:1.55}
+.note b{color:var(--t)}
+code{font-family:"JetBrains Mono",monospace;font-size:.9em;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.25);padding:1px 6px;border-radius:6px;color:#a5f3fc}
+@media(max-width:620px){.row{grid-template-columns:1fr}.badge{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="orb"></div>
+    <h1>Проверка <em>реле и домена</em></h1>
+    <span class="badge" id="badge"><span class="dot"></span><span id="badgeText">запуск…</span></span>
+  </div>
+
+  <div class="banner err" id="errBanner"></div>
+  <div class="banner info" id="fileBanner">Страница открыта как файл с диска. Проверки работают, но автозапись настроек в Синапс — только если открыть эту страницу по адресу сайта (например <code>логин.github.io/synapse/check.html</code>).</div>
+
+  <p class="lead">Каждое нажатие пишется в журнал внизу — видно, что реально происходит. Если что-то не работает, ошибка появится на экране, а не «молча».</p>
+
+  <div class="card">
+    <h2>Данные</h2>
+    <div class="f"><label>Старый адрес реле (workers.dev)</label><input id="oldRelay" type="url" spellcheck="false" value="https://synapse-relay.amicus0206.workers.dev"></div>
+    <div class="row">
+      <div class="f"><label>Новый домен (если купили)</label><input id="domain" type="text" spellcheck="false" placeholder="mydomain.ru"><div class="h">Без https:// и без www</div></div>
+      <div class="f"><label>Поддомен</label><input id="prefix" type="text" spellcheck="false" value="relay"><div class="h">Получится relay.домен</div></div>
+    </div>
+    <div class="f"><label>API-ключ ai.starimg.ru (для полного теста)</label><input id="apiKey" type="password" spellcheck="false" placeholder="sk-…" autocomplete="off"><div class="h">Хранится только в этом браузере, уходит только на ваше реле.</div></div>
+    <div class="btns">
+      <button class="b b2" id="btnSelf">Тест страницы</button>
+      <button class="b b1" id="btnBoth">Проверить оба адреса</button>
+    </div>
+    <div class="res" id="resSelf"></div>
+    <div class="res" id="resOld"></div>
+    <div class="res" id="resNew"></div>
+  </div>
+
+  <div class="card">
+    <h2>Цепочка до провайдера</h2>
+    <p class="note">Проверяем, что запрос проходит: страница → ваше реле → ai.starimg.ru. Без ключа ожидаем ответ «нужен ключ» — это успех.</p>
+    <div class="btns">
+      <button class="b b2" id="btnChain">Цепочка без ключа</button>
+      <button class="b b3" id="btnFull">Полный тест с ключом</button>
+    </div>
+    <div class="res" id="resChain"></div>
+    <div class="res" id="resFull"></div>
+  </div>
+
+  <div class="card">
+    <h2>Домен: NS и DNS-запись</h2>
+    <p class="note">Опрос публичных DNS через HTTPS. В России dns.google и Cloudflare DNS иногда недоступны — страница попробует несколько серверов подряд и покажет, какой ответил.</p>
+    <div class="btns">
+      <button class="b b2" id="btnNs">NS домена</button>
+      <button class="b b2" id="btnDns">A-запись поддомена</button>
+    </div>
+    <div class="res" id="resNs"></div>
+    <div class="res" id="resDns"></div>
+    <div class="links" id="manualLinks"></div>
+  </div>
+
+  <div class="card">
+    <h2>Записать адрес в Синапс</h2>
+    <p class="note">Если новый домен уже отвечает — записываем его, иначе старый workers.dev.</p>
+    <div class="btns">
+      <button class="b b3" id="btnSave">Записать в настройки</button>
+      <button class="b b2" id="btnCopy">Скопировать адрес</button>
+      <a class="b b1" href="index.html">Открыть Синапс</a>
+    </div>
+    <div class="res" id="resSave"></div>
+  </div>
+
+  <div class="card">
+    <h2>Журнал действий</h2>
+    <div class="log" id="log"></div>
+    <div class="btns"><button class="b b2" id="btnClearLog">Очистить журнал</button></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var $ = function(id){ return document.getElementById(id); };
+var logEl = $("log");
+
+function esc(s){
+  return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function log(msg, kind){
+  var t = new Date().toLocaleTimeString("ru-RU");
+  var line = document.createElement("div");
+  line.className = "ll" + (kind ? " " + kind : "");
+  line.textContent = "[" + t + "] " + msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function showError(msg){
+  var b = $("errBanner");
+  b.className = "banner err show";
+  b.textContent = "Ошибка скрипта: " + msg + " — сообщите этот текст, если кнопки не работают.";
+  log("ОШИБКА: " + msg, "err");
+}
+window.addEventListener("error", function(e){
+  showError((e.message || "неизвестно") + (e.lineno ? " (строка " + e.lineno + ")" : ""));
+});
+
+function card(el, kind, title, body, raw){
+  el.className = "res " + kind + " show";
+  var html = '<div class="rt">' + (kind === "load" ? '<span class="spin"></span>' : '') + '<span>' + esc(title) + '</span></div>';
+  if (body) html += '<div class="rb">' + body + '</div>';
+  if (raw) html += '<pre class="raw">' + esc(raw) + '</pre>';
+  el.innerHTML = html;
+}
+
+var LS = "synapse.check.v2";
+var st = { oldRelay:"https://synapse-relay.amicus0206.workers.dev", domain:"", prefix:"relay", apiKey:"" };
+try {
+  var raw0 = localStorage.getItem(LS);
+  if (raw0) { var p = JSON.parse(raw0); for (var k in st) if (p[k] != null) st[k] = p[k]; }
+} catch(e){}
+function persist(){ try { localStorage.setItem(LS, JSON.stringify(st)); } catch(e){} }
+
+function normUrl(v){
+  v = String(v || "").trim();
+  if (!v) return "";
+  if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+  return v.replace(/\/+$/,"");
+}
+function cleanDomain(v){
+  return String(v || "").trim().toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,"").replace(/\.$/,"");
+}
+function newHost(){
+  var d = cleanDomain(st.domain);
+  if (!d) return "";
+  var p = String(st.prefix || "relay").trim().toLowerCase().replace(/[^a-z0-9-]/g,"") || "relay";
+  return p + "." + d;
+}
+function newUrl(){ var h = newHost(); return h ? "https://" + h : ""; }
+function bestUrl(){ return newUrl() || normUrl(st.oldRelay); }
+
+function bindInput(id, key){
+  var el = $(id);
+  el.value = st[key] || "";
+  el.addEventListener("input", function(){ st[key] = el.value; persist(); refreshLinks(); });
+}
+
+async function req(url, opts, ms, label){
+  opts = opts || {};
+  var method = opts.method || "GET";
+  log("→ " + label + ": " + method + " " + url, "act");
+  var c = new AbortController();
+  var timer = setTimeout(function(){ c.abort(); }, ms || 15000);
+  var t0 = Date.now();
+  try {
+    var r = await fetch(url, Object.assign({}, opts, { signal: c.signal }));
+    var text = await r.text();
+    var dt = Date.now() - t0;
+    log("← " + label + ": HTTP " + r.status + ", " + text.length + " байт, " + dt + " мс", r.ok ? "ok" : "warn");
+    return { ok:r.ok, status:r.status, text:text };
+  } catch(e){
+    var why = (e && e.name === "AbortError") ? "таймаут" : "сеть недоступна или запрос заблокирован (CORS/DNS)";
+    log("✗ " + label + ": " + why + " (" + (Date.now()-t0) + " мс)", "err");
+    throw new Error(why);
+  } finally { clearTimeout(timer); }
+}
+
+function parseJson(t){ try { return JSON.parse(t); } catch(e){ return null; } }
+
+async function testRelay(url, el, label){
+  if (!url){ card(el, "warn", "Адрес не задан", "Заполните поле выше."); return false; }
+  card(el, "load", "Проверяю " + label, esc(url));
+  try {
+    var r = await req(url, { method:"GET" }, 15000, label);
+    var j = parseJson(r.text);
+    if (j && typeof j.error === "string" && j.error.indexOf("x-target-url") >= 0){
+      card(el, "ok", "Реле работает — это не ошибка",
+        "Воркер отвечает нашим JSON. Код задеплоен, CORS-заголовки есть. Такой ответ при открытии адреса вручную — признак успеха.", r.text);
+      return true;
+    }
+    if (j && typeof j.error === "string"){
+      card(el, "ok", "Наш код на месте", "Воркер отвечает нашим JSON: " + esc(j.error) + ". Поправьте переменные воркера, если мешает.", r.text);
+      return true;
+    }
+    if (r.status === 200 && /hello world/i.test(r.text)){
+      card(el, "warn", "Отдаёт Hello World — код не опубликован",
+        "Откройте воркер → Edit code → вставьте наш код → нажмите <b>Deploy</b> (не Save). Подождите 20 секунд и повторите.", r.text);
+      return false;
+    }
+    if (r.status === 404 || /nothing here/i.test(r.text)){
+      card(el, "err", "404 — адрес не обслуживается",
+        "Для workers.dev: проверьте имя воркера и что маршрут включён. Для своего домена: привяжите воркер → Settings → Domains &amp; Routes → Add → <b>Custom Domain</b>.", r.text);
+      return false;
+    }
+    if (r.status >= 500 || /1101|worker threw exception/i.test(r.text)){
+      card(el, "err", "Воркер падает (Error 1101)",
+        "Код вставлен повреждённым. Удалите всё в редакторе, вставьте код целиком, нажмите Deploy.", r.text);
+      return false;
+    }
+    card(el, "warn", "Неожиданный ответ HTTP " + r.status, "Посмотрите текст ниже.", r.text);
+    return false;
+  } catch(e){
+    card(el, "err", "Адрес не отвечает",
+      esc(e.message) + ". Варианты: опечатка в адресе; деплой не применился (подождите минуту); сертификат ещё выпускается; оператор блокирует workers.dev — тогда нужен свой домен.", String(e));
+    return false;
+  }
+}
+
+async function bothTest(){
+  log("Нажата кнопка: проверить оба адреса", "act");
+  var oldU = normUrl(st.oldRelay);
+  var newU = newUrl();
+  var tasks = [ testRelay(oldU, $("resOld"), "старый адрес") ];
+  if (newU) tasks.push(testRelay(newU, $("resNew"), "новый домен"));
+  else card($("resNew"), "warn", "Новый домен не указан", "Впишите купленный домен в поле выше — проверю и его.");
+  await Promise.all(tasks);
+  log("Проверка адресов завершена");
+}
+
+async function chainTest(){
+  var url = bestUrl();
+  if (!url){ card($("resChain"), "err", "Нет адреса реле", "Заполните поля выше."); return; }
+  card($("resChain"), "load", "Иду через реле к провайдеру", esc(url));
+  try {
+    var target = "https://ai.starimg.ru/v1/models";
+    var r = await req(url + "?target=" + encodeURIComponent(target), { method:"GET" }, 25000, "цепочка");
+    if (r.status === 401 || r.status === 403){
+      card($("resChain"), "ok", "Цепочка работает!",
+        "Запрос дошёл до ai.starimg.ru, провайдер ответил «нужен ключ» (HTTP " + r.status + "). Это успех. Вставьте ключ и нажмите «Полный тест».", r.text);
+      return;
+    }
+    if (r.ok){
+      var j = parseJson(r.text);
+      var n = (j && j.data) ? j.data.length : 0;
+      card($("resChain"), "ok", "Цепочка работает, провайдер ответил", "Получено моделей: " + n + ".", r.text);
+      return;
+    }
+    card($("resChain"), "warn", "Ответ HTTP " + r.status, "Разберём по тексту ниже.", r.text);
+  } catch(e){
+    card($("resChain"), "err", "Соединение не удалось", esc(e.message) + ". Сначала проверьте адреса реле кнопкой выше.", String(e));
+  }
+}
+
+async function fullTest(){
+  var url = bestUrl();
+  var key = String(st.apiKey || "").trim();
+  if (!url){ card($("resFull"), "err", "Нет адреса реле", "Заполните поля выше."); return; }
+  if (!key){ card($("resFull"), "err", "Нет ключа", "Вставьте API-ключ в поле «Данные»."); return; }
+  card($("resFull"), "load", "Запрашиваю модели с ключом", esc(url));
+  try {
+    var r = await req(url, { method:"GET", headers:{ "x-target-url":"https://ai.starimg.ru/v1/models", "Authorization":"Bearer " + key } }, 25000, "полный тест");
+    if (!r.ok){
+      var msg = "HTTP " + r.status;
+      if (r.status === 401 || r.status === 403) msg = "Ключ отклонён. Скопируйте ключ целиком без пробелов; если задавали RELAY_SECRET — он должен совпадать.";
+      else if (r.status === 429) msg = "HTTP 429 — лимит или баланс у продавца.";
+      card($("resFull"), "err", "Провайдер отклонил запрос", esc(msg), r.text);
+      return;
+    }
+    var j = parseJson(r.text);
+    var ids = ((j && j.data) || []).map(function(x){ return x.id; }).filter(Boolean).sort();
+    var chips = ids.slice(0,20).map(function(m){ return '<span class="chip">' + esc(m) + '</span>'; }).join("");
+    card($("resFull"), "ok", "Полная цепочка работает!",
+      "Доступно моделей: <b>" + ids.length + "</b>. Можно записывать адрес в Синапс." + (chips ? '<div class="chips">' + chips + '</div>' : ""), null);
+    log("Моделей получено: " + ids.length, "ok");
+  } catch(e){
+    card($("resFull"), "err", "Соединение не удалось", esc(e.message), String(e));
+  }
+}
+
+var DOH = [
+  { name:"Google DNS", url:function(n,t){ return "https://dns.google/resolve?name=" + encodeURIComponent(n) + "&type=" + t; }, headers:{ "Accept":"application/json" } },
+  { name:"Cloudflare DNS", url:function(n,t){ return "https://cloudflare-dns.com/dns-query?name=" + encodeURIComponent(n) + "&type=" + t; }, headers:{ "Accept":"application/dns-json" } },
+  { name:"AliDNS", url:function(n,t){ return "https://dns.alidns.com/resolve?name=" + encodeURIComponent(n) + "&type=" + t; }, headers:{ "Accept":"application/json" } }
+];
+
+async function doh(name, type){
+  var lastErr = null;
+  for (var i = 0; i < DOH.length; i++){
+    var p = DOH[i];
+    try {
+      var r = await req(p.url(name, type), { headers:p.headers }, 9000, "DNS " + p.name);
+      var j = parseJson(r.text);
+      if (j){ log("Ответил " + p.name, "ok"); return { json:j, via:p.name }; }
+      lastErr = new Error(p.name + ": не JSON");
+    } catch(e){ lastErr = e; }
+  }
+  throw lastErr || new Error("все DNS-сервисы недоступны");
+}
+
+async function nsCheck(){
+  var d = cleanDomain(st.domain);
+  if (!d){ card($("resNs"), "warn", "Домен не указан", "Впишите купленный домен в поле «Данные»."); return; }
+  card($("resNs"), "load", "Спрашиваю NS для " + d, "Пробую несколько DNS-сервисов подряд…");
+  try {
+    var res = await doh(d, 2);
+    var j = res.json;
+    if (j.Status === 3){
+      card($("resNs"), "err", "Домен не найден в DNS", "Проверьте написание домена. Если куплен только что — подождите 20–30 минут.");
+      return;
+    }
+    var list = (j.Answer || []).filter(function(a){ return a.type === 2; }).map(function(a){ return String(a.data).replace(/\.$/,"").toLowerCase(); });
+    if (!list.length){
+      card($("resNs"), "warn", "NS-записи не видны", "Делегирование ещё не применилось. Подождите и повторите. Ответ через " + esc(res.via) + ".", JSON.stringify(j));
+      return;
+    }
+    var cf = list.filter(function(n){ return n.indexOf("cloudflare.com") >= 0; });
+    var items = list.map(function(n){
+      var isCf = n.indexOf("cloudflare.com") >= 0;
+      return '<div class="nsi ' + (isCf ? "cf" : "old") + '">' + (isCf ? "✓" : "…") + " " + esc(n) + '</div>';
+    }).join("");
+    if (cf.length >= 2){
+      card($("resNs"), "ok", "NS указывают на Cloudflare",
+        "Делегирование применилось (ответ через " + esc(res.via) + "). В Cloudflare нажмите Check nameservers — домен станет Active. Дальше привяжите Custom Domain к воркеру." + '<div class="nsl">' + items + '</div>');
+    } else {
+      card($("resNs"), "warn", "Пока старые NS (" + cf.length + " из 2 Cloudflare)",
+        "Смена NS ещё расходится по интернету: для .ru обычно 15–60 минут, до 24 часов. Проверьте, что у регистратора вписаны <b>оба</b> NS и сохранены." + '<div class="nsl">' + items + '</div>');
+    }
+  } catch(e){
+    card($("resNs"), "err", "DNS-опрос не удался",
+      "Все публичные DNS-сервисы недоступны из вашей сети (в РФ dns.google и Cloudflare DNS часто блокируются). Это <b>не</b> значит, что домен не работает. Откройте проверку вручную по ссылке ниже или просто дождитесь письма «Active» от Cloudflare.", String(e));
+  }
+}
+
+async function dnsCheck(){
+  var h = newHost();
+  if (!h){ card($("resDns"), "warn", "Домен не указан", "Впишите домен и поддомен в поле «Данные»."); return; }
+  card($("resDns"), "load", "Ищу A-запись для " + h, "Пробую несколько DNS-сервисов…");
+  try {
+    var res = await doh(h, 1);
+    var j = res.json;
+    var ips = (j.Answer || []).filter(function(a){ return a.type === 1; }).map(function(a){ return a.data; });
+    if (ips.length){
+      card($("resDns"), "ok", "DNS-запись есть",
+        esc(h) + " → <code>" + esc(ips.join(", ")) + "</code> (IP Cloudflare). Значит Custom Domain привязан. Ждите сертификат и проверяйте реле.", JSON.stringify(j.Answer));
+    } else if (j.Status === 3){
+      card($("resDns"), "warn", "Записи нет (NXDOMAIN)",
+        "Custom Domain ещё не привязан к воркеру или DNS не применился. Воркер → Settings → Domains &amp; Routes → Add → Custom Domain → " + esc(h));
+    } else {
+      card($("resDns"), "warn", "A-запись не видна", "Подождите пару минут и повторите.", JSON.stringify(j));
+    }
+  } catch(e){
+    card($("resDns"), "err", "DNS-опрос не удался",
+      "Публичные DNS недоступны из вашей сети. Это не показатель проблемы с доменом — decisive-проверка это кнопка «Проверить оба адреса» выше.", String(e));
+  }
+}
+
+function saveToApp(){
+  var url = bestUrl();
+  if (!url){ card($("resSave"), "err", "Нет адреса", "Заполните поля выше."); return; }
+  log("Запись настроек в localStorage: " + url, "act");
+  var wrote = false;
+  try {
+    var raw = localStorage.getItem("synapse.v1");
+    var app = raw ? JSON.parse(raw) : { chats:[], activeId:null, settings:{} };
+    if (app && typeof app === "object"){
+      app.settings = Object.assign({}, app.settings || {}, { relayUrl:url, provider:"custom", baseUrl:"https://ai.starimg.ru/v1" });
+      if (String(st.apiKey||"").trim()) app.settings.apiKey = String(st.apiKey).trim();
+      localStorage.setItem("synapse.v1", JSON.stringify(app));
+      wrote = true;
+    }
+  } catch(e){ log("localStorage недоступен: " + e.message, "err"); }
+  try {
+    var g = JSON.parse(localStorage.getItem("synapse.guide.v1") || "{}");
+    g.workerUrl = url; localStorage.setItem("synapse.guide.v1", JSON.stringify(g));
+  } catch(e){}
+  if (wrote){
+    card($("resSave"), "ok", "Записано в Синапс",
+      "Адрес <code>" + esc(url) + "</code> сохранён в настройках приложения на этом устройстве. Откройте Синапс и выберите модель." +
+      (location.protocol === "file:" ? "<br><br>Страница открыта как файл — запись видна только этому браузеру. На айфоне откройте страницу по адресу сайта и нажмите кнопку снова." : ""));
+    log("Настройки записаны", "ok");
+  } else {
+    card($("resSave"), "warn", "Автозапись недоступна",
+      "Скопируйте адрес кнопкой рядом и вставьте вручную: Синапс → Настройки → CORS-реле.");
+  }
+}
+
+function copyAddr(){
+  var url = bestUrl();
+  if (!url){ card($("resSave"), "err", "Нет адреса", "Заполните поля выше."); return; }
+  var done = function(){ card($("resSave"), "ok", "Скопировано", "<code>" + esc(url) + "</code>"); log("Адрес скопирован", "ok"); };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done).catch(fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement("textarea");
+    ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); }
+    catch(e){ card($("resSave"), "warn", "Скопируйте вручную", "<code>" + esc(url) + "</code>"); }
+    ta.remove();
+  }
+}
+
+function selfTest(){
+  log("Нажата кнопка: тест страницы", "act");
+  var ok = [];
+  ok.push("скрипт выполняется");
+  ok.push("fetch: " + (typeof fetch === "function" ? "есть" : "НЕТ"));
+  ok.push("AbortController: " + (typeof AbortController === "function" ? "есть" : "НЕТ"));
+  ok.push("localStorage: " + (function(){ try { localStorage.setItem("__t","1"); localStorage.removeItem("__t"); return "есть"; } catch(e){ return "недоступен"; } })());
+  ok.push("протокол страницы: " + location.protocol);
+  ok.push("кнопок подключено: " + wired);
+  card($("resSelf"), "ok", "Страница живая, кнопки работают", ok.map(esc).join("<br>"));
+}
+
+function refreshLinks(){
+  var d = cleanDomain(st.domain);
+  var h = newHost();
+  var box = $("manualLinks");
+  var links = [];
+  if (d) links.push('<a href="https://dns.google/resolve?name=' + encodeURIComponent(d) + '&type=NS" target="_blank" rel="noopener">Открыть NS-проверку вручную</a>');
+  if (h) links.push('<a href="https://dns.google/resolve?name=' + encodeURIComponent(h) + '&type=A" target="_blank" rel="noopener">Открыть A-проверку вручную</a>');
+  var oldU = normUrl(st.oldRelay); if (oldU) links.push('<a href="' + esc(oldU) + '" target="_blank" rel="noopener">Открыть старый адрес реле</a>');
+  if (h) links.push('<a href="https://' + esc(h) + '" target="_blank" rel="noopener">Открыть новый адрес реле</a>');
+  box.innerHTML = links.join("");
+}
+
+var wired = 0;
+function wire(id, fn){
+  var el = $(id);
+  if (!el){ showError("не найден элемент #" + id); return; }
+  el.addEventListener("click", function(){
+    try {
+      var r = fn();
+      if (r && typeof r.catch === "function") r.catch(function(e){ showError(e.message || String(e)); });
+    } catch(e){ showError(e.message || String(e)); }
+  });
+  wired++;
+}
+
+try {
+  bindInput("oldRelay","oldRelay");
+  bindInput("domain","domain");
+  bindInput("prefix","prefix");
+  bindInput("apiKey","apiKey");
+
+  wire("btnSelf", selfTest);
+  wire("btnBoth", bothTest);
+  wire("btnChain", chainTest);
+  wire("btnFull", fullTest);
+  wire("btnNs", nsCheck);
+  wire("btnDns", dnsCheck);
+  wire("btnSave", saveToApp);
+  wire("btnCopy", copyAddr);
+  wire("btnClearLog", function(){ logEl.innerHTML = ""; log("Журнал очищен"); });
+
+  refreshLinks();
+  if (location.protocol === "file:") $("fileBanner").className = "banner info show";
+
+  $("badge").className = "badge ok";
+  $("badgeText").textContent = "готово · " + wired + " кнопок";
+  log("Инициализация завершена: подключено " + wired + " кнопок", "ok");
+  log("Автопроверка старого адреса реле…", "act");
+  testRelay(normUrl(st.oldRelay), $("resOld"), "автопроверка").catch(function(e){ showError(e.message); });
+} catch(e){
+  $("badge").className = "badge bad";
+  $("badgeText").textContent = "ошибка запуска";
+  showError(e.message || String(e));
+}
+
+})();
+</script>
+</body>
+</html>

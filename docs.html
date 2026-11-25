@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04070e">
+<meta name="color-scheme" content="dark">
+<title>Синапс · Центр инструкций</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+--ink:#04070e;--ink2:#080e1c;--surf:rgba(12,19,36,.8);--surf2:rgba(20,29,54,.6);
+--line:rgba(116,138,210,.16);--line2:rgba(116,138,210,.34);
+--tx:#e7edfa;--mut:#8d9bbd;--dim:#576285;
+--led:#3ddc84;--lime:#b6f24a;--cyan:#22d3ee;--azure:#3b82f6;--violet:#8b5cf6;
+--amber:#f5a524;--red:#f4436c;
+--grad:linear-gradient(135deg,var(--cyan),var(--azure) 48%,var(--violet));
+--ok:linear-gradient(135deg,var(--led),var(--lime));
+--nav:58px}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(61,220,132,.4) rgba(8,14,28,.7)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(8,14,28,.75)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--led),var(--cyan));border-radius:11px;border:2px solid rgba(8,14,28,.75)}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--tx);font-family:"Manrope",-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none;
+background:radial-gradient(600px 460px at 10% 6%,rgba(61,220,132,.13),transparent 62%),radial-gradient(720px 540px at 90% 4%,rgba(59,130,246,.17),transparent 62%),radial-gradient(800px 600px at 76% 96%,rgba(139,92,246,.13),transparent 62%),linear-gradient(180deg,var(--ink),var(--ink2));
+animation:drift 36s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.45;
+background-image:linear-gradient(rgba(116,138,210,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(116,138,210,.04) 1px,transparent 1px);background-size:44px 44px}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-2%,2%) scale(1.04)}}
+a{color:var(--cyan)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--led);outline-offset:2px;border-radius:8px}
+input{font:inherit}
+.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+code{font-family:"JetBrains Mono",monospace;font-size:.86em;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.26);padding:1px 7px;border-radius:6px;color:#bdf3d3;word-break:break-all}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:70;height:calc(var(--nav) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);background:rgba(4,7,14,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1200px;margin:0 auto;height:var(--nav);display:flex;align-items:center;gap:11px;padding:0 15px}
+.led{width:11px;height:11px;border-radius:50%;background:var(--led);flex:none;box-shadow:0 0 10px var(--led);animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+.nbrand{font-family:"Unbounded";font-weight:900;font-size:11.5px;letter-spacing:.11em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.nsearch{flex:1;min-width:70px;position:relative;display:flex;align-items:center}
+.nsearch .ic{position:absolute;left:10px;color:var(--dim);width:15px;height:15px}
+.nsearch input{width:100%;padding:8px 12px 8px 32px;border-radius:11px;border:1px solid var(--line2);background:rgba(4,7,14,.8);color:var(--tx);font-size:13.5px}
+.nsearch input:focus{outline:none;border-color:rgba(61,220,132,.6);box-shadow:0 0 0 3px rgba(61,220,132,.12)}
+.nsearch input::placeholder{color:var(--dim)}
+.ncount{flex:none;font-family:"JetBrains Mono";font-size:11.5px;color:var(--led);white-space:nowrap}
+.nsound{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:var(--mut);border:1px solid var(--line2);background:var(--surf2)}
+.nsound.on{color:var(--led);border-color:rgba(61,220,132,.5)}
+.nbar{position:absolute;left:0;bottom:-1px;height:2px;background:var(--ok);width:0}
+
+.bar{position:sticky;top:calc(var(--nav) + env(safe-area-inset-top));z-index:60;background:rgba(6,10,20,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--line2)}
+.bar-in{max-width:1200px;margin:0 auto;padding:10px 15px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{padding:6px 12px;border-radius:999px;font-size:11.5px;font-weight:800;border:1px solid var(--line2);background:var(--surf2);color:var(--mut);white-space:nowrap}
+.chip:hover{color:var(--cyan);border-color:rgba(34,211,238,.5)}
+.chip.on{color:#04121a;background:var(--grad);border-color:transparent}
+.tool{display:flex;align-items:center;gap:7px}
+.tool .tl{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.sw{position:relative;width:40px;height:22px;flex:none}
+.sw input{position:absolute;opacity:0;inset:0;cursor:pointer;z-index:1}
+.sw .tr{position:absolute;inset:0;border-radius:999px;background:var(--surf2);border:1px solid var(--line2);transition:.2s}
+.sw .tr::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--dim);transition:.2s}
+.sw input:checked+.tr{background:rgba(61,220,132,.2);border-color:rgba(61,220,132,.6)}
+.sw input:checked+.tr::after{left:20px;background:var(--led);box-shadow:0 0 8px rgba(61,220,132,.7)}
+.mini{padding:7px 12px;border-radius:10px;font-size:11.5px;font-weight:800;border:1px solid var(--line2);background:var(--surf2);color:var(--mut);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.mini:hover{color:var(--led);border-color:rgba(61,220,132,.5)}
+.mini.p{color:#05230f;background:var(--ok);border-color:transparent}
+.basewrap{flex:1;min-width:190px;display:flex;align-items:center;gap:7px}
+.basewrap input{flex:1;min-width:90px;padding:7px 11px;border-radius:10px;border:1px solid var(--line2);background:rgba(4,7,14,.8);color:#bdf3d3;font-family:"JetBrains Mono";font-size:11.5px}
+.basewrap input:focus{outline:none;border-color:rgba(61,220,132,.55)}
+
+.wrap{max-width:1200px;margin:0 auto;padding:20px 15px calc(60px + env(safe-area-inset-bottom))}
+.rev{opacity:0;transform:translateY(16px);transition:opacity .5s cubic-bezier(.2,.7,.3,1),transform .5s cubic-bezier(.2,.7,.3,1)}
+.rev.in{opacity:1;transform:none}
+h1{font-family:"Unbounded";font-weight:900;font-size:clamp(22px,4.4vw,34px);line-height:1.18;margin-bottom:11px}
+h1 em{font-style:normal;background:var(--ok);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--mut);font-size:14.5px;max-width:830px;margin-bottom:16px}
+h2{font-family:"Unbounded";font-weight:700;font-size:15px;letter-spacing:.04em;margin:28px 0 12px;display:flex;align-items:center;gap:11px}
+h2 .cnt{font-family:"JetBrains Mono";font-size:11.5px;color:var(--dim);font-weight:400}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+
+.routes{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:14px 0 6px}
+.route{position:relative;text-align:left;padding:16px;border-radius:16px;border:1px solid var(--line2);background:var(--surf2);transition:.2s;display:block}
+.route:hover{transform:translateY(-3px);border-color:rgba(34,211,238,.55)}
+.route.on{border-color:rgba(61,220,132,.65);background:linear-gradient(150deg,rgba(61,220,132,.1),rgba(34,211,238,.07))}
+.route .rt{font-family:"Unbounded";font-weight:700;font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.route .rd{font-size:12.5px;color:var(--mut);line-height:1.5}
+.route .rm{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}
+.rtag{font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;border:1px solid var(--line2);color:var(--mut)}
+.route .badge{position:absolute;top:-9px;right:12px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:7px;color:#05230f;background:var(--ok)}
+.routestrip{display:none;margin:12px 0;padding:14px;border-radius:15px;border:1px solid rgba(61,220,132,.45);background:rgba(61,220,132,.06)}
+.routestrip.show{display:block;animation:up .3s both}
+.routestrip .rh{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:800;color:#bdf3d3;margin-bottom:10px}
+.routestrip .rh button{margin-left:auto;font-size:11.5px;color:var(--mut);border:1px solid var(--line2);padding:5px 10px;border-radius:9px}
+.rsteps{display:flex;gap:7px;flex-wrap:wrap}
+.rstep{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:11px;border:1px solid var(--line2);background:rgba(4,7,14,.6);font-size:12px;text-decoration:none;color:var(--tx)}
+.rstep:hover{border-color:rgba(61,220,132,.55);color:#bdf3d3}
+.rstep .n{width:19px;height:19px;border-radius:6px;background:rgba(61,220,132,.15);border:1px solid rgba(61,220,132,.5);color:#bdf3d3;display:grid;place-items:center;font-family:"JetBrains Mono";font-size:10.5px;font-weight:700;flex:none}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+.doc{position:relative;border:1px solid var(--line2);border-radius:17px;background:var(--surf);backdrop-filter:blur(12px);padding:16px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s,transform .2s}
+.doc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
+.doc:hover{transform:translateY(-2px);border-color:rgba(34,211,238,.45)}
+.doc.core::before{background:var(--ok)}
+.doc.key::before{background:linear-gradient(180deg,var(--led),var(--cyan))}
+.doc.archive::before{background:linear-gradient(180deg,var(--dim),var(--line2))}
+.doc.replaced::before{background:linear-gradient(180deg,var(--amber),var(--red))}
+.doc.read{border-color:rgba(61,220,132,.4)}
+.doc-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px}
+.doc-num{font-family:"JetBrains Mono";font-size:10.5px;font-weight:600;color:var(--cyan);border:1px solid rgba(34,211,238,.4);background:rgba(34,211,238,.09);border-radius:7px;padding:4px 7px;flex:none}
+.doc.read .doc-num{color:#bdf3d3;border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.1)}
+.doc-titles{flex:1;min-width:0}
+.doc-titles h3{font-family:"Unbounded";font-weight:700;font-size:13.5px;line-height:1.32;margin-bottom:4px}
+.doc-file{font-family:"JetBrains Mono";font-size:11px;color:var(--dim);word-break:break-all}
+.spill{flex:none;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--line2);color:var(--mut);white-space:nowrap}
+.spill.core,.spill.key{color:#bdf3d3;border-color:rgba(61,220,132,.55);background:rgba(61,220,132,.12)}
+.spill.actual{color:#bcd8ff;border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.1)}
+.spill.archive{color:var(--dim)}
+.spill.replaced{color:#fcd9a0;border-color:rgba(245,165,36,.5);background:rgba(245,165,36,.1)}
+.doc-desc{font-size:13px;color:#ccd6f2;margin-bottom:9px}
+.doc-solve{font-size:12px;color:var(--mut);padding:9px 11px;border-radius:11px;background:rgba(4,7,14,.55);border:1px solid var(--line);margin-bottom:10px;line-height:1.5}
+.doc-solve b{color:var(--tx)}
+.doc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px}
+.tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--dim)}
+.doc-avail{display:flex;align-items:center;gap:8px;font-size:11.5px;margin-bottom:11px;padding:8px 11px;border-radius:10px;border:1px solid var(--line);background:rgba(4,7,14,.45)}
+.doc-avail .at{color:var(--mut)}
+.doc-avail.ok{border-color:rgba(61,220,132,.45)}
+.doc-avail.ok .at{color:#bdf3d3}
+.doc-avail.no{border-color:rgba(244,67,108,.45)}
+.doc-avail.no .at{color:#ffc3d1}
+.doc-avail.warn{border-color:rgba(245,165,36,.45)}
+.doc-avail.warn .at{color:#fcd9a0}
+.apill{margin-left:auto;flex:none;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line2);color:var(--dim)}
+.doc-avail.ok .apill{color:#bdf3d3;border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.1)}
+.doc-avail.no .apill{color:#ffc3d1;border-color:rgba(244,67,108,.5);background:rgba(244,67,108,.1)}
+.doc-avail.warn .apill{color:#fcd9a0;border-color:rgba(245,165,36,.5);background:rgba(245,165,36,.1)}
+.doc-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto}
+.b{display:inline-flex;align-items:center;gap:7px;padding:10px 14px;border-radius:11px;font-size:12.5px;font-weight:800;border:1px solid transparent;text-decoration:none;transition:.18s}
+.b1{color:#04121a;background:var(--grad);box-shadow:0 3px 13px rgba(59,130,246,.26)}
+.b2{color:var(--mut);border-color:var(--line2);background:var(--surf2)}
+.b2:hover{color:var(--cyan);border-color:rgba(34,211,238,.5)}
+.b3{color:#05230f;background:var(--ok)}
+.b.sm{padding:8px 11px;font-size:11.5px}
+.doc-note{font-size:11.5px;color:#fcd9a0;margin-bottom:9px}
+
+.panel{border:1px solid var(--line2);border-radius:17px;background:var(--surf);padding:17px;margin-bottom:14px;position:relative;overflow:hidden}
+.panel::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
+.panel h3{font-family:"Unbounded";font-weight:700;font-size:14px;margin-bottom:9px}
+.panel p{font-size:13.5px;color:#ccd6f2;margin:.4em 0}
+.ol{list-style:none;counter-reset:s;margin:11px 0;display:flex;flex-direction:column;gap:9px}
+.ol li{counter-increment:s;position:relative;padding-left:33px;font-size:13.5px;line-height:1.55;color:#ccd6f2}
+.ol li::before{content:counter(s);position:absolute;left:0;top:2px;width:23px;height:23px;border-radius:7px;display:grid;place-items:center;font-family:"JetBrains Mono";font-size:11px;color:var(--cyan);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.32)}
+.note{display:flex;gap:10px;padding:11px 13px;border-radius:12px;font-size:12.5px;line-height:1.55;margin:11px 0}
+.note.info{border:1px solid rgba(59,130,246,.42);background:rgba(59,130,246,.08);color:#bcd8ff}
+.note.good{border:1px solid rgba(61,220,132,.42);background:rgba(61,220,132,.08);color:#bdf3d3}
+.note.warn{border:1px solid rgba(245,165,36,.42);background:rgba(245,165,36,.08);color:#fcd9a0}
+.files{display:flex;flex-direction:column;gap:6px;margin:11px 0}
+.frow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:11px;border:1px solid var(--line);background:rgba(4,7,14,.55);font-family:"JetBrains Mono";font-size:11.5px}
+.frow .fn{flex:1;min-width:0;color:#bdf3d3;word-break:break-all}
+.frow .fd{font-family:"Manrope";font-size:11px;color:var(--dim)}
+.frow .fs{flex:none;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:800;text-transform:uppercase;border:1px solid var(--line2);color:var(--dim);font-family:"Manrope"}
+.frow.ok .fs{color:#bdf3d3;border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.1)}
+.frow.no .fs{color:#ffc3d1;border-color:rgba(244,67,108,.5);background:rgba(244,67,108,.1)}
+.term{margin:11px 0;border-radius:13px;border:1px solid var(--line2);background:#04080f;overflow:hidden}
+.term-h{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(16,25,46,.85);border-bottom:1px solid var(--line);font-family:"JetBrains Mono";font-size:11px;color:var(--mut);flex-wrap:wrap}
+.term-h .b{margin-left:auto}
+.term pre{padding:12px 14px;overflow:auto;font-family:"JetBrains Mono";font-size:11.5px;line-height:1.6;color:#c9e6d4;max-height:260px;white-space:pre}
+.log{margin-top:11px;border-radius:12px;border:1px solid var(--line);background:#04080f;padding:10px 12px;height:160px;overflow:auto;font-family:"JetBrains Mono";font-size:11px;line-height:1.6}
+.ll{color:var(--mut);white-space:pre-wrap;word-break:break-word}
+.ll.ok{color:var(--led)}.ll.warn{color:var(--amber)}.ll.err{color:var(--red)}.ll.act{color:var(--cyan)}
+.banner{display:none;padding:12px 14px;border-radius:13px;font-size:13px;margin-bottom:14px;line-height:1.55}
+.banner.show{display:block}
+.banner.err{border:1px solid rgba(244,67,108,.55);background:rgba(244,67,108,.1);color:#ffc3d1}
+.banner.info{border:1px solid rgba(59,130,246,.45);background:rgba(59,130,246,.08);color:#bcd8ff}
+.banner.warn{border:1px solid rgba(245,165,36,.5);background:rgba(245,165,36,.09);color:#fcd9a0}
+.empty{padding:26px;text-align:center;color:var(--dim);font-size:13.5px;border:1px dashed var(--line2);border-radius:15px}
+.spin{width:13px;height:13px;flex:none;border-radius:50%;border:2px solid rgba(59,130,246,.25);border-top-color:var(--azure);animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom));z-index:90;padding:11px 17px;border-radius:13px;font-size:13px;font-weight:700;background:rgba(10,16,32,.96);border:1px solid rgba(61,220,132,.5);color:#bdf3d3;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:up .25s both;max-width:92vw}
+footer{max-width:1200px;margin:0 auto;padding:22px 15px calc(30px + env(safe-area-inset-bottom));border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--dim);font-size:12px}
+footer a{margin-left:auto}
+@media(max-width:900px){.routes{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.nbrand{display:none}}
+@media(max-width:520px){.ncount{display:none}.doc{padding:14px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rev{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V7a1.5 1.5 0 0 1 1.5-1.5H10"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3.5V8h-4.5"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7V5z"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M15.5 9.5a4 4 0 0 1 0 5"/></symbol>
+<symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.5M3.5 12h.5M3.5 18h.5"/></symbol>
+<symbol id="i-server" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="6" rx="2"/><rect x="3.5" y="14" width="17" height="6" rx="2"/><path d="M7 7h.5M7 17h.5"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 18.2 10 4 4 0 0 1 17.5 18H7z"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.3 3.9 5.2 3.9 8.5s-1.3 6.2-3.9 8.5c-2.6-2.3-3.9-5.2-3.9-8.5s1.3-6.2 3.9-8.5z"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19L16 8M14.5 4.5l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4L2.5 20h19L12 4z"/><path d="M12 10v4.5M12 17.5v.5"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6.5 7l1 13h9l1-13"/></symbol>
+</svg>
+
+<nav class="nav">
+  <div class="nav-in">
+    <span class="led"></span><span class="nbrand">СИНАПС · ЦЕНТР ИНСТРУКЦИЙ</span>
+    <div class="nsearch"><svg class="ic"><use href="#i-search"/></svg><input id="q" type="search" placeholder="Поиск: домен, реле, Beget, CORS…  (клавиша /)" autocomplete="off"></div>
+    <span class="ncount" id="count">—</span>
+    <button class="nsound on" id="soundBtn" aria-label="Звук"><svg class="ic"><use href="#i-sound"/></svg></button>
+  </div>
+  <div class="nbar" id="nbar"></div>
+</nav>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="chips" id="groups"></div>
+    <div class="tool"><span class="tl">Только актуальные</span><label class="sw"><input type="checkbox" id="onlyActual"><span class="tr"></span></label></div>
+    <button class="mini p" id="checkBtn"><svg class="ic"><use href="#i-refresh"/></svg>Проверить файлы</button>
+    <button class="mini" id="copyListBtn"><svg class="ic"><use href="#i-list"/></svg>Список файлов</button>
+    <div class="basewrap"><span class="tl">Базовый адрес</span><input id="base" type="text" spellcheck="false" placeholder="auto"></div>
+    <button class="mini" id="resetBtn"><svg class="ic"><use href="#i-trash"/></svg>Сброс отметок</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="banner err" id="errBanner"></div>
+  <div class="banner warn" id="protoBanner"></div>
+  <div class="banner info" id="originBanner"></div>
+
+  <section class="rev">
+    <h1>Все инструкции <em>в одном месте</em></h1>
+    <p class="lead">Каждая карточка — отдельная страница-помощник, которая открывается как обычный сайт. Выберите маршрут целиком или найдите нужную инструкцию поиском. Кнопка «Проверить файлы» покажет, что уже загружено на сервер, а чего не хватает.</p>
+    <div class="routes" id="routes"></div>
+    <div class="routestrip" id="routestrip"></div>
+  </section>
+
+  <div id="sections"></div>
+  <div class="empty" id="empty" style="display:none">Ничего не найдено. Очистите поиск или выберите группу «Все».</div>
+
+  <section class="rev" id="service">
+    <h2><svg class="ic" style="color:var(--cyan)"><use href="#i-server"/></svg>Служебные файлы приложения <span class="cnt" id="svcCount"></span></h2>
+    <div class="panel">
+      <p>Это не инструкции, а части самого Синапса. Они должны лежать в той же папке, что и <code>index.html</code>, иначе приложение не установится на домашний экран и не будет работать офлайн.</p>
+      <div class="files" id="svcFiles"></div>
+      <div class="btns" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="mini" id="copyAllBtn"><svg class="ic"><use href="#i-copy"/></svg>Скопировать полный список файлов</button>
+        <button class="mini" id="checkSvcBtn"><svg class="ic"><use href="#i-refresh"/></svg>Проверить служебные</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="rev" id="deploy">
+    <h2><svg class="ic" style="color:var(--led)"><use href="#i-globe"/></svg>Как всё выложить и открывать</h2>
+    <div class="panel">
+      <ol class="ol">
+        <li>Соберите все файлы в одну папку на компьютере: инструкции <code>.html</code> плюс четыре служебных файла.</li>
+        <li>Откройте свой репозиторий на GitHub → <b>Add file</b> → <b>Upload files</b> → перетащите все файлы сразу → <b>Commit changes</b>.</li>
+        <li>Файлы должны лежать <b>в корне</b> репозитория, рядом друг с другом — не внутри вложенной папки.</li>
+        <li>Подождите 1–2 минуты, пока GitHub Pages обновится.</li>
+        <li>Откройте эту страницу по адресу сайта: <code id="selfUrl">…/docs.html</code></li>
+        <li>Нажмите «Проверить файлы» — увидите, какие инструкции загружены, а какие ещё нет.</li>
+        <li>Добавьте страницу на домашний экран айфона: Safari → Поделиться → «На экран Домой». Получится «пульт» со всеми инструкциями.</li>
+      </ol>
+      <div class="note good"><span>Все ссылки внутри этой страницы <b>относительные</b>: страница сама подхватывает адрес, по которому открыта. Работает и на GitHub Pages, и на вашем домене после переезда на VPS — ничего переписывать не нужно.</span></div>
+      <div class="note info"><span>Переезд на Beget VPS: скопируйте все эти файлы в <code>/var/www/synapse</code> — центр инструкций станет доступен по адресу <code>https://вашдомен/docs.html</code>.</span></div>
+      <div class="term">
+        <div class="term-h">команда для сервера: скачать все файлы с GitHub Pages<button class="b b2 sm" id="copyPull"><svg class="ic"><use href="#i-copy"/></svg>Скопировать</button></div>
+        <pre id="pullCmd"></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="rev">
+    <h2><svg class="ic" style="color:var(--amber)"><use href="#i-alert"/></svg>Журнал действий</h2>
+    <div class="panel">
+      <p>Здесь видно всё, что делает страница: какие файлы проверены, что скопировано, какие ошибки возникли. Ничего не происходит «молча».</p>
+      <div class="log" id="log"></div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span class="led" style="width:9px;height:9px"></span>
+  <span>Синапс · центр инструкций · ссылки относительные, работают на любом адресе</span>
+  <a href="index.html">Открыть приложение →</a>
+</footer>
+
+<script>
+(function(){
+"use strict";
+
+var $=function(id){return document.getElementById(id);};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+var LS="synapse.docs.v1";
+
+var GROUPS=[
+ {id:"start",name:"Запуск",icon:"i-play"},
+ {id:"relay",name:"Реле и Cloudflare",icon:"i-cloud"},
+ {id:"domain",name:"Домен и DNS",icon:"i-globe"},
+ {id:"diag",name:"Диагностика",icon:"i-wand"},
+ {id:"move",name:"Переезд в Россию",icon:"i-server"}
+];
+
+var STATUS={
+ core:{label:"приложение"},
+ key:{label:"главная"},
+ actual:{label:"актуально"},
+ archive:{label:"архив"},
+ replaced:{label:"заменена"}
+};
+
+var DOCS=[
+ {id:"app",file:"index.html",group:"start",status:"core",marker:"СИНАПС",
+  title:"Синапс — само приложение",
+  desc:"Чат с историей, переключением диалогов, поиском в интернете, markdown и потоковыми ответами. Ставится на домашний экран айфона как приложение.",
+  solve:"Это то, чем вы пользуетесь. Все остальные страницы — помощники для его настройки.",
+  tags:["PWA","чат","поиск","офлайн"]},
+
+ {id:"guide",file:"guide.html",group:"start",status:"actual",marker:"СИНАПС · ИНСТРУКЦИЯ",
+  title:"Полный запуск с нуля",
+  desc:"Восемь шагов: собрать файлы, создать репозиторий, включить GitHub Pages, поставить на айфон, подключить свой API и реле.",
+  solve:"Начните здесь, если приложение ещё не опубликовано в интернете.",
+  tags:["GitHub Pages","айфон","8 шагов"]},
+
+ {id:"steps",file:"steps.html",group:"start",status:"actual",marker:"МАСТЕР НАСТРОЙКИ",
+  title:"Мастер настройки домена",
+  desc:"Двенадцать шагов по одному на экран: кнопка «Дальше», прогресс сохраняется. Есть режим «все шаги списком» и печать.",
+  solve:"Когда купили домен и не понимаете, что делать дальше — ведёт за руку от NS до готового адреса.",
+  tags:["мастер","домен","12 шагов"]},
+
+ {id:"cfhelp",file:"cloudflare-help.html",group:"relay",status:"actual",marker:"РЕЛЕ БЕЗ ПАНИКИ",
+  title:"Cloudflare: где искать Workers",
+  desc:"Кнопка «Create application» ведёт на GitHub, пункта Workers & Pages нет в меню. Разбор нового интерфейса с картинками нужных экранов.",
+  solve:"Если застряли при создании воркера и не можете найти нужную вкладку.",
+  tags:["Cloudflare","Workers","интерфейс"]},
+
+ {id:"fixrelay",file:"fix-relay.html",group:"relay",status:"actual",marker:"ПОЧИНИТЬ РЕЛЕ",
+  title:"Починить адрес реле",
+  desc:"Три сетевые пробы (обычная, слепая, старый адрес) и разбор всех кодов ошибок Cloudflare: 1000, 1001, 52x, 1101, Hello World.",
+  solve:"Поддомен создан, но не открывается или показывает ошибку Cloudflare.",
+  tags:["ошибки","1001","DNS","сертификат"]},
+
+ {id:"relaydoctor",file:"relay-doctor.html",group:"relay",status:"archive",marker:"ДИАГНОСТИКА РЕЛЕ",
+  title:"Диагностика адреса реле",
+  desc:"Ранняя версия помощника: объясняет, почему JSON про x-target-url — это успех, и расшифровывает ответы воркера.",
+  solve:"Оставлена для истории. Вместо неё используйте check.html или fix-relay.html.",
+  tags:["архив","реле"]},
+
+ {id:"domainsetup",file:"domain-setup.html",group:"domain",status:"replaced",marker:"ДОМЕН ДЛЯ РЕЛЕ",
+  title:"Подключение купленного домена",
+  desc:"Четыре этапа: добавить домен в Cloudflare, сменить NS у регистратора, дождаться Active, привязать Custom Domain.",
+  solve:"В этой версии проверки NS не работали. Актуальные проверки — в check.html и steps.html.",
+  tags:["NS","Custom Domain","заменена"],
+  note:"Заменена: проверки в ней не работают. Текстовая часть верна."},
+
+ {id:"nsstatus",file:"ns-status.html",group:"domain",status:"actual",marker:"СТАТУС NS",
+  title:"«Домен удалят через 28 дней»",
+  desc:"Объясняет статус ожидания в Cloudflare, отсчитывает время с момента смены NS, разбирает текст WHOIS и находит реальную причину.",
+  solve:"NS обновлены, но Cloudflare всё ещё пишет Pending и пугает удалением.",
+  tags:["WHOIS","Pending","DNSSEC"]},
+
+ {id:"check",file:"check.html",group:"diag",status:"actual",marker:"реле и домена",
+  title:"Универсальная проверка",
+  desc:"Компактная страница с журналом: проверяет оба адреса реле, цепочку до провайдера, NS и A-запись. Показывает любые ошибки прямо на экране.",
+  solve:"Быстро понять, что работает, а что нет — без чтения длинных инструкций.",
+  tags:["журнал","проверки","универсальная"]},
+
+ {id:"appdoctor",file:"app-doctor.html",group:"diag",status:"actual",marker:"ДИАГНОСТИКА ПРИЛОЖЕНИЯ",
+  title:"Почему приложение не подключается",
+  desc:"Читает реальные настройки Синапса из памяти браузера и повторяет запрос приложения: четыре ступени включая CORS-preflight. Даёт усиленный код воркера.",
+  solve:"Тесты реле проходят, а само приложение пишет про CORS. Проверять на айфоне!",
+  tags:["localStorage","preflight","worker v2"]},
+
+ {id:"networkfix",file:"network-fix.html",group:"diag",status:"key",marker:"СЕТЬ · ДИАГНОЗ",
+  title:"Что блокирует оператор",
+  desc:"Матрица доступности: Cloudflare против российских площадок, две пробы на адрес. Ставит диагноз и предлагает три пути решения.",
+  solve:"С VPN всё работает, без VPN — ничего. Эта страница объясняет почему.",
+  tags:["блокировки","матрица","диагноз"]},
+
+ {id:"beget",file:"beget-vps.html",group:"move",status:"key",marker:"BEGET VPS",
+  title:"Переезд на Beget VPS",
+  desc:"Двенадцать юнитов: заказ сервера, SSH, DNS серым облаком, скрипт установки одним блоком, файлы приложения, проверки, обслуживание.",
+  solve:"Самое надёжное решение: сайт и реле на российском IP под вашим доменом. VPN не нужен.",
+  tags:["Beget","VPS","Caddy","setup.sh"]}
+];
+
+var SERVICE=[
+ {file:"sw.js",desc:"офлайн-режим приложения",marker:"synapse-v1"},
+ {file:"manifest.webmanifest",desc:"иконка и установка на домашний экран",marker:"Синапс"},
+ {file:"icon.svg",desc:"значок приложения",marker:"<svg"},
+ {file:"worker.js",alt:"relay/worker.js",desc:"код CORS-реле для Cloudflare",marker:"DEFAULT_ALLOWED"}
+];
+
+var ROUTES=[
+ {id:"quick",name:"Быстрый старт",desc:"Опубликовать приложение и подключить ключ. Без домена и сервера.",meta:["30 минут","без затрат"],
+  steps:["guide","app","appdoctor"]},
+ {id:"cf",name:"Домен + Cloudflare",desc:"Свой адрес для реле на Cloudflare. Работает не у всех операторов.",meta:["1–2 часа","домен ~200 ₽/год"],
+  steps:["steps","cfhelp","nsstatus","fixrelay","check","appdoctor"]},
+ {id:"ru",name:"Переезд в Россию",desc:"Сайт и реле на российском VPS. Работает без VPN у любого оператора.",meta:["1–2 часа","VPS ~200 ₽/мес"],rec:true,
+  steps:["networkfix","beget","check","appdoctor"]}
+];
+
+var st={q:"",group:"all",onlyActual:false,route:"",sound:true,base:"",read:{}};
+try{var raw=localStorage.getItem(LS);if(raw){var p=JSON.parse(raw);for(var k in st){if(p[k]!=null)st[k]=p[k];}}}catch(e){}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+
+var avail={};
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function showError(m){var b=$("errBanner");b.className="banner err show";b.textContent="Ошибка скрипта: "+m;}
+window.addEventListener("error",function(e){showError((e.message||"неизвестно")+(e.lineno?" (строка "+e.lineno+")":""));});
+
+function log(msg,kind){
+  var t=new Date().toLocaleTimeString("ru-RU");
+  var l=document.createElement("div");
+  l.className="ll"+(kind?" "+kind:"");
+  l.textContent="["+t+"] "+msg;
+  $("log").appendChild(l);
+  $("log").scrollTop=$("log").scrollHeight;
+}
+function toast(msg){
+  var el=document.createElement("div");el.className="toast";el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(function(){el.style.opacity="0";el.style.transition="opacity .3s";setTimeout(function(){el.remove();},320);},2200);
+}
+var AC=null;
+function beep(kind){
+  if(!st.sound)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended")AC.resume();
+    var t=AC.currentTime;
+    var note=function(f,s,d,v){
+      var o=AC.createOscillator(),g=AC.createGain();
+      o.type="sine";o.frequency.setValueAtTime(f,t+s);
+      g.gain.setValueAtTime(0,t+s);
+      g.gain.linearRampToValueAtTime(v||0.03,t+s+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+s+d);
+      o.connect(g);g.connect(AC.destination);o.start(t+s);o.stop(t+s+d+0.02);
+    };
+    if(kind==="ok"){note(680,0,0.1);note(1020,0.07,0.13);}
+    else if(kind==="err")note(180,0,0.15,0.04);
+    else note(1200,0,0.04,0.025);
+  }catch(e){}
+}
+function baseUrl(){
+  var b=String(st.base||"").trim();
+  if(b){return b.replace(/\/+$/,"")+"/";}
+  var path=location.pathname.replace(/[^/]*$/,"");
+  return location.origin+path;
+}
+function linkFor(file){return baseUrl()+file;}
+function docById(id){for(var i=0;i<DOCS.length;i++){if(DOCS[i].id===id)return DOCS[i];}return null;}
+
+function visibleDocs(){
+  var list=DOCS.slice();
+  if(st.route){
+    var r=null;
+    for(var i=0;i<ROUTES.length;i++){if(ROUTES[i].id===st.route)r=ROUTES[i];}
+    if(r){
+      var ordered=[];
+      r.steps.forEach(function(id){var d=docById(id);if(d)ordered.push(d);});
+      list=ordered;
+    }
+  }else if(st.group!=="all"){
+    list=list.filter(function(d){return d.group===st.group;});
+  }
+  if(st.onlyActual&&!st.route){
+    list=list.filter(function(d){return d.status!=="archive"&&d.status!=="replaced";});
+  }
+  var q=String(st.q||"").trim().toLowerCase();
+  if(q){
+    list=list.filter(function(d){
+      var hay=(d.title+" "+d.desc+" "+d.solve+" "+d.file+" "+d.tags.join(" ")).toLowerCase();
+      return hay.indexOf(q)>=0;
+    });
+  }
+  return list;
+}
+
+function availHtml(file){
+  var a=avail[file];
+  if(!a)return '<div class="doc-avail" data-av="'+esc(file)+'"><span class="at">Наличие файла не проверялось</span><span class="apill">—</span></div>';
+  if(a.state==="run")return '<div class="doc-avail" data-av="'+esc(file)+'"><span class="spin"></span><span class="at">Проверяю…</span><span class="apill">…</span></div>';
+  if(a.state==="ok")return '<div class="doc-avail ok" data-av="'+esc(file)+'"><svg class="ic"><use href="#i-check"/></svg><span class="at">Файл на сервере, содержимое верное</span><span class="apill">загружен</span></div>';
+  if(a.state==="wrong")return '<div class="doc-avail warn" data-av="'+esc(file)+'"><svg class="ic"><use href="#i-alert"/></svg><span class="at">Файл отвечает, но содержимое другое</span><span class="apill">проверить</span></div>';
+  if(a.state==="missing")return '<div class="doc-avail no" data-av="'+esc(file)+'"><svg class="ic"><use href="#i-x"/></svg><span class="at">Файла нет — загрузите его в репозиторий</span><span class="apill">нет файла</span></div>';
+  return '<div class="doc-avail no" data-av="'+esc(file)+'"><svg class="ic"><use href="#i-alert"/></svg><span class="at">'+esc(a.text||"Проверка не удалась")+'</span><span class="apill">ошибка</span></div>';
+}
+
+function cardHtml(d,i){
+  var stt=STATUS[d.status]||STATUS.actual;
+  var read=!!st.read[d.id];
+  var orderBadge=st.route?String(i+1):String(DOCS.indexOf(d)+1);
+  return '<article class="doc '+d.status+(read?" read":"")+'" data-doc="'+d.id+'">'+
+    '<div class="doc-top"><span class="doc-num">'+orderBadge+'</span>'+
+    '<div class="doc-titles"><h3>'+esc(d.title)+'</h3><div class="doc-file">'+esc(d.file)+'</div></div>'+
+    '<span class="spill '+d.status+'">'+esc(stt.label)+'</span></div>'+
+    '<div class="doc-desc">'+esc(d.desc)+'</div>'+
+    '<div class="doc-solve"><b>Когда нужна:</b> '+esc(d.solve)+'</div>'+
+    (d.note?'<div class="doc-note">'+esc(d.note)+'</div>':'')+
+    '<div class="doc-tags">'+d.tags.map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join("")+'</div>'+
+    availHtml(d.file)+
+    '<div class="doc-btns">'+
+      '<a class="b b1" href="'+esc(linkFor(d.file))+'" target="_blank" rel="noopener" data-open="'+d.id+'"><svg class="ic"><use href="#i-ext"/></svg>Открыть</a>'+
+      '<button class="b b2 sm" data-copylink="'+esc(d.file)+'"><svg class="ic"><use href="#i-copy"/></svg>Ссылка</button>'+
+      '<button class="b '+(read?"b3":"b2")+' sm" data-read="'+d.id+'"><svg class="ic"><use href="#i-check"/></svg>'+(read?"Пройдено":"Отметить")+'</button>'+
+    '</div></article>';
+}
+
+function render(){
+  var list=visibleDocs();
+  var box=$("sections");
+  var html="";
+  if(st.route||st.group!=="all"||st.q){
+    html+='<h2>'+(st.route?"Маршрут по порядку":(st.q?"Результаты поиска":"Группа"))+' <span class="cnt">'+list.length+'</span></h2><div class="grid">'+list.map(cardHtml).join("")+'</div>';
+  }else{
+    GROUPS.forEach(function(g){
+      var sub=list.filter(function(d){return d.group===g.id;});
+      if(!sub.length)return;
+      html+='<h2><svg class="ic" style="color:var(--cyan)"><use href="#'+g.icon+'"/></svg>'+esc(g.name)+' <span class="cnt">'+sub.length+'</span></h2><div class="grid">'+sub.map(cardHtml).join("")+'</div>';
+    });
+  }
+  box.innerHTML=html;
+  $("empty").style.display=list.length?"none":"block";
+  $("count").textContent=list.length+" / "+DOCS.length;
+  renderGroups();
+  renderRoutes();
+  renderRouteStrip();
+  renderService();
+  $("selfUrl").textContent=linkFor("docs.html");
+  $("pullCmd").textContent=pullCommand();
+  observeReveals();
+}
+function renderGroups(){
+  var html='<button class="chip'+(st.group==="all"&&!st.route?" on":"")+'" data-group="all">Все</button>';
+  GROUPS.forEach(function(g){
+    html+='<button class="chip'+(st.group===g.id&&!st.route?" on":"")+'" data-group="'+g.id+'">'+esc(g.name)+'</button>';
+  });
+  $("groups").innerHTML=html;
+}
+function renderRoutes(){
+  $("routes").innerHTML=ROUTES.map(function(r){
+    return '<button class="route'+(st.route===r.id?" on":"")+'" data-route="'+r.id+'">'+
+      (r.rec?'<span class="badge">рекомендуем</span>':'')+
+      '<div class="rt">'+esc(r.name)+'</div><div class="rd">'+esc(r.desc)+'</div>'+
+      '<div class="rm">'+r.meta.map(function(m){return '<span class="rtag">'+esc(m)+'</span>';}).join("")+'<span class="rtag">'+r.steps.length+' шага</span></div></button>';
+  }).join("");
+}
+function renderRouteStrip(){
+  var strip=$("routestrip");
+  if(!st.route){strip.className="routestrip";strip.innerHTML="";return;}
+  var r=null;
+  ROUTES.forEach(function(x){if(x.id===st.route)r=x;});
+  if(!r){strip.className="routestrip";return;}
+  var steps=r.steps.map(function(id,i){
+    var d=docById(id);
+    if(!d)return "";
+    return '<a class="rstep" href="'+esc(linkFor(d.file))+'" target="_blank" rel="noopener" data-open="'+d.id+'"><span class="n">'+(i+1)+'</span>'+esc(d.title)+'</a>';
+  }).join("");
+  strip.className="routestrip show";
+  strip.innerHTML='<div class="rh"><svg class="ic"><use href="#i-list"/></svg>Маршрут «'+esc(r.name)+'» — открывайте по порядку<button data-route="">показать все</button></div><div class="rsteps">'+steps+'</div>';
+}
+function renderService(){
+  $("svcCount").textContent=SERVICE.length;
+  $("svcFiles").innerHTML=SERVICE.map(function(s){
+    var a=avail[s.file];
+    var cls="",label="не проверен";
+    if(a){
+      if(a.state==="ok"){cls="ok";label="загружен";}
+      else if(a.state==="missing"){cls="no";label="нет файла";}
+      else if(a.state==="wrong"){cls="";label="другое содержимое";}
+      else if(a.state==="run"){cls="";label="проверка…";}
+      else {cls="no";label="ошибка";}
+    }
+    return '<div class="frow '+cls+'"><span class="fn">'+esc(s.file)+(s.alt?' <span class="fd">или '+esc(s.alt)+'</span>':'')+'</span><span class="fd">'+esc(s.desc)+'</span><span class="fs">'+esc(label)+'</span></div>';
+  }).join("");
+}
+function pullCommand(){
+  var b=baseUrl();
+  var names=DOCS.map(function(d){return d.file;}).concat(SERVICE.map(function(s){return s.file;})).concat(["docs.html"]);
+  return "cd /var/www/synapse\n"+
+  'for f in '+names.join(" ")+'; do\n  curl -fsSL "'+b+'$f" -o "$f" && echo "ок: $f" || echo "нет: $f"\ndone\n\nls -la';
+}
+
+var revealObserver=null;
+function observeReveals(){
+  if(!("IntersectionObserver" in window)){$$(".rev").forEach(function(e){e.classList.add("in");});return;}
+  if(revealObserver)revealObserver.disconnect();
+  revealObserver=new IntersectionObserver(function(es){
+    es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");revealObserver.unobserve(x.target);}});
+  },{threshold:.03});
+  $$(".rev").forEach(function(e){if(!e.classList.contains("in"))revealObserver.observe(e);});
+}
+
+async function fetchText(url,ms){
+  var c=new AbortController();
+  var timer=setTimeout(function(){c.abort();},ms||12000);
+  try{
+    var r=await fetch(url+(url.indexOf("?")>=0?"&":"?")+"_="+Date.now(),{cache:"no-store",signal:c.signal});
+    var text=await r.text();
+    return {status:r.status,ok:r.ok,text:text};
+  }finally{clearTimeout(timer);}
+}
+async function probeFile(file,marker,alt){
+  avail[file]={state:"run"};renderService();updateAvailDom(file);
+  var url=linkFor(file);
+  try{
+    var r=await fetchText(url,12000);
+    if(r.status===404){
+      if(alt){
+        try{
+          var r2=await fetchText(linkFor(alt),12000);
+          if(r2.ok&&r2.text.indexOf(marker)>=0){
+            avail[file]={state:"ok",text:"найден как "+alt};
+            log(file+" → найден по пути "+alt,"ok");
+            renderService();updateAvailDom(file);return;
+          }
+        }catch(e2){}
+      }
+      avail[file]={state:"missing"};
+      log(file+" → 404, файла нет","err");
+    }else if(r.ok){
+      if(r.text.indexOf(marker)>=0){
+        avail[file]={state:"ok"};
+        log(file+" → загружен, содержимое верное","ok");
+      }else{
+        avail[file]={state:"wrong"};
+        log(file+" → отвечает, но содержимое не то (возможно, отдаётся index.html)","warn");
+      }
+    }else{
+      avail[file]={state:"error",text:"HTTP "+r.status};
+      log(file+" → HTTP "+r.status,"warn");
+    }
+  }catch(e){
+    avail[file]={state:"error",text:location.protocol==="file:"?"локальный файл, проверка недоступна":"сеть недоступна"};
+    log(file+" → проверка не удалась: "+(e&&e.name==="AbortError"?"таймаут":"сеть"),"err");
+  }
+  renderService();updateAvailDom(file);
+}
+function updateAvailDom(file){
+  $$('[data-av="'+file+'"]').forEach(function(el){
+    var tmp=document.createElement("div");
+    tmp.innerHTML=availHtml(file);
+    el.parentNode.replaceChild(tmp.firstChild,el);
+  });
+}
+async function checkAll(includeService){
+  if(location.protocol==="file:"){
+    toast("Проверка недоступна для локальных файлов");
+    log("Проверка пропущена: страница открыта как файл с диска","warn");
+    return;
+  }
+  var jobs=DOCS.map(function(d){return {file:d.file,marker:d.marker};});
+  if(includeService!==false){
+    SERVICE.forEach(function(s){jobs.push({file:s.file,marker:s.marker,alt:s.alt});});
+  }
+  log("Проверка наличия "+jobs.length+" файлов по адресу "+baseUrl(),"act");
+  var idx=0;
+  async function worker(){
+    while(idx<jobs.length){
+      var my=idx++;
+      await probeFile(jobs[my].file,jobs[my].marker,jobs[my].alt);
+    }
+  }
+  var pool=[];
+  for(var i=0;i<4;i++)pool.push(worker());
+  await Promise.all(pool);
+  var ok=0,miss=0;
+  for(var k in avail){if(avail[k].state==="ok")ok++;if(avail[k].state==="missing")miss++;}
+  log("Готово: загружено "+ok+", отсутствует "+miss,miss?"warn":"ok");
+  toast("Загружено "+ok+" из "+jobs.length+(miss?", нет "+miss:""));
+  beep(miss?"err":"ok");
+}
+
+function copyText(text,label){
+  var done=function(){log("Скопировано: "+label,"ok");toast("Скопировано");beep("ok");};
+  var fb=function(){
+    var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}catch(e){log("Не удалось скопировать","warn");toast("Скопируйте вручную");}
+    ta.remove();
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();
+}
+function allFilesList(){
+  var lines=["# Инструкции","docs.html"];
+  DOCS.forEach(function(d){lines.push(d.file);});
+  lines.push("");lines.push("# Служебные файлы приложения");
+  SERVICE.forEach(function(s){lines.push(s.file);});
+  return lines.join("\n");
+}
+
+document.addEventListener("input",function(e){
+  if(e.target.id==="q"){st.q=e.target.value;persist();render();}
+  else if(e.target.id==="base"){st.base=e.target.value;persist();render();}
+});
+document.addEventListener("change",function(e){
+  if(e.target.id==="onlyActual"){st.onlyActual=e.target.checked;persist();render();beep("tick");}
+});
+document.addEventListener("click",function(e){
+  var g=e.target.closest?e.target.closest("[data-group]"):null;
+  if(g){st.group=g.getAttribute("data-group");st.route="";persist();render();beep("tick");return;}
+  var r=e.target.closest?e.target.closest("[data-route]"):null;
+  if(r){
+    var id=r.getAttribute("data-route");
+    st.route=(st.route===id)?"":id;
+    persist();render();beep("tick");
+    if(st.route)log("Выбран маршрут: "+st.route,"act");
+    return;
+  }
+  var cl=e.target.closest?e.target.closest("[data-copylink]"):null;
+  if(cl){copyText(linkFor(cl.getAttribute("data-copylink")),"ссылка");return;}
+  var rd=e.target.closest?e.target.closest("[data-read]"):null;
+  if(rd){
+    var id2=rd.getAttribute("data-read");
+    st.read[id2]=!st.read[id2];persist();render();
+    beep(st.read[id2]?"ok":"tick");
+    log("Отметка «"+(docById(id2)?docById(id2).title:id2)+"»: "+(st.read[id2]?"пройдено":"снято"),"act");
+    return;
+  }
+  var op=e.target.closest?e.target.closest("[data-open]"):null;
+  if(op){
+    var d=docById(op.getAttribute("data-open"));
+    if(d)log("Открыта инструкция: "+d.file,"act");
+    return;
+  }
+});
+$("checkBtn").addEventListener("click",function(){checkAll(true).catch(function(err){showError(err.message);});});
+$("checkSvcBtn").addEventListener("click",function(){
+  if(location.protocol==="file:"){toast("Проверка недоступна для локальных файлов");return;}
+  SERVICE.forEach(function(s){probeFile(s.file,s.marker,s.alt);});
+});
+$("copyListBtn").addEventListener("click",function(){copyText(allFilesList(),"список файлов");});
+$("copyAllBtn").addEventListener("click",function(){copyText(allFilesList(),"полный список файлов");});
+$("copyPull").addEventListener("click",function(){copyText(pullCommand(),"команда загрузки на сервер");});
+$("resetBtn").addEventListener("click",function(){st.read={};persist();render();log("Отметки сброшены","act");beep("tick");});
+$("soundBtn").addEventListener("click",function(){
+  st.sound=!st.sound;persist();
+  $("soundBtn").className="nsound"+(st.sound?" on":"");
+  $("soundBtn").innerHTML='<svg class="ic"><use href="#i-'+(st.sound?"sound":"mute")+'"/></svg>';
+  if(st.sound)beep("tick");
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="/"&&document.activeElement!==$("q")){e.preventDefault();$("q").focus();}
+  if(e.key==="Escape"&&document.activeElement===$("q")){$("q").value="";st.q="";persist();render();$("q").blur();}
+});
+window.addEventListener("scroll",function(){
+  var h=document.documentElement;
+  var p=h.scrollTop/((h.scrollHeight-h.clientHeight)||1);
+  $("nbar").style.width=(p*100)+"%";
+},{passive:true});
+
+try{
+  $("q").value=st.q||"";
+  $("base").value=st.base||"";
+  $("onlyActual").checked=!!st.onlyActual;
+  $("soundBtn").className="nsound"+(st.sound?" on":"");
+  $("soundBtn").innerHTML='<svg class="ic"><use href="#i-'+(st.sound?"sound":"mute")+'"/></svg>';
+  if(location.protocol==="file:"){
+    $("protoBanner").className="banner warn show";
+    $("protoBanner").innerHTML="Страница открыта как файл с диска. Ссылки на соседние файлы работают, но <b>проверка наличия файлов недоступна</b> — браузер не даёт делать запросы. Загрузите всё на GitHub Pages и откройте по адресу сайта.";
+  }
+  $("originBanner").className="banner info show";
+  $("originBanner").innerHTML="Базовый адрес определён автоматически: <code>"+esc(baseUrl())+"</code>. Все ссылки строятся от него. Если файлы лежат в другом месте — впишите адрес вручную в поле «Базовый адрес».";
+  render();
+  log("Центр инструкций готов: "+DOCS.length+" инструкций, "+SERVICE.length+" служебных файлов","ok");
+  if(location.protocol!=="file:"){
+    log("Автопроверка наличия файлов…","act");
+    checkAll(true).catch(function(err){showError(err.message);});
+  }
+}catch(e){showError(e.message||String(e));}
+
+})();
+</script>
+</body>
+</html>

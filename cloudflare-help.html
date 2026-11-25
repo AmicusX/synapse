@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a14">
+<meta name="color-scheme" content="dark">
+<title>Синапс · Реле на Cloudflare — без паники</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060a14;--bg2:#0a1122;--surface:rgba(15,22,44,.72);--surface2:rgba(24,33,64,.55);
+  --line:rgba(122,142,222,.16);--line2:rgba(122,142,222,.32);
+  --text:#e9edfb;--muted:#93a0c4;--dim:#5d6890;
+  --cyan:#22d3ee;--violet:#8b5cf6;--magenta:#e879f9;--green:#a3e635;--amber:#fbbf24;--red:#fb7185;--blue:#60a5fa;
+  --grad:linear-gradient(135deg,var(--cyan),var(--violet) 55%,var(--magenta));
+  --cf:#f6821f;--nav:62px;
+}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.4) rgba(10,17,34,.6)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:rgba(10,17,34,.6)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--cyan),var(--violet));border-radius:10px;border:2px solid rgba(10,17,34,.6)}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--magenta),var(--cyan))}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none;
+  background:radial-gradient(640px 500px at 12% 12%,rgba(34,211,238,.16),transparent 62%),radial-gradient(760px 560px at 88% 8%,rgba(139,92,246,.2),transparent 62%),radial-gradient(860px 640px at 76% 94%,rgba(232,121,249,.13),transparent 62%),radial-gradient(520px 420px at 20% 88%,rgba(246,130,31,.08),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+  animation:aurora 30s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes aurora{0%{transform:translate(0,0) scale(1)}50%{transform:translate(2.5%,-2%) scale(1.05)}100%{transform:translate(-2%,2.5%) scale(1.03)}}
+a{color:var(--cyan)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:8px}
+[hidden]{display:none!important}
+.ic{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}
+.mono,code{font-family:"JetBrains Mono",monospace}
+.ui{display:inline-flex;align-items:center;gap:5px;padding:1px 9px;border-radius:8px;font-weight:800;font-size:.92em;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.35);color:#a5f3fc;white-space:nowrap}
+.ui.g{background:rgba(163,230,53,.12);border-color:rgba(163,230,53,.4);color:#d9f99d}
+.ui.o{background:rgba(246,130,31,.14);border-color:rgba(246,130,31,.5);color:#fdba74}
+.ui.a{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.4);color:#fde68a}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;height:calc(var(--nav) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);background:rgba(7,11,24,.84);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1060px;margin:0 auto;height:var(--nav);display:flex;align-items:center;gap:12px;padding:0 16px}
+.orb{width:26px;height:26px;border-radius:50%;background:var(--grad);position:relative;flex:none;box-shadow:0 0 16px rgba(34,211,238,.5)}
+.orb::after{content:"";position:absolute;inset:6px;border-radius:50%;background:rgba(6,10,20,.85)}
+.orb::before{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--grad);z-index:1}
+.nav-brand{font-family:"Unbounded";font-weight:700;font-size:12.5px;letter-spacing:.12em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.nav-links{margin-left:auto;display:flex;gap:8px;align-items:center}
+.nav-link{padding:7px 13px;border-radius:11px;font-size:12.5px;font-weight:700;color:var(--muted);border:1px solid var(--line);background:var(--surface2);text-decoration:none;display:flex;align-items:center;gap:7px}
+.nav-link:hover{color:var(--cyan);border-color:rgba(34,211,238,.5)}
+.nav-link .ic{width:14px;height:14px}
+.iconbtn{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line);background:var(--surface2)}
+.iconbtn.on{color:var(--cyan);border-color:rgba(34,211,238,.5)}
+
+.wrap{max-width:1060px;margin:0 auto;padding:calc(var(--nav) + env(safe-area-inset-top) + 26px) 16px 70px}
+section{scroll-margin-top:calc(var(--nav) + env(safe-area-inset-top) + 16px)}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s cubic-bezier(.2,.7,.3,1),transform .6s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.kicker{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-size:11.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--cf);border:1px solid rgba(246,130,31,.45);background:rgba(246,130,31,.08);margin-bottom:16px}
+h1{font-family:"Unbounded";font-weight:900;font-size:clamp(23px,4.6vw,38px);line-height:1.18;margin-bottom:12px}
+h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--muted);font-size:15.5px;max-width:720px;margin-bottom:22px}
+h2{font-family:"Unbounded";font-weight:700;font-size:17px;letter-spacing:.05em;margin:38px 0 14px;display:flex;align-items:center;gap:12px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+.card{border:1px solid var(--line2);border-radius:20px;background:var(--surface);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad);opacity:.55}
+.card.fix{border-color:rgba(163,230,53,.45);background:linear-gradient(150deg,rgba(163,230,53,.07),rgba(34,211,238,.06))}
+.card.fix::before{background:linear-gradient(180deg,var(--green),var(--cyan));opacity:1}
+.card h3{font-family:"Unbounded";font-weight:700;font-size:15px;margin-bottom:9px;display:flex;align-items:center;gap:10px}
+.card h3 .ic{color:var(--green)}
+.card p{font-size:14px;color:#cdd6f4;margin:.4em 0}
+.ol{list-style:none;counter-reset:st;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.ol li{counter-increment:st;position:relative;padding-left:36px;font-size:14px;line-height:1.55;color:#cdd6f4}
+.ol li::before{content:counter(st);position:absolute;left:0;top:1px;width:25px;height:25px;border-radius:8px;display:grid;place-items:center;font-family:"JetBrains Mono";font-weight:600;font-size:12px;color:var(--cyan);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.35)}
+.callout{display:flex;gap:11px;padding:12px 14px;border-radius:13px;font-size:13px;line-height:1.55;margin:12px 0}
+.callout .ic{width:16px;height:16px;margin-top:2px}
+.callout.warn{border:1px solid rgba(251,191,36,.4);background:rgba(251,191,36,.07);color:#fde68a}
+.callout.warn .ic{color:var(--amber)}
+.callout.info{border:1px solid rgba(96,165,250,.4);background:rgba(96,165,250,.07);color:#bfdbfe}
+.callout.info .ic{color:var(--blue)}
+.callout.good{border:1px solid rgba(163,230,53,.4);background:rgba(163,230,53,.07);color:#d9f99d}
+.callout.good .ic{color:var(--green)}
+.callout.bad{border:1px solid rgba(251,113,133,.4);background:rgba(251,113,133,.07);color:#fecdd3}
+.callout.bad .ic{color:var(--red)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 17px;border-radius:13px;font-size:13.5px;font-weight:800;transition:.2s;text-decoration:none;border:1px solid transparent}
+.btn .ic{width:16px;height:16px}
+.btn-primary{color:#04121a;background:var(--grad);background-size:160% 160%;box-shadow:0 4px 18px rgba(34,211,238,.3)}
+.btn-primary:hover{background-position:90% 50%;box-shadow:0 4px 24px rgba(232,121,249,.4)}
+.btn-cf{color:#1a0e02;background:linear-gradient(135deg,#f6821f,#fbad41);box-shadow:0 4px 18px rgba(246,130,31,.3)}
+.btn-cf:hover{box-shadow:0 4px 24px rgba(246,130,31,.5)}
+.btn-ghost{color:var(--muted);border-color:var(--line2);background:var(--surface2)}
+.btn-ghost:hover{color:var(--cyan);border-color:rgba(34,211,238,.5)}
+.btn-green{color:#0c1a04;background:linear-gradient(135deg,var(--green),var(--cyan));box-shadow:0 4px 18px rgba(163,230,53,.25)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.copyrow{display:flex;align-items:center;gap:8px;margin:10px 0;padding:10px 12px;border-radius:13px;border:1px solid var(--line2);background:rgba(8,13,28,.7)}
+.copyrow .lbl{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);flex:none}
+.copyrow .val{flex:1;min-width:0;font-family:"JetBrains Mono";font-size:12px;color:#a5f3fc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copybtn{flex:none;display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;font-size:12px;font-weight:800;color:var(--cyan);border:1px solid rgba(34,211,238,.45);background:rgba(34,211,238,.08);transition:.2s}
+.copybtn:hover{background:rgba(34,211,238,.18)}
+.copybtn.ok{color:var(--green);border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.1)}
+.copybtn .ic{width:14px;height:14px}
+.field{margin:12px 0}
+.field label{display:block;font-size:12.5px;font-weight:800;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;padding:11px 14px;border-radius:13px;border:1px solid var(--line2);background:rgba(8,13,28,.7);color:var(--text);font-size:15px;font-family:"JetBrains Mono";transition:.2s}
+.field input:focus{outline:none;border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.13)}
+.field input::placeholder{color:var(--dim);font-family:"Manrope"}
+.field .hint{font-size:11.5px;color:var(--dim);margin-top:5px}
+
+/* mockups */
+.mock{margin:14px 0;border-radius:15px;border:1px solid var(--line2);background:#0a0f1e;overflow:hidden;box-shadow:0 14px 36px rgba(0,0,0,.4)}
+.mock-bar{display:flex;align-items:center;gap:7px;padding:8px 12px;background:rgba(20,28,54,.8);border-bottom:1px solid var(--line)}
+.mock-dot{width:9px;height:9px;border-radius:50%}
+.mock-url{flex:1;margin-left:6px;padding:4px 11px;border-radius:8px;background:rgba(8,13,28,.8);border:1px solid var(--line);font-family:"JetBrains Mono";font-size:10.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mock-body{padding:14px}
+.tabs{display:flex;gap:6px;margin-bottom:13px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.tab{padding:7px 16px;border-radius:10px;font-size:13px;font-weight:700;color:var(--dim);border:1px solid transparent;position:relative}
+.tab.wrong{color:var(--muted);background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.3)}
+.tab.wrong::after{content:"вы здесь";position:absolute;top:-9px;right:-6px;font-size:8.5px;font-weight:800;letter-spacing:.06em;color:#fecdd3;background:rgba(251,113,133,.25);border:1px solid rgba(251,113,133,.5);padding:1px 6px;border-radius:6px}
+.tab.right{color:#04121a;background:var(--grad);box-shadow:0 0 16px rgba(34,211,238,.4)}
+.tab.right::after{content:"нажмите сюда";position:absolute;top:-9px;right:-10px;font-size:8.5px;font-weight:800;letter-spacing:.06em;color:#d9f99d;background:rgba(163,230,53,.2);border:1px solid rgba(163,230,53,.55);padding:1px 6px;border-radius:6px;animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.gh-card{display:flex;align-items:center;gap:12px;padding:13px;border-radius:12px;border:1px solid var(--line);background:rgba(8,13,28,.6);opacity:.55}
+.gh-card .ic{width:22px;height:22px;color:var(--muted)}
+.gh-card b{font-size:13px;display:block}
+.gh-card span{font-size:11.5px;color:var(--dim)}
+.gh-card .go{margin-left:auto;padding:6px 13px;border-radius:9px;font-size:11.5px;font-weight:800;background:rgba(122,142,222,.15);border:1px solid var(--line2);color:var(--muted)}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.tpl{padding:12px;border-radius:12px;border:1px solid var(--line);background:rgba(8,13,28,.6);font-size:12px;position:relative}
+.tpl b{display:block;font-size:12.5px;margin-bottom:3px}
+.tpl span{color:var(--dim);font-size:11px;line-height:1.4;display:block}
+.tpl.hl{border-color:rgba(163,230,53,.6);background:rgba(163,230,53,.07);box-shadow:0 0 0 3px rgba(163,230,53,.1)}
+.tpl .ic{width:17px;height:17px;color:var(--green);margin-bottom:6px}
+.tpl.dim{opacity:.5}
+.pin{position:absolute;top:-10px;right:-10px;width:21px;height:21px;border-radius:50%;background:var(--grad);color:#04121a;font-size:10.5px;font-weight:900;display:grid;place-items:center;font-family:"JetBrains Mono";box-shadow:0 0 12px rgba(34,211,238,.6);z-index:2}
+.hl-pulse{position:relative}
+.hl-pulse::after{content:"";position:absolute;inset:-5px;border-radius:13px;border:2px solid rgba(34,211,238,.6);animation:pulse 1.8s ease-out infinite;pointer-events:none}
+@keyframes pulse{0%{opacity:.9;transform:scale(.96)}70%{opacity:0;transform:scale(1.1)}100%{opacity:0}}
+.cf-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:11px;border:1px solid var(--line);background:rgba(8,13,28,.6);font-size:12.5px;margin-bottom:8px}
+.cf-row .n{width:21px;height:21px;border-radius:7px;background:rgba(246,130,31,.14);border:1px solid rgba(246,130,31,.5);color:#fdba74;display:grid;place-items:center;font-size:11px;font-weight:800;font-family:"JetBrains Mono";flex:none}
+.cf-row.hl{border-color:rgba(246,130,31,.6);background:rgba(246,130,31,.07)}
+.cf-row .arr{margin-left:auto;color:var(--dim)}
+.cf-row .mono{color:#a5f3fc;font-size:11.5px}
+.editor{display:grid;grid-template-columns:1fr;gap:0}
+.editor-top{display:flex;align-items:center;gap:9px;padding:8px 12px;background:rgba(20,28,54,.7);border-bottom:1px solid var(--line);font-size:11.5px;color:var(--muted);font-family:"JetBrains Mono"}
+.editor-top .deploy{margin-left:auto;padding:6px 15px;border-radius:9px;font-size:11.5px;font-weight:800;color:#1a0e02;background:linear-gradient(135deg,#f6821f,#fbad41);position:relative}
+.editor-code{padding:12px 14px;font-family:"JetBrains Mono";font-size:11px;line-height:1.7;color:#5d6890;background:#080d1c}
+.editor-code .del{text-decoration:line-through;color:rgba(251,113,133,.6)}
+.editor-code .ins{color:#a5f3fc}
+.editor-code .cm{color:var(--dim)}
+.side-mock{display:flex;flex-direction:column;gap:4px;max-width:250px}
+.side-mock span{padding:7px 11px;border-radius:9px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:9px}
+.side-mock span .ic{width:14px;height:14px;color:var(--dim)}
+.side-mock span.hl{color:var(--text);background:rgba(246,130,31,.12);border:1px solid rgba(246,130,31,.55);font-weight:700}
+.side-mock span.hl .ic{color:#fdba74}
+.side-mock span.alt{color:var(--muted);background:rgba(34,211,238,.06);border:1px dashed rgba(34,211,238,.35)}
+.urlbar{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:12px;border:1px solid rgba(163,230,53,.5);background:rgba(163,230,53,.06)}
+.urlbar .ic{color:var(--green)}
+.urlbar .u{flex:1;font-family:"JetBrains Mono";font-size:12px;color:#d9f99d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.urlbar .cp{padding:6px 12px;border-radius:9px;font-size:11.5px;font-weight:800;color:#0c1a04;background:var(--green);position:relative}
+
+/* picker */
+.picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.pick{position:relative;text-align:left;padding:14px;border-radius:15px;border:1px solid var(--line2);background:var(--surface2);transition:.2s;font-size:13px;line-height:1.45}
+.pick:hover{transform:translateY(-2px);border-color:rgba(34,211,238,.5)}
+.pick.active{border-color:rgba(34,211,238,.7);background:linear-gradient(140deg,rgba(34,211,238,.12),rgba(139,92,246,.12));box-shadow:0 0 20px rgba(34,211,238,.15)}
+.pick .ic{width:19px;height:19px;color:var(--cyan);margin-bottom:8px}
+.pick b{display:block;font-size:13px;margin-bottom:3px}
+.pick span{color:var(--muted);font-size:11.5px}
+.pick .hot{position:absolute;top:10px;right:10px;font-size:8.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#d9f99d;background:rgba(163,230,53,.15);border:1px solid rgba(163,230,53,.5);padding:2px 7px;border-radius:6px}
+.state-panel{display:none}
+.state-panel.show{display:block;animation:rise .4s both}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.state-head{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.state-head .badge{padding:5px 12px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);border:1px solid rgba(34,211,238,.45);background:rgba(34,211,238,.08)}
+.state-head h3{font-family:"Unbounded";font-size:15px;font-weight:700;margin:0}
+
+/* codebox */
+.codebox{margin:12px 0;border-radius:14px;border:1px solid var(--line2);background:#080d1c;overflow:hidden}
+.codebox-h{display:flex;align-items:center;gap:9px;padding:8px 13px;background:rgba(20,28,54,.7);border-bottom:1px solid var(--line);font-size:11.5px;color:var(--muted);font-family:"JetBrains Mono"}
+.codebox-h .copybtn{margin-left:auto}
+.codebox pre{padding:13px 15px;overflow:auto;font-size:11px;line-height:1.6;color:#c7d5ff;max-height:320px}
+
+/* verifier */
+.verifier{border:1px solid rgba(34,211,238,.4);border-radius:18px;background:linear-gradient(160deg,rgba(34,211,238,.06),rgba(139,92,246,.08));padding:18px;margin-top:14px}
+.verifier h3{font-family:"Unbounded";font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+.verifier h3 .ic{color:var(--cyan)}
+.verifier .vs{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.t-result{margin-top:13px;border-radius:13px;padding:13px 15px;font-size:13.5px;line-height:1.55;display:none}
+.t-result.show{display:block;animation:rise .35s both}
+.t-result.ok{border:1px solid rgba(163,230,53,.5);background:rgba(163,230,53,.08);color:#d9f99d}
+.t-result.err{border:1px solid rgba(251,113,133,.5);background:rgba(251,113,133,.08);color:#fecdd3}
+.t-result.warn{border:1px solid rgba(251,191,36,.5);background:rgba(251,191,36,.08);color:#fde68a}
+.t-result.load{border:1px solid rgba(96,165,250,.5);background:rgba(96,165,250,.08);color:#bfdbfe;display:flex;align-items:center;gap:11px}
+.spin{width:17px;height:17px;flex:none;border-radius:50%;border:2px solid rgba(96,165,250,.25);border-top-color:var(--blue);animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.fix-hint{margin-top:9px;padding:9px 12px;border-radius:10px;background:rgba(6,10,20,.5);border:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.model-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.mchip{padding:5px 11px;border-radius:999px;font-family:"JetBrains Mono";font-size:11px;border:1px solid rgba(163,230,53,.45);background:rgba(163,230,53,.08);color:#d9f99d}
+
+/* checklist */
+.checks{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.check{display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:14px;border:1px solid var(--line2);background:var(--surface2);cursor:pointer;transition:.2s;text-align:left;width:100%}
+.check:hover{border-color:rgba(163,230,53,.45)}
+.check .box{width:24px;height:24px;border-radius:8px;border:2px solid var(--line2);display:grid;place-items:center;flex:none;transition:.2s}
+.check .box .ic{width:14px;height:14px;color:#0c1a04;opacity:0}
+.check.done .box{background:var(--green);border-color:var(--green)}
+.check.done .box .ic{opacity:1}
+.check .ct{flex:1;font-size:13.5px;font-weight:700}
+.check.done .ct{color:var(--green)}
+.check .cn{font-family:"JetBrains Mono";font-size:11px;color:var(--dim)}
+.progress-line{height:6px;border-radius:6px;background:rgba(122,142,222,.15);overflow:hidden;margin:6px 0 16px}
+.progress-line i{display:block;height:100%;width:0;background:var(--grad);border-radius:6px;transition:width .5s cubic-bezier(.2,.7,.3,1);box-shadow:0 0 10px rgba(34,211,238,.5)}
+
+/* faq */
+.faq{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.qa{border:1px solid var(--line2);border-radius:15px;background:var(--surface);overflow:hidden;transition:border-color .25s}
+.qa.open{border-color:rgba(34,211,238,.5)}
+.qa-q{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:14px 16px;font-size:13.5px;font-weight:800}
+.qa-q .ic{margin-left:auto;color:var(--cyan);transition:transform .25s;width:15px;height:15px}
+.qa.open .qa-q .ic{transform:rotate(180deg)}
+.qa-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.2,.7,.3,1)}
+.qa-a-in{padding:0 16px 15px;font-size:13px;color:var(--muted);line-height:1.65}
+.qa-a-in b{color:var(--text)}
+details.adv{margin:12px 0;border:1px solid var(--line);border-radius:13px;background:rgba(8,13,28,.5)}
+details.adv summary{cursor:pointer;padding:11px 14px;font-size:13px;font-weight:700;color:var(--muted);list-style:none;display:flex;align-items:center;gap:8px}
+details.adv summary::-webkit-details-marker{display:none}
+details.adv summary::before{content:"▸";color:var(--cyan);transition:.2s}
+details.adv[open] summary::before{transform:rotate(90deg)}
+details.adv .adv-body{padding:0 14px 14px;font-size:13px;color:var(--muted)}
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom));z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(460px,92vw)}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:11px;padding:12px 17px;border-radius:14px;font-size:13.5px;font-weight:700;background:rgba(12,18,38,.96);border:1px solid rgba(34,211,238,.5);box-shadow:0 10px 34px rgba(0,0,0,.55);animation:rise .3s both;max-width:100%}
+.toast.good{border-color:rgba(163,230,53,.55)}
+.toast.bad{border-color:rgba(251,113,133,.55)}
+.toast .ic{width:16px;height:16px;color:var(--cyan)}
+.toast.good .ic{color:var(--green)}.toast.bad .ic{color:var(--red)}
+.spark{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:95}
+footer{max-width:1060px;margin:0 auto;padding:24px 16px calc(32px + env(safe-area-inset-bottom));border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--dim);font-size:12.5px}
+footer .orb{width:20px;height:20px}
+footer a{margin-left:auto}
+@media (max-width:760px){
+  .picker{grid-template-columns:1fr 1fr}
+  .tpl-grid{grid-template-columns:1fr}
+  .nav-link span{display:none}
+  .copyrow{flex-wrap:wrap}
+  .copyrow .val{flex-basis:100%;order:3;white-space:normal;word-break:break-all}
+  .card{padding:16px}
+}
+@media (max-width:460px){.picker{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V7a1.5 1.5 0 0 1 1.5-1.5H10"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4L2.5 20h19L12 4z"/><path d="M12 10v4.5M12 17.5v.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.7L19.5 10l-5.7 1.8L12 17.5l-1.8-5.7L4.5 10l5.7-1.3L12 3z"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 18.2 10 4 4 0 0 1 17.5 18H7z"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19L16 8M14.5 4.5l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z"/><path d="M19 13l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M15.5 9.5a4 4 0 0 1 0 5M18 7.5a7 7 0 0 1 0 9"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h12v16H7a2 2 0 0 0-2 2V5z"/><path d="M5 19a2 2 0 0 1 2-2h12"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7V5z"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="14" r="4.5"/><path d="M11.5 10.5L20 4M16 7l2.5 2.5M13.5 9.5L16 12"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3.5V8h-4.5"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4.4l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.5 1.5"/><path d="M14 10a4.5 4.5 0 0 0-6.4-.4l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.5-1.5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3.5h8L19 8.5V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z"/><path d="M14 3.5V9h5"/></symbol>
+</svg>
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="orb"></div><span class="nav-brand">СИНАПС · РЕЛЕ БЕЗ ПАНИКИ</span>
+    <div class="nav-links">
+      <a class="nav-link" href="guide.html"><svg class="ic"><use href="#i-book"/></svg><span>Инструкция</span></a>
+      <a class="nav-link" href="index.html"><svg class="ic"><use href="#i-play"/></svg><span>Синапс</span></a>
+      <button class="iconbtn on" id="soundBtn" aria-label="Звук"><svg class="ic"><use href="#i-sound"/></svg></button>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <section id="top" class="reveal">
+    <span class="kicker"><svg class="ic"><use href="#i-cloud"/></svg>шаг 7 · cloudflare · обновлённый интерфейс</span>
+    <h1>Кнопка ведёт на GitHub?<br>Вы на вкладке <em>Pages</em> — нужна <em>Workers</em></h1>
+    <p class="lead">Cloudflare поменял интерфейс: теперь создание называется «Create application», и по умолчанию открывается вкладка <b>Pages</b> (подключение GitHub). Нам она не нужна. Нужна соседняя вкладка <b>Workers</b> — это один клик. Ниже — точный путь и проверка готового реле.</p>
+
+    <div class="card fix">
+      <h3><svg class="ic"><use href="#i-check"/></svg>Быстрое решение — 3 клика</h3>
+      <ol class="ol">
+        <li>На странице, куда привела кнопка <span class="ui o">Create application</span>, посмотрите <b>наверх</b>: там две вкладки — <span class="ui">Pages</span> и <span class="ui g">Workers</span>.</li>
+        <li>Нажмите вкладку <span class="ui g">Workers</span> (GitHub-подключение исчезнет — так и должно быть).</li>
+        <li>Выберите шаблон <span class="ui g">Hello World!</span> (или «Start with Hello World»), задайте имя и нажмите <span class="ui o">Deploy</span>.</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="mock-dot" style="background:#fb7185"></span><span class="mock-dot" style="background:#fbbf24"></span><span class="mock-dot" style="background:#a3e635"></span><span class="mock-url">dash.cloudflare.com → Create application</span></div>
+        <div class="mock-body">
+          <div class="tabs"><span class="tab wrong">Pages</span><span class="tab right hl-pulse">Workers<span class="pin">1</span></span></div>
+          <div class="gh-card"><svg class="ic"><use href="#i-github"/></svg><div><b>Connect to Git</b><span>Import a repository from GitHub — это НЕ наш путь</span></div><span class="go">Connect GitHub →</span></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-cf" href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть страницу создания напрямую</a>
+        <a class="btn btn-ghost" href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener"><svg class="ic"><use href="#i-cloud"/></svg>Обзор Workers</a>
+      </div>
+      <div class="callout info"><svg class="ic"><use href="#i-info"/></svg><span>Эти ссылки сами подставят ваш аккаунт. Если первая не сработала — откройте вторую и нажмите кнопку создания там, затем вкладку <b>Workers</b>.</span></div>
+    </div>
+  </section>
+
+  <section id="where" class="reveal">
+    <h2>Где вы сейчас застряли?</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:6px">Нажмите карточку с тем, что видите на экране — покажу следующий точный клик.</p>
+    <div class="picker" id="picker">
+      <button class="pick active" data-state="github" type="button"><span class="hot">ваш случай</span><svg class="ic"><use href="#i-github"/></svg><b>Кнопка ведёт на GitHub</b><span>Create application → Connect to Git</span></button>
+      <button class="pick" data-state="menu" type="button"><svg class="ic"><use href="#i-menu"/></svg><b>Нет Workers &amp; Pages в меню</b><span>другие названия пунктов слева</span></button>
+      <button class="pick" data-state="templates" type="button"><svg class="ic"><use href="#i-spark"/></svg><b>Вижу шаблоны / Hello World</b><span>выбор стартового кода</span></button>
+      <button class="pick" data-state="editor" type="button"><svg class="ic"><use href="#i-code"/></svg><b>Открылся редактор кода</b><span>worker.js и кнопка Deploy</span></button>
+      <button class="pick" data-state="url" type="button"><svg class="ic"><use href="#i-link"/></svg><b>Вижу адрес …workers.dev</b><span>воркер создан, нужен адрес</span></button>
+      <button class="pick" data-state="deployed" type="button"><svg class="ic"><use href="#i-check"/></svg><b>Всё задеплоил, что дальше?</b><span>проверка и перенос в Синапс</span></button>
+    </div>
+
+    <div class="card state-panel show" data-panel="github">
+      <div class="state-head"><span class="badge">вы здесь</span><h3>Страница с GitHub — это вкладка Pages</h3></div>
+      <p>Cloudflare предлагает два продукта на одной странице: <b>Pages</b> (сайты из GitHub) и <b>Workers</b> (маленькие программы-посредники). Нам нужен Workers. Вкладка Pages открылась по умолчанию — просто переключитесь.</p>
+      <ol class="ol">
+        <li>Поднимите взгляд к верху страницы — там переключатель <span class="ui">Pages</span> / <span class="ui g">Workers</span>.</li>
+        <li>Нажмите <span class="ui g">Workers</span>.</li>
+        <li>Появится выбор шаблона → нажмите <span class="ui g">Hello World!</span> → «Create Worker» / «Deploy».</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="mock-dot" style="background:#fb7185"></span><span class="mock-dot" style="background:#fbbf24"></span><span class="mock-dot" style="background:#a3e635"></span><span class="mock-url">Create application</span></div>
+        <div class="mock-body">
+          <div class="tabs"><span class="tab wrong">Pages</span><span class="tab right hl-pulse">Workers<span class="pin">✓</span></span></div>
+          <div class="tpl-grid">
+            <div class="tpl hl"><svg class="ic"><use href="#i-spark"/></svg><b>Hello World!</b><span>простой стартовый воркер — наш выбор</span><span class="pin">2</span></div>
+            <div class="tpl dim"><b>Connect to Git</b><span>сайты из репозитория — не нужно</span></div>
+            <div class="tpl dim"><b>Templates</b><span>готовые примеры — не нужно</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="callout good"><svg class="ic"><use href="#i-check"/></svg><span>GitHub подключать <b>не нужно</b> вообще. Реле — это отдельная маленькая программа, она не связана с вашим репозиторием сайта.</span></div>
+    </div>
+
+    <div class="card state-panel" data-panel="menu">
+      <div class="state-head"><span class="badge">меню</span><h3>Пункт может называться по-другому</h3></div>
+      <p>В разных версиях интерфейса нужный раздел зовут <b>Workers &amp; Pages</b>, просто <b>Workers</b> или <b>Compute (Workers)</b>. Ещё он может быть свёрнут в группу. Три способа найти:</p>
+      <ol class="ol">
+        <li><b>Ссылка напрямую</b> — кнопка ниже, минуя меню целиком.</li>
+        <li><b>Поиск по дашборду</b>: нажмите <span class="ui">Ctrl+K</span> (или значок лупы сверху) и введите <code>workers</code> → выберите «Workers &amp; Pages» / «Workers».</li>
+        <li>Убедитесь, что вы на уровне <b>аккаунта</b>, а не внутри домена: нажмите логотип Cloudflare / «Account home» слева вверху.</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="mock-dot" style="background:#fb7185"></span><span class="mock-dot" style="background:#fbbf24"></span><span class="mock-dot" style="background:#a3e635"></span><span class="mock-url">Account home · левое меню</span></div>
+        <div class="mock-body">
+          <div class="side-mock">
+            <span><svg class="ic"><use href="#i-globe"/></svg>Websites</span>
+            <span class="hl hl-pulse"><svg class="ic"><use href="#i-cloud"/></svg>Workers &amp; Pages<span class="pin">✓</span></span>
+            <span class="alt"><svg class="ic"><use href="#i-code"/></svg>или «Workers»</span>
+            <span class="alt"><svg class="ic"><use href="#i-code"/></svg>или «Compute (Workers)»</span>
+            <span><svg class="ic"><use href="#i-file"/></svg>R2 / Storage</span>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row"><a class="btn btn-cf" href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть создание воркера</a><a class="btn btn-ghost" href="https://dash.cloudflare.com/?to=/:account/workers-and-pages" target="_blank" rel="noopener"><svg class="ic"><use href="#i-cloud"/></svg>Обзор Workers</a></div>
+      <div class="callout warn"><svg class="ic"><use href="#i-alert"/></svg><span>Если видите только «Add a site / Website» — вы в разделе управления доменом. Вернитесь на уровень аккаунта (кнопка назад / логотип слева вверху) — Workers lives там.</span></div>
+    </div>
+
+    <div class="card state-panel" data-panel="templates">
+      <div class="state-head"><span class="badge">шаблоны</span><h3>Выберите Hello World и задеплойте</h3></div>
+      <ol class="ol">
+        <li>Нажмите карточку <span class="ui g">Hello World!</span> (может называться «Start with Hello World»).</li>
+        <li>Поле имени: впишите <code>synapse-relay</code>. <b>Имя не важно</b> — можно оставить предложенное случайное, оно ни на что не влияет.</li>
+        <li>Нажмите <span class="ui o">Deploy</span> (или «Create Worker»).</li>
+        <li>Если появится кнопка <span class="ui">Continue to project</span> — нажмите её, затем <span class="ui">Edit code</span>.</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="mock-dot" style="background:#fb7185"></span><span class="mock-dot" style="background:#fbbf24"></span><span class="mock-dot" style="background:#a3e635"></span><span class="mock-url">Workers → Create → Hello World</span></div>
+        <div class="mock-body">
+          <div class="cf-row"><span class="n">1</span>Worker name<span class="mono" style="margin-left:auto">synapse-relay</span></div>
+          <div class="cf-row hl"><span class="n">2</span>Предпросмотр кода Hello World<span class="arr">→</span></div>
+          <div class="cf-row" style="border-color:rgba(246,130,31,.6)"><span class="n">3</span><b style="color:#fdba74">Deploy</b><span class="arr">→ воркер создан</span></div>
+        </div>
+      </div>
+      <div class="callout info"><svg class="ic"><use href="#i-info"/></svg><span>Сейчас в воркере стандартный код «Hello World» — его нужно <b>заменить нашим</b> (следующая карточка «Открылся редактор кода»). Без замены реле не заработает.</span></div>
+    </div>
+
+    <div class="card state-panel" data-panel="editor">
+      <div class="state-head"><span class="badge">редактор</span><h3>Замените код и нажмите Deploy</h3></div>
+      <ol class="ol">
+        <li>Кликните в область кода слева (файл <code>worker.js</code>).</li>
+        <li>Выделите всё: <span class="ui">Ctrl+A</span> (на Mac <span class="ui">⌘A</span>) → удалите <span class="ui">Delete</span>.</li>
+        <li>Вставьте наш код: кнопка «Скопировать код» ниже → <span class="ui">Ctrl+V</span> / <span class="ui">⌘V</span>.</li>
+        <li>Нажмите <span class="ui o">Deploy</span> справа вверху. Если спросит подтверждение — подтвердите.</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="mock-dot" style="background:#fb7185"></span><span class="mock-dot" style="background:#fbbf24"></span><span class="mock-dot" style="background:#a3e635"></span><span class="mock-url">Quick edit · worker.js</span></div>
+        <div class="editor">
+          <div class="editor-top"><svg class="ic" style="width:13px;height:13px"><use href="#i-file"/></svg>worker.js<span class="deploy hl-pulse">Deploy<span class="pin">4</span></span></div>
+          <div class="editor-code">
+            <div class="del">export default {</div>
+            <div class="del">&nbsp;&nbsp;async fetch(request) {</div>
+            <div class="del">&nbsp;&nbsp;&nbsp;&nbsp;return new Response("Hello World!");</div>
+            <div class="del">&nbsp;&nbsp;}</div>
+            <div class="del">};</div>
+            <div class="cm">// ↑ удалить всё (Ctrl+A → Delete)</div>
+            <div class="ins">// ↓ вставить наш код (Ctrl+V)</div>
+            <div class="ins">const DEFAULT_ALLOWED = ["ai.starimg.ru"];</div>
+            <div class="ins">const CORS = { ... };</div>
+            <div class="ins">export default { async fetch(req, env) { ... } };</div>
+          </div>
+        </div>
+      </div>
+      <div class="codebox">
+        <div class="codebox-h"><svg class="ic" style="width:13px;height:13px"><use href="#i-file"/></svg>наш код реле — вставить целиком<button class="copybtn" data-copy-target="workerCode" type="button"><svg class="ic"><use href="#i-copy"/></svg>Скопировать код</button></div>
+        <pre id="workerCode">const DEFAULT_ALLOWED = ["ai.starimg.ru"];
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "authorization, content-type, x-target-url, x-relay-key",
+  "Access-Control-Max-Age": "86400",
+};
+export default {
+  async fetch(req, env) {
+    if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+    const url = new URL(req.url);
+    const target = req.headers.get("x-target-url") || url.searchParams.get("target");
+    const json = (obj, status) =&gt; new Response(JSON.stringify(obj), { status, headers: { ...CORS, "Content-Type": "application/json" } });
+    if (!target) return json({ error: "Передайте целевой URL в заголовке x-target-url или ?target=" }, 400);
+    let t;
+    try { t = new URL(target); } catch { return json({ error: "Некорректный целевой URL" }, 400); }
+    if (t.protocol !== "https:") return json({ error: "Разрешён только https" }, 403);
+    const allowed = (env.ALLOWED_TARGETS || DEFAULT_ALLOWED.join(",")).split(",").map(s =&gt; s.trim()).filter(Boolean);
+    if (allowed.length &amp;&amp; !allowed.includes(t.hostname)) return json({ error: "Хост не в списке разрешённых: " + t.hostname }, 403);
+    if (env.RELAY_SECRET &amp;&amp; req.headers.get("x-relay-key") !== env.RELAY_SECRET) return json({ error: "Неверный секрет реле" }, 401);
+    const headers = new Headers(req.headers);
+    ["x-target-url", "x-relay-key", "host", "origin", "referer", "cf-connecting-ip", "cf-ray", "cf-visitor", "x-forwarded-for", "x-real-ip"].forEach(h =&gt; headers.delete(h));
+    const resp = await fetch(t.toString(), {
+      method: req.method,
+      headers,
+      body: ["GET", "HEAD"].includes(req.method) ? undefined : req.body,
+      redirect: "follow",
+    });
+    const out = new Headers(resp.headers);
+    Object.entries(CORS).forEach(([k, v]) =&gt; out.set(k, v));
+    return new Response(resp.body, { status: resp.status, headers: out });
+  },
+};</pre>
+      </div>
+      <div class="callout warn"><svg class="ic"><use href="#i-alert"/></svg><span><b>Не видите Edit code?</b> Откройте воркер → вкладка <span class="ui">Settings</span> рядом с Overview может прятать редактор; ищите кнопку <span class="ui">Edit code</span> / <span class="ui">Quick edit</span> справа вверху на странице воркера. В новом интерфейсе она называется <span class="ui">Edit code</span> и открывает онлайн-редактор.</span></div>
+    </div>
+
+    <div class="card state-panel" data-panel="url">
+      <div class="state-head"><span class="badge">адрес</span><h3>Скопируйте адрес воркера</h3></div>
+      <ol class="ol">
+        <li>Откройте ваш воркер (Workers &amp; Pages → <code>synapse-relay</code>).</li>
+        <li>Адрес показан сверху / во вкладке <span class="ui">Overview</span> или <span class="ui">Triggers</span>: вида <code>https://synapse-relay.имя.workers.dev</code>.</li>
+        <li>Скопируйте его целиком (с <code>https://</code>) и вставьте в поле проверки ниже.</li>
+      </ol>
+      <div class="mock">
+        <div class="mock-bar"><span class="mock-dot" style="background:#fb7185"></span><span class="mock-dot" style="background:#fbbf24"></span><span class="mock-dot" style="background:#a3e635"></span><span class="mock-url">Workers → synapse-relay → Overview</span></div>
+        <div class="mock-body">
+          <div class="urlbar"><svg class="ic"><use href="#i-link"/></svg><span class="u">https://synapse-relay.ваш-аккаунт.workers.dev</span><span class="cp hl-pulse">копировать<span class="pin">✓</span></span></div>
+          <div class="cf-row" style="margin-top:10px;margin-bottom:0"><span class="n">!</span>Если код ещё «Hello World» — сначала <b>Edit code</b> → заменить → Deploy</div>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn btn-primary" type="button" onclick="document.getElementById('relayUrl').scrollIntoView({behavior:'smooth'});document.getElementById('relayUrl').focus()"><svg class="ic"><use href="#i-arrow"/></svg>К проверке реле</button></div>
+    </div>
+
+    <div class="card state-panel" data-panel="deployed">
+      <div class="state-head"><span class="badge">финал</span><h3>Проверьте реле и перенесите адрес в Синапс</h3></div>
+      <p>Ниже — живая проверка: она отправит запрос на ваш воркер и поймёт, заменён ли код, задеплоен ли он и доступен ли из вашей сети. Затем одной кнопкой запишет адрес в настройки Синапса.</p>
+      <div class="btn-row"><button class="btn btn-primary" type="button" onclick="document.getElementById('relayUrl').scrollIntoView({behavior:'smooth'});document.getElementById('relayUrl').focus()"><svg class="ic"><use href="#i-wand"/></svg>Проверить реле</button></div>
+      <div class="callout good"><svg class="ic"><use href="#i-check"/></svg><span>После успешной проверки: Синапс → Настройки → <span class="ui">CORS-реле</span> → вставить адрес. Ключ и модель — из шага 6 инструкции. Готово.</span></div>
+    </div>
+  </section>
+
+  <section id="verify" class="reveal">
+    <h2>Проверка реле</h2>
+    <div class="verifier">
+      <h3><svg class="ic"><use href="#i-wand"/></svg>Ваш воркер работает?</h3>
+      <div class="vs">Вставьте адрес воркера. Проверка поймёт: код заменён, деплой прошёл, сеть доступна. Ключ — необязательно, но с ним проверим связь с ai.starimg.ru целиком.</div>
+      <div class="field"><label>Адрес реле (воркера)</label><input type="url" id="relayUrl" placeholder="https://synapse-relay.ваш-аккаунт.workers.dev" spellcheck="false" autocomplete="off"></div>
+      <div class="field"><label>API-ключ ai.starimg.ru (необязательно — для полного теста)</label><input type="password" id="apiKey" placeholder="sk-…" spellcheck="false" autocomplete="off"><div class="hint">Ключ никуда не сохраняется, кроме вашего браузера, и уходит только на ваше реле.</div></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="checkRelayBtn" type="button"><svg class="ic"><use href="#i-search"/></svg>Проверить реле</button>
+        <button class="btn btn-ghost" id="fullTestBtn" type="button"><svg class="ic"><use href="#i-key"/></svg>Полный тест с ключом</button>
+      </div>
+      <div class="t-result" id="verifyResult"></div>
+      <div class="btn-row" id="saveRow" hidden>
+        <button class="btn btn-green" id="saveBtn" type="button"><svg class="ic"><use href="#i-wand"/></svg>Записать адрес в Синапс</button>
+        <button class="btn btn-ghost" id="copyUrlBtn" type="button"><svg class="ic"><use href="#i-copy"/></svg>Скопировать адрес</button>
+        <a class="btn btn-primary" href="index.html"><svg class="ic"><use href="#i-play"/></svg>Открыть Синапс</a>
+      </div>
+      <div class="t-result" id="saveResult"></div>
+    </div>
+  </section>
+
+  <section id="checklist" class="reveal">
+    <h2>Чек-лист шага 7</h2>
+    <div class="progress-line"><i id="progressFill"></i></div>
+    <div class="checks" id="checks">
+      <button class="check" data-check="c1" type="button"><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Нашёл вкладку Workers (не Pages)</span><span class="cn">01</span></button>
+      <button class="check" data-check="c2" type="button"><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Создал воркер Hello World и нажал Deploy</span><span class="cn">02</span></button>
+      <button class="check" data-check="c3" type="button"><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Заменил код на наш и снова Deploy</span><span class="cn">03</span></button>
+      <button class="check" data-check="c4" type="button"><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Скопировал адрес …workers.dev</span><span class="cn">04</span></button>
+      <button class="check" data-check="c5" type="button"><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Проверка реле прошла успешно</span><span class="cn">05</span></button>
+      <button class="check" data-check="c6" type="button"><span class="box"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Адрес вставлен в настройки Синапса</span><span class="cn">06</span></button>
+    </div>
+    <div class="callout good" id="allDone" hidden><svg class="ic"><use href="#i-check"/></svg><span><b>Шаг 7 закрыт!</b> Возвращайтесь в инструкцию (шаг 8) или сразу откройте Синапс и задайте вопрос с включённым поиском.</span></div>
+  </section>
+
+  <section id="faq" class="reveal">
+    <h2>Если что-то пошло не так</h2>
+    <div class="faq">
+      <div class="qa"><button class="qa-q" type="button">Вкладка Workers тоже ведёт на GitHub / шаблоны из репозитория<svg class="ic"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div class="qa-a-in">Значит, вы всё ещё в разделе Pages. Прямая ссылка на создание воркера: <a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/create" target="_blank" rel="noopener">открыть</a>. На открывшейся странице переключатель Pages/Workers находится <b>в самом верху</b>, над карточками шаблонов. Если его не видно — прокрутите страницу вверх до конца.</div></div></div>
+      <div class="qa"><button class="qa-q" type="button">Кнопка Deploy серая / не нажимается<svg class="ic"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div class="qa-a-in">Обычно причина: <b>1)</b> не подтверждена почта аккаунта — проверьте письмо от Cloudflare; <b>2)</b> не задано имя воркера — впишите любое латиницей, например synapse-relay; <b>3)</b> редактор не дал сохранить изменения — нажмите Ctrl+S внутри редактора, затем Deploy.</div></div></div>
+      <div class="qa"><button class="qa-q" type="button">Проверка пишет «стандартный Hello World»<svg class="ic"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div class="qa-a-in">Воркер создан, но код не заменён. Откройте воркер → <b>Edit code</b> → Ctrl+A → Delete → вставьте наш код (кнопка копирования выше) → <b>Deploy</b>. После деплоя подождите 10–20 секунд и повторите проверку.</div></div></div>
+      <div class="qa"><button class="qa-q" type="button">Проверка пишет «не удалось соединиться»<svg class="ic"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div class="qa-a-in">Три варианта: <b>1)</b> адрес скопирован не полностью или с опечаткой — сверьте с адресом в дашборде; <b>2)</b> деплой ещё не применился — подождите минуту; <b>3)</b> ваш оператор блокирует домены <code>workers.dev</code> (бывает в РФ). Тогда привяжите свой домен: воркер → Settings → Domains &amp; Routes → Add → Custom Domain. Проверить просто: откройте адрес реле в Safari — должен появиться текст про x-target-url.</div></div></div>
+      <div class="qa"><button class="qa-q" type="button">Полный тест с ключом даёт 401/403<svg class="ic"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div class="qa-a-in">Реле работает, но ключ отклонён продавцом. Скопируйте ключ заново целиком, без пробелов. Если задавали RELAY_SECRET в воркере — впишите тот же секрет в Синапсе («Секрет реле»). 403 с текстом «Хост не в списке разрешённых» означает, что в ALLOWED_TARGETS нет ai.starimg.ru — оставьте переменную пустой или добавьте хост.</div></div></div>
+      <div class="qa"><button class="qa-q" type="button">Можно вообще без Cloudflare?<svg class="ic"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div class="qa-a-in">Да, если продавец включит CORS-заголовки на сервере ai.starimg.ru — тогда Синапс заработает напрямую, без реле. Напишите ему: «Добавьте, пожалуйста, Access-Control-Allow-Origin и Allow-Headers: authorization, content-type, и ответ на OPTIONS». Пока он не включил — реле самый быстрый путь. Пользоваться Синапсом в демо-режиме (с настоящим поиском) можно и без всего этого.</div></div></div>
+    </div>
+    <details class="adv"><summary>Защитить реле паролем (необязательно)</summary>
+      <div class="adv-body">Воркер → Settings → Variables → Add: имя <code>RELAY_SECRET</code>, значение — любой пароль → Deploy. В Синапсе в поле «Секрет реле» впишите тот же пароль. Без этого реле тоже работает, но пароль не даст посторонним гонять трафик через ваш воркер.</div>
+    </details>
+  </section>
+
+</div>
+
+<footer>
+  <div class="orb"></div><span>Синапс · помощник по шагу 7 · данные остаются в вашем браузере</span>
+  <a href="guide.html">← Вся инструкция</a>
+</footer>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const LS="synapse.cfhelp.v1";
+let state={sound:true,checks:{},relayUrl:"",apiKey:""};
+try{const raw=localStorage.getItem(LS);if(raw)state=Object.assign(state,JSON.parse(raw))}catch(e){}
+function save(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
+
+let AC=null;
+function beep(kind){
+  if(!state.sound)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended")AC.resume();
+    const t=AC.currentTime;
+    const note=(f,st,d,type,vol)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f,t+st);
+      g.gain.setValueAtTime(0,t+st);g.gain.linearRampToValueAtTime(vol||.045,t+st+.012);g.gain.exponentialRampToValueAtTime(.0001,t+st+d);
+      o.connect(g).connect(AC.destination);o.start(t+st);o.stop(t+st+d+.02)};
+    if(kind==="tick")note(1240,0,.05);
+    else if(kind==="done"){note(660,0,.11);note(990,.08,.15)}
+    else if(kind==="copy"){note(880,0,.06);note(1320,.04,.08)}
+    else if(kind==="err")note(196,0,.18,"triangle");
+    else if(kind==="win"){note(523,0,.14);note(659,.1,.14);note(784,.2,.16);note(1046,.3,.24)}
+  }catch(e){}
+}
+function syncSound(){const b=$("soundBtn");b.classList.toggle("on",state.sound);b.innerHTML='<svg class="ic"><use href="#i-'+(state.sound?"sound":"mute")+'"/></svg>'}
+$("soundBtn").onclick=()=>{state.sound=!state.sound;save();syncSound();if(state.sound)beep("tick")};
+
+function toast(text,kind){
+  const el=document.createElement("div");el.className="toast"+(kind?" "+kind:"");
+  el.innerHTML='<svg class="ic"><use href="#i-'+(kind==="bad"?"alert":kind==="good"?"check":"info")+'"/></svg><span></span>';
+  el.querySelector("span").textContent=text;
+  $("toasts").appendChild(el);
+  setTimeout(()=>{el.style.opacity="0";el.style.transition="opacity .3s";setTimeout(()=>el.remove(),320)},3800);
+}
+function sparks(el,big){
+  const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const colors=["#22d3ee","#8b5cf6","#e879f9","#a3e635","#f6821f"];
+  const n=big?26:12;
+  for(let i=0;i<n;i++){
+    const s=document.createElement("span");s.className="spark";
+    s.style.background=colors[i%colors.length];s.style.left=cx+"px";s.style.top=cy+"px";
+    document.body.appendChild(s);
+    const a=Math.random()*Math.PI*2,d=(big?90:46)+Math.random()*(big?90:40);
+    s.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate("+Math.cos(a)*d+"px,"+(Math.sin(a)*d+30)+"px) scale(.2) rotate("+Math.random()*360+"deg)",opacity:0}],{duration:600+Math.random()*500,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=()=>s.remove();
+  }
+}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+
+/* picker */
+$$(".pick").forEach(b=>b.onclick=()=>{
+  $$(".pick").forEach(x=>x.classList.toggle("active",x===b));
+  $$(".state-panel").forEach(p=>p.classList.toggle("show",p.dataset.panel===b.dataset.state));
+  beep("tick");
+});
+
+/* copy */
+function copyText(text,btn){
+  const done=()=>{beep("copy");toast("Скопировано","good");
+    if(btn){const old=btn.innerHTML;btn.classList.add("ok");btn.innerHTML='<svg class="ic"><use href="#i-check"/></svg>Скопировано';setTimeout(()=>{btn.classList.remove("ok");btn.innerHTML=old},1600)}};
+  const fallback=()=>{const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(e){toast("Не удалось скопировать — выделите вручную","bad")}ta.remove()};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fallback);else fallback();
+}
+$$("[data-copy-target]").forEach(b=>b.onclick=()=>copyText($(b.dataset.copyTarget).textContent,b));
+
+/* checklist */
+const CHECK_IDS=["c1","c2","c3","c4","c5","c6"];
+function updateChecks(){
+  let n=0;
+  $$(".check").forEach(c=>{const on=!!state.checks[c.dataset.check];c.classList.toggle("done",on);if(on)n++});
+  $("progressFill").style.width=(n/CHECK_IDS.length*100)+"%";
+  $("allDone").hidden=n<CHECK_IDS.length;
+}
+function markCheck(id,val){state.checks[id]=val;save();updateChecks()}
+$$(".check").forEach(c=>c.onclick=()=>{
+  const id=c.dataset.check,on=!state.checks[id];
+  markCheck(id,on);
+  if(on){beep("done");sparks(c);
+    if(CHECK_IDS.every(k=>state.checks[k])){beep("win");sparks($("allDone"),true);toast("Шаг 7 полностью закрыт!","good")}
+  }else beep("tick");
+});
+
+/* verifier */
+function normUrl(v){v=(v||"").trim();if(!v)return"";if(!/^https?:\/\//i.test(v))v="https://"+v;return v.replace(/\/+$/,"")}
+async function fetchT(url,opts,ms){
+  const c=new AbortController();const t=setTimeout(()=>c.abort(),ms||15000);
+  try{return await fetch(Object.assign({},opts,{signal:c.signal}))}
+  finally{clearTimeout(t)}
+}
+function showResult(kind,html){const r=$("verifyResult");r.className="t-result "+kind+" show";r.innerHTML=html}
+async function checkRelay(){
+  const url=normUrl($("relayUrl").value);
+  state.relayUrl=$("relayUrl").value;save();
+  if(!url){showResult("err","Вставьте адрес воркера — вида <b>https://synapse-relay.имя.workers.dev</b>");beep("err");return}
+  $("saveRow").hidden=true;
+  showResult("load",'<span class="spin"></span>Проверяю '+esc(url)+" …");
+  try{
+    const r=await fetchT(url,{method:"GET"},15000);
+    const text=await r.text();
+    let isOurs=false;
+    try{const j=JSON.parse(text);if(j&&typeof j.error==="string"&&j.error.indexOf("x-target-url")>=0)isOurs=true}catch(e){}
+    if(isOurs){
+      showResult("ok","<b>Реле работает!</b> Воркер задеплоен, наш код на месте, CORS-заголовки отдаются. Можно переносить адрес в Синапс."+
+        '<div class="fix-hint">Ответ воркера: «'+esc(text.slice(0,120))+'» — это нормальный ответ на запрос без цели.</div>');
+      $("saveRow").hidden=false;beep("done");markCheck("c5",true);sparks($("checkRelayBtn"));
+    }else if(r.status===200&&/hello world/i.test(text)){
+      showResult("warn","<b>Воркер создан, но код ещё стандартный.</b> Откройте воркер → Edit code → удалите всё → вставьте наш код (кнопка выше) → Deploy. Подождите 15 секунд и проверьте снова.");beep("err");
+    }else if(r.status===404){
+      showResult("err","<b>404 — адрес не найден.</b> Сверьте адрес с дашбордом (имя воркера и поддомен аккаунта). Возможно, воркер ещё не задеплоен или удалён.");beep("err");
+    }else{
+      showResult("warn","Воркер ответил кодом <b>"+r.status+"</b>: <span class='mono'>"+esc(text.slice(0,160))+"</span><div class='fix-hint'>Если это не наш JSON про x-target-url — код не заменён или заменён частично. Вставьте код целиком и нажмите Deploy.</div>");beep("err");
+    }
+  }catch(e){
+    showResult("err","<b>Не удалось соединиться с воркером.</b> Проверьте: адрес скопирован полностью, деплой прошёл (прошла минута). Если адрес верный — вероятно, ваш оператор блокирует <code>workers.dev</code>: откройте адрес в Safari; если не грузится, привяжите свой домен (воркер → Settings → Domains &amp; Routes → Custom Domain).");beep("err");
+  }
+}
+async function fullTest(){
+  const url=normUrl($("relayUrl").value),key=($("apiKey").value||"").trim();
+  state.relayUrl=$("relayUrl").value;state.apiKey=key;save();
+  if(!url){showResult("err","Сначала вставьте адрес реле.");beep("err");return}
+  if(!key){showResult("err","Для полного теста вставьте API-ключ ai.starimg.ru.");beep("err");return}
+  $("saveRow").hidden=true;
+  showResult("load",'<span class="spin"></span>Иду через ваше реле к ai.starimg.ru за списком моделей…');
+  try{
+    const r=await fetchT(url,{method:"GET",headers:{"x-target-url":"https://ai.starimg.ru/v1/models","Authorization":"Bearer "+key}},25000);
+    if(!r.ok){
+      const body=await r.text().catch(()=>"");
+      let msg="HTTP "+r.status;
+      if(r.status===401||r.status===403)msg="Ключ отклонён (HTTP "+r.status+"). Скопируйте ключ заново целиком; если задавали RELAY_SECRET — он должен совпадать.";
+      else if(r.status===404)msg="HTTP 404 — проверьте, что у продавца адрес именно https://ai.starimg.ru/v1.";
+      else if(r.status===429)msg="HTTP 429 — лимит или баланс у продавца.";
+      try{const j=JSON.parse(body);if(j.error)msg+=" Ответ: "+(j.error.message||j.error)}catch(e){}
+      showResult("err","<b>Реле ответило, но провайдер拒绝了 запрос.</b> "+esc(msg));beep("err");return;
+    }
+    const j=await r.json();
+    const ids=((j.data||[]).map(x=>x.id).filter(Boolean)).sort();
+    showResult("ok","<b>Полная цепочка работает!</b> Сайт → ваше реле → ai.starimg.ru. Доступно моделей: "+ids.length+
+      (ids.length?'<div class="model-chips">'+ids.slice(0,18).map(m=>'<span class="mchip">'+esc(m)+"</span>").join("")+"</div>":"")+
+      '<div class="fix-hint">Запишите адрес в Синапс кнопкой ниже, выберите модель в настройках — и можно общаться.</div>');
+    $("saveRow").hidden=false;beep("win");markCheck("c5",true);sparks($("fullTestBtn"),true);
+  }catch(e){
+    showResult("err","<b>Соединение не удалось.</b> Сначала нажмите «Проверить реле» — разберёмся по шагам. Частая причина: workers.dev блокируется оператором (нужен свой домен) или адрес воркера с опечаткой.");beep("err");
+  }
+}
+$("checkRelayBtn").onclick=checkRelay;
+$("fullTestBtn").onclick=fullTest;
+$("relayUrl").addEventListener("input",()=>{state.relayUrl=$("relayUrl").value;save()});
+$("apiKey").addEventListener("input",()=>{state.apiKey=$("apiKey").value;save()});
+
+/* save into app + guide */
+$("saveBtn").onclick=()=>{
+  const url=normUrl($("relayUrl").value);const res=$("saveResult");
+  if(!url){res.className="t-result err show";res.innerHTML="Нет адреса для записи.";return}
+  let wrote=false;
+  try{
+    const raw=localStorage.getItem("synapse.v1");
+    const app=raw?JSON.parse(raw):{chats:[],activeId:null,settings:{}};
+    if(app&&typeof app==="object"){
+      app.settings=Object.assign({},app.settings||{},{relayUrl:url});
+      localStorage.setItem("synapse.v1",JSON.stringify(app));wrote=true;
+    }
+  }catch(e){}
+  try{
+    const g=JSON.parse(localStorage.getItem("synapse.guide.v1")||"{}");
+    g.workerUrl=url;localStorage.setItem("synapse.guide.v1",JSON.stringify(g));
+  }catch(e){}
+  if(wrote){
+    res.className="t-result ok show";
+    res.innerHTML="<b>Адрес записан в Синапс на этом устройстве.</b> Откройте приложение — поле «CORS-реле» уже заполнено."+
+      (location.protocol==="file:"?"<div class='fix-hint'>Инструкция открыта как файл — запись действует только здесь. На айфоне откройте эту страницу по адресу сайта и нажмите кнопку ещё раз.</div>":"");
+    beep("win");markCheck("c6",true);sparks($("saveBtn"),true);
+  }else{
+    res.className="t-result warn show";
+    res.innerHTML="<b>Автоматически не вышло</b> (страница открыта как файл или в другом браузере). Скопируйте адрес кнопкой рядом и вставьте в Синапсе: Настройки → CORS-реле.";
+    beep("err");
+  }
+};
+$("copyUrlBtn").onclick=function(){copyText(normUrl($("relayUrl").value),this)};
+
+/* faq */
+$$(".qa-q").forEach(q=>q.onclick=()=>{
+  const qa=q.parentElement,a=qa.querySelector(".qa-a"),open=qa.classList.contains("open");
+  $$(".qa.open").forEach(o=>{if(o!==qa){o.classList.remove("open");o.querySelector(".qa-a").style.maxHeight="0"}});
+  qa.classList.toggle("open",!open);
+  a.style.maxHeight=open?"0":a.scrollHeight+"px";
+  beep("tick");
+});
+
+/* reveal */
+if("IntersectionObserver" in window){
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.06});
+  $$(".reveal").forEach(el=>io.observe(el));
+}else $$(".reveal").forEach(el=>el.classList.add("in"));
+
+/* init */
+$("relayUrl").value=state.relayUrl||"";
+$("apiKey").value=state.apiKey||"";
+syncSound();updateChecks();
+</script>
+</body>
+</html>

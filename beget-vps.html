@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#04070e">
+<meta name="color-scheme" content="dark">
+<title>Синапс на Beget VPS · подробная инструкция</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+--ink:#04070e;--ink2:#080e1c;--rack:#0b1424;--surf:rgba(12,19,36,.8);--surf2:rgba(20,29,54,.6);
+--line:rgba(116,138,210,.16);--line2:rgba(116,138,210,.34);
+--tx:#e7edfa;--mut:#8d9bBD;--dim:#576285;
+--led:#3ddc84;--lime:#b6f24a;--cyan:#22d3ee;--azure:#3b82f6;--violet:#8b5cf6;--magenta:#e879f9;
+--amber:#f5a524;--red:#f4436c;
+--grad:linear-gradient(135deg,var(--cyan),var(--azure) 48%,var(--violet));
+--ok:linear-gradient(135deg,var(--led),var(--lime));
+--nav:58px}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(61,220,132,.4) rgba(8,14,28,.7)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(8,14,28,.75)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--led),var(--cyan));border-radius:11px;border:2px solid rgba(8,14,28,.75)}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--lime),var(--azure))}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--tx);font-family:"Manrope",-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.62;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none;
+background:
+radial-gradient(600px 460px at 10% 6%,rgba(61,220,132,.13),transparent 62%),
+radial-gradient(720px 540px at 90% 4%,rgba(59,130,246,.17),transparent 62%),
+radial-gradient(800px 600px at 76% 96%,rgba(139,92,246,.13),transparent 62%),
+radial-gradient(520px 420px at 18% 90%,rgba(34,211,238,.1),transparent 62%),
+linear-gradient(180deg,var(--ink),var(--ink2));
+animation:drift 36s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+background-image:linear-gradient(rgba(116,138,210,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(116,138,210,.045) 1px,transparent 1px);
+background-size:46px 46px}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-2%,2%) scale(1.04)}}
+a{color:var(--cyan)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--led);outline-offset:2px;border-radius:8px}
+input,select{font:inherit}
+.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+code,.mono{font-family:"JetBrains Mono",monospace}
+code{font-size:.87em;background:rgba(61,220,132,.1);border:1px solid rgba(61,220,132,.26);padding:1px 7px;border-radius:6px;color:#bdf3d3;word-break:break-all}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:70;height:calc(var(--nav) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);background:rgba(4,7,14,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1180px;margin:0 auto;height:var(--nav);display:flex;align-items:center;gap:11px;padding:0 15px}
+.led{width:11px;height:11px;border-radius:50%;background:var(--led);flex:none;box-shadow:0 0 10px var(--led);animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+.nbrand{font-family:"Unbounded";font-weight:900;font-size:11.5px;letter-spacing:.11em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.nlinks{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none;padding:3px 0}
+.nlinks::-webkit-scrollbar{display:none}
+.nlink{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-family:"JetBrains Mono";font-size:11px;font-weight:600;color:var(--dim);text-decoration:none;border:1px solid var(--line);background:var(--surf2)}
+.nlink:hover{color:var(--cyan);border-color:rgba(34,211,238,.45)}
+.nlink.cur{color:#04121a;background:var(--grad);border-color:transparent}
+.nlink.done{color:#bdf3d3;border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.12)}
+.nlink.done.cur{color:#04121a;background:var(--ok)}
+.nprog{flex:none;font-family:"JetBrains Mono";font-size:11.5px;color:var(--led);white-space:nowrap}
+.nsound{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:var(--mut);border:1px solid var(--line2);background:var(--surf2)}
+.nsound.on{color:var(--led);border-color:rgba(61,220,132,.5)}
+.nbar{position:absolute;left:0;bottom:-1px;height:2px;background:var(--ok);width:0}
+
+.gen{position:sticky;top:calc(var(--nav) + env(safe-area-inset-top));z-index:60;background:rgba(6,10,20,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--line2)}
+.gen-in{max-width:1180px;margin:0 auto;padding:10px 15px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:end}
+.gi label{display:block;font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.gi input{width:100%;padding:8px 11px;border-radius:10px;border:1px solid var(--line2);background:rgba(4,7,14,.8);color:var(--tx);font-size:13px;font-family:"JetBrains Mono"}
+.gi input:focus{outline:none;border-color:rgba(61,220,132,.6);box-shadow:0 0 0 3px rgba(61,220,132,.12)}
+.gi input::placeholder{color:var(--dim);font-family:"Manrope";font-size:12px}
+.gbtns{display:flex;gap:6px}
+.gbtn{padding:8px 12px;border-radius:10px;font-size:11.5px;font-weight:800;border:1px solid var(--line2);background:var(--surf2);color:var(--mut);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.gbtn:hover{color:var(--led);border-color:rgba(61,220,132,.5)}
+.gbtn.p{color:#05230f;background:var(--ok);border-color:transparent}
+
+.wrap{max-width:1180px;margin:0 auto;padding:20px 15px calc(70px + env(safe-area-inset-bottom))}
+section{scroll-margin-top:calc(var(--nav) + 84px)}
+.rev{opacity:0;transform:translateY(18px);transition:opacity .55s cubic-bezier(.2,.7,.3,1),transform .55s cubic-bezier(.2,.7,.3,1)}
+.rev.in{opacity:1;transform:none}
+
+.rack{border:1px solid var(--line2);border-radius:20px;background:linear-gradient(160deg,rgba(11,20,36,.95),rgba(8,14,28,.9));overflow:hidden;margin-bottom:18px;position:relative}
+.rack-top{display:flex;align-items:center;gap:10px;padding:12px 18px;background:rgba(20,29,54,.7);border-bottom:1px solid var(--line2)}
+.rack-top .rt{font-family:"JetBrains Mono";font-size:11.5px;color:var(--mut);letter-spacing:.06em}
+.rack-top .screws{margin-left:auto;display:flex;gap:7px}
+.screw{width:8px;height:8px;border-radius:50%;background:rgba(116,138,210,.25);box-shadow:inset 0 1px 1px rgba(0,0,0,.6)}
+.rack-body{padding:20px 18px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:22px}
+h1{font-family:"Unbounded";font-weight:900;font-size:clamp(21px,4.2vw,33px);line-height:1.18;margin-bottom:11px}
+h1 em{font-style:normal;background:var(--ok);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--mut);font-size:14.5px;margin-bottom:14px}
+.spec{border:1px solid var(--line2);border-radius:15px;background:rgba(4,7,14,.6);padding:15px}
+.spec .sh{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono";font-size:11px;color:var(--led);letter-spacing:.08em;text-transform:uppercase;margin-bottom:11px}
+.spec-row{display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.spec-row:last-child{border-bottom:none}
+.spec-row .k{color:var(--dim);min-width:96px;font-size:11.5px;font-weight:700}
+.spec-row .v{font-family:"JetBrains Mono";font-size:12.5px;color:#bdf3d3}
+.flow{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:rgba(4,7,14,.5);padding:14px}
+.flow-t{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.flow-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:"JetBrains Mono";font-size:11.5px}
+.node{padding:6px 11px;border-radius:9px;border:1px solid var(--line2);background:var(--surf2);color:var(--tx)}
+.node.hot{border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.1);color:#bdf3d3}
+.node.cold{border-color:rgba(244,67,108,.45);background:rgba(244,67,108,.08);color:#ffc3d1;text-decoration:line-through;opacity:.75}
+.arw{color:var(--led)}
+h2{font-family:"Unbounded";font-weight:700;font-size:16px;letter-spacing:.03em;margin:0 0 12px;display:flex;align-items:center;gap:11px}
+.step{border:1px solid var(--line2);border-radius:19px;background:var(--surf);backdrop-filter:blur(12px);padding:19px;margin-bottom:15px;position:relative;overflow:hidden}
+.step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad)}
+.step.ok{border-color:rgba(61,220,132,.4)}
+.step.ok::before{background:var(--ok)}
+.step-head{display:flex;align-items:flex-start;gap:13px;margin-bottom:12px}
+.unit{font-family:"JetBrains Mono";font-weight:600;font-size:11px;color:var(--cyan);border:1px solid rgba(34,211,238,.4);background:rgba(34,211,238,.09);border-radius:8px;padding:5px 9px;flex:none}
+.step.ok .unit{color:#bdf3d3;border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.1)}
+.step-title{flex:1;min-width:0}
+.step-title h3{font-family:"Unbounded";font-weight:700;font-size:15px;line-height:1.3;margin-bottom:3px}
+.step-title .sub{font-size:12px;color:var(--dim)}
+.done{flex:none;display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:11px;font-size:12px;font-weight:800;border:1px solid var(--line2);background:var(--surf2);color:var(--mut)}
+.done:hover{border-color:rgba(61,220,132,.5);color:var(--led)}
+.done.on{background:rgba(61,220,132,.14);border-color:rgba(61,220,132,.6);color:#bdf3d3}
+.done .bx{width:16px;height:16px;border-radius:5px;border:2px solid currentColor;display:grid;place-items:center}
+.done .bx .ic{width:10px;height:10px;opacity:0}
+.done.on .bx{background:var(--led);border-color:var(--led);color:#05230f}
+.done.on .bx .ic{opacity:1}
+.step p{font-size:14px;color:#ccd6f2;margin:.45em 0}
+.ol{list-style:none;counter-reset:s;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.ol li{counter-increment:s;position:relative;padding-left:34px;font-size:14px;line-height:1.6;color:#ccd6f2}
+.ol li::before{content:counter(s);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-family:"JetBrains Mono";font-size:11.5px;color:var(--cyan);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.32)}
+.ui{display:inline-flex;padding:1px 9px;border-radius:8px;font-weight:800;font-size:.9em;background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.42);color:#bcd8ff;white-space:nowrap}
+.ui.g{background:rgba(61,220,132,.13);border-color:rgba(61,220,132,.45);color:#bdf3d3}
+.ui.a{background:rgba(245,165,36,.13);border-color:rgba(245,165,36,.45);color:#fcd9a0}
+.ui.r{background:rgba(244,67,108,.13);border-color:rgba(244,67,108,.45);color:#ffc3d1}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:13px;font-size:13px;line-height:1.55;margin:12px 0}
+.note.warn{border:1px solid rgba(245,165,36,.42);background:rgba(245,165,36,.08);color:#fcd9a0}
+.note.info{border:1px solid rgba(59,130,246,.42);background:rgba(59,130,246,.08);color:#bcd8ff}
+.note.good{border:1px solid rgba(61,220,132,.42);background:rgba(61,220,132,.08);color:#bdf3d3}
+.note.bad{border:1px solid rgba(244,67,108,.45);background:rgba(244,67,108,.08);color:#ffc3d1}
+.btns{display:flex;gap:9px;flex-wrap:wrap;margin:13px 0}
+.b{display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border-radius:12px;font-size:13px;font-weight:800;border:1px solid transparent;text-decoration:none;transition:.18s}
+.b1{color:#04121a;background:var(--grad);box-shadow:0 4px 15px rgba(59,130,246,.28)}
+.b2{color:var(--mut);border-color:var(--line2);background:var(--surf2)}
+.b2:hover{color:var(--cyan);border-color:rgba(34,211,238,.5)}
+.b3{color:#05230f;background:var(--ok);box-shadow:0 4px 15px rgba(61,220,132,.25)}
+.term{margin:13px 0;border-radius:14px;border:1px solid var(--line2);background:#04080f;overflow:hidden}
+.term-h{display:flex;align-items:center;gap:8px;padding:8px 13px;background:rgba(16,25,46,.85);border-bottom:1px solid var(--line);font-family:"JetBrains Mono";font-size:11px;color:var(--mut);flex-wrap:wrap}
+.term-h .dots{display:flex;gap:5px}
+.tdot{width:8px;height:8px;border-radius:50%}
+.term-h .b{margin-left:auto;padding:6px 11px;font-size:11px}
+.term pre{padding:13px 15px;overflow:auto;font-family:"JetBrains Mono";font-size:11.5px;line-height:1.65;color:#c9e6d4;max-height:340px;white-space:pre;tab-size:2}
+.term pre .cm{color:var(--dim)}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.kvc{padding:13px;border-radius:13px;border:1px solid var(--line2);background:rgba(4,7,14,.55)}
+.kvc.bad{border-color:rgba(244,67,108,.5);background:rgba(244,67,108,.06)}
+.kvc.good{border-color:rgba(61,220,132,.5);background:rgba(61,220,132,.06)}
+.kvc .kt{font-size:11.5px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.kvr{display:flex;gap:9px;font-family:"JetBrains Mono";font-size:11.5px;padding:3px 0}
+.kvr .kk{color:var(--dim);min-width:66px}
+.kvr .vv{color:#bdf3d3;word-break:break-all}
+.cloud{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:10.5px;font-weight:800}
+.cloud.on{background:rgba(245,165,36,.15);border:1px solid rgba(245,165,36,.55);color:#fcd9a0}
+.cloud.off{background:rgba(116,138,210,.14);border:1px solid var(--line2);color:var(--mut)}
+.cloud .cd{width:9px;height:9px;border-radius:50%;background:currentColor}
+.tabs{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
+.tab{padding:8px 13px;border-radius:11px;font-size:12.5px;font-weight:800;color:var(--mut);border:1px solid var(--line2);background:var(--surf2)}
+.tab.on{color:#04121a;background:var(--grad);border-color:transparent}
+.tabpan{display:none}
+.tabpan.show{display:block;animation:up .3s both}
+@keyframes up{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.f{margin:11px 0}
+.f label{display:block;font-size:11.5px;font-weight:800;color:var(--mut);margin-bottom:5px}
+.f input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--line2);background:rgba(4,7,14,.75);color:var(--tx);font-size:15px;font-family:"JetBrains Mono"}
+.f input:focus{outline:none;border-color:rgba(61,220,132,.6);box-shadow:0 0 0 3px rgba(61,220,132,.12)}
+.f input::placeholder{color:var(--dim);font-family:"Manrope"}
+.f .h{font-size:11px;color:var(--dim);margin-top:5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.res{display:none;margin-top:12px;border-radius:13px;padding:14px;font-size:13.5px;line-height:1.6}
+.res.show{display:block;animation:up .3s both}
+.res.ok{border:1px solid rgba(61,220,132,.55);background:rgba(61,220,132,.09);color:#bdf3d3}
+.res.warn{border:1px solid rgba(245,165,36,.55);background:rgba(245,165,36,.09);color:#fcd9a0}
+.res.err{border:1px solid rgba(244,67,108,.55);background:rgba(244,67,108,.09);color:#ffc3d1}
+.res.load{border:1px solid rgba(59,130,246,.5);background:rgba(59,130,246,.08);color:#bcd8ff;display:flex;align-items:center;gap:11px}
+.rt2{font-family:"Unbounded";font-weight:700;font-size:13.5px;margin-bottom:6px}
+.raw{margin-top:9px;padding:9px 11px;border-radius:9px;background:rgba(4,7,14,.65);border:1px solid var(--line);font-family:"JetBrains Mono";font-size:11px;color:var(--mut);white-space:pre-wrap;word-break:break-all;max-height:150px;overflow:auto}
+.spin{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid rgba(59,130,246,.25);border-top-color:var(--azure);animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mchip{padding:4px 10px;border-radius:999px;font-family:"JetBrains Mono";font-size:10.5px;border:1px solid rgba(61,220,132,.45);background:rgba(61,220,132,.09);color:#bdf3d3}
+.qa{border:1px solid var(--line2);border-radius:14px;background:var(--surf);overflow:hidden;margin-bottom:8px}
+.qa.open{border-color:rgba(34,211,238,.5)}
+.qa-q{width:100%;display:flex;align-items:center;gap:11px;text-align:left;padding:13px 15px;font-size:13.5px;font-weight:800}
+.qa-q .qn{width:22px;height:22px;border-radius:7px;background:rgba(244,67,108,.13);border:1px solid rgba(244,67,108,.42);color:#ffc3d1;display:grid;place-items:center;font-size:11px;font-weight:800;font-family:"JetBrains Mono";flex:none}
+.qa-q .cv{margin-left:auto;color:var(--cyan);transition:transform .25s}
+.qa.open .qa-q .cv{transform:rotate(180deg)}
+.qa-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.2,.7,.3,1)}
+.qa-a-in{padding:0 15px 14px;font-size:13px;color:var(--mut);line-height:1.65}
+.qa-a-in b{color:var(--tx)}
+.log{margin-top:12px;border-radius:13px;border:1px solid var(--line);background:#04080f;padding:11px 13px;height:170px;overflow:auto;font-family:"JetBrains Mono";font-size:11px;line-height:1.65}
+.ll{color:var(--mut);white-space:pre-wrap;word-break:break-word}
+.ll.ok{color:var(--led)}.ll.warn{color:var(--amber)}.ll.err{color:var(--red)}.ll.act{color:var(--cyan)}
+.banner{display:none;padding:12px 14px;border-radius:13px;font-size:13px;margin-bottom:14px;line-height:1.55}
+.banner.show{display:block}
+.banner.err{border:1px solid rgba(244,67,108,.55);background:rgba(244,67,108,.1);color:#ffc3d1}
+.banner.info{border:1px solid rgba(59,130,246,.45);background:rgba(59,130,246,.08);color:#bcd8ff}
+.spark{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:95}
+.finale{display:none;text-align:center;padding:22px;border-radius:19px;border:1px solid rgba(61,220,132,.55);background:linear-gradient(135deg,rgba(61,220,132,.12),rgba(34,211,238,.09));margin-top:16px}
+.finale.show{display:block;animation:up .45s both}
+.finale h2{font-family:"Unbounded";font-size:19px;font-weight:900;justify-content:center;background:var(--ok);-webkit-background-clip:text;background-clip:text;color:transparent}
+footer{max-width:1180px;margin:0 auto;padding:22px 15px calc(30px + env(safe-area-inset-bottom));border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--dim);font-size:12px}
+footer a{margin-left:auto}
+@media(max-width:940px){
+  .rack-body{grid-template-columns:1fr}
+  .gen-in{grid-template-columns:1fr 1fr;gap:9px}
+  .gbtns{grid-column:1/-1}
+  .kv{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .nbrand{display:none}
+}
+@media(max-width:520px){.step{padding:15px}.step-head{flex-wrap:wrap}.done{margin-left:44px}.nprog{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rev{opacity:1;transform:none}}
+@media print{
+  body{background:#fff;color:#000}
+  body::before,body::after,.nav,.gen,.btns,.done,.log,.finale,.banner{display:none!important}
+  .rev{opacity:1;transform:none}
+  .step,.rack,.term,.qa{border:1px solid #999;background:#fff;color:#000;page-break-inside:avoid}
+  .term pre{color:#000;background:#f4f4f4;max-height:none}
+  h1,h2,.step-title h3,.step p,.ol li,.qa-a-in{color:#000}
+  .qa-a{max-height:none!important}
+  code,.ui{background:#eee;border:1px solid #999;color:#000}
+  a{color:#000}
+}
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+<symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11M7.5 11.5L12 16l4.5-4.5M4 19h16"/></symbol>
+<symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M19 14v5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V7a1.5 1.5 0 0 1 1.5-1.5H10"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7V5z"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3.5V8h-4.5"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4L2.5 20h19L12 4z"/><path d="M12 10v4.5M12 17.5v.5"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-server" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="6" rx="2"/><rect x="3.5" y="14" width="17" height="6" rx="2"/><path d="M7 7h.5M7 17h.5M11 7h6M11 17h6"/></symbol>
+<symbol id="i-term" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="m7 10 2.5 2.5L7 15M12.5 15H17"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="14" r="4.5"/><path d="M11.5 10.5L20 4M16 7l2.5 2.5"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19L16 8M14.5 4.5l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M15.5 9.5a4 4 0 0 1 0 5"/></symbol>
+<symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+<symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 18H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="7" y="14" width="10" height="6" rx="1"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 18.2 10 4 4 0 0 1 17.5 18H7z"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M5 4.5h11L19.5 8v11a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1z"/><path d="M8 4.5v5h7M8 15h8"/></symbol>
+</svg>
+
+<nav class="nav">
+  <div class="nav-in">
+    <span class="led"></span><span class="nbrand">BEGET VPS · РАЗВЁРТЫВАНИЕ</span>
+    <div class="nlinks" id="nlinks"></div>
+    <span class="nprog" id="nprog">0 / 12</span>
+    <button class="nsound on" id="soundBtn" aria-label="Звук"><svg class="ic"><use href="#i-sound"/></svg></button>
+  </div>
+  <div class="nbar" id="nbar"></div>
+</nav>
+
+<div class="gen">
+  <div class="gen-in">
+    <div class="gi"><label>Домен</label><input id="gDomain" data-g="domain" type="text" spellcheck="false" placeholder="mnetaknado.ru"></div>
+    <div class="gi"><label>IP сервера Beget</label><input id="gIp" data-g="ip" type="text" spellcheck="false" placeholder="123.45.67.89"></div>
+    <div class="gi"><label>Сайт на GitHub Pages</label><input id="gGh" data-g="ghBase" type="text" spellcheck="false" placeholder="https://логин.github.io/synapse"></div>
+    <div class="gi"><label>API-ключ провайдера</label><input id="gKey" data-g="key" type="password" spellcheck="false" placeholder="sk-…" autocomplete="off"></div>
+    <div class="gbtns">
+      <button class="gbtn p" id="dlScript"><svg class="ic"><use href="#i-dl"/></svg>setup.sh</button>
+      <button class="gbtn" id="printBtn"><svg class="ic"><use href="#i-print"/></svg>Печать</button>
+      <button class="gbtn" id="resetBtn">Сброс</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="banner err" id="errBanner"></div>
+  <div class="banner info" id="originBanner"></div>
+
+  <div class="rack rev" id="s0">
+    <div class="rack-top">
+      <span class="led"></span>
+      <span class="rt">synapse-node · ru-region · ubuntu 24.04</span>
+      <span class="screws"><span class="screw"></span><span class="screw"></span><span class="screw"></span></span>
+    </div>
+    <div class="rack-body">
+      <div>
+        <h1>Синапс переезжает<br>на <em>российский сервер</em></h1>
+        <p class="lead">Один VPS на Beget будет отдавать и сам сайт, и реле для API — на одном адресе <code id="hostInline">mnetaknado.ru</code>. Раз адрес один, браузеру больше не нужно ничьё разрешение: CORS исчезает как проблема. Cloudflare из цепочки уходит совсем, а значит и блокировка оператора.</p>
+        <div class="flow">
+          <div class="flow-t">как пойдёт запрос</div>
+          <div class="flow-line">
+            <span class="node">iPhone</span><span class="arw">→</span>
+            <span class="node hot" id="flowHost">mnetaknado.ru</span><span class="arw">→</span>
+            <span class="node">Caddy</span><span class="arw">→</span>
+            <span class="node">/relay</span><span class="arw">→</span>
+            <span class="node hot">ai.starimg.ru</span>
+          </div>
+          <div class="flow-line" style="margin-top:9px">
+            <span class="node cold">workers.dev</span>
+            <span class="node cold">Cloudflare proxy</span>
+            <span style="color:var(--dim);font-size:11px">— больше не участвуют</span>
+          </div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="sh"><svg class="ic" style="width:14px;height:14px"><use href="#i-server"/></svg>что заказывать на Beget</div>
+        <div class="spec-row"><span class="k">Тариф</span><span class="v">VPS (не виртуальный хостинг)</span></div>
+        <div class="spec-row"><span class="k">Локация</span><span class="v">Россия — СПб или Москва</span></div>
+        <div class="spec-row"><span class="k">ОС</span><span class="v">Ubuntu 24.04 LTS</span></div>
+        <div class="spec-row"><span class="k">CPU</span><span class="v">1 ядро (хватит)</span></div>
+        <div class="spec-row"><span class="k">RAM</span><span class="v">1–2 ГБ</span></div>
+        <div class="spec-row"><span class="k">Диск</span><span class="v">10–20 ГБ NVMe</span></div>
+        <div class="spec-row"><span class="k">Доступ</span><span class="v">root + SSH / консоль в панели</span></div>
+        <div class="spec-row"><span class="k">Цена</span><span class="v">покажет конфигуратор, ~сотни ₽/мес</span></div>
+        <div class="note good" style="margin:12px 0 0"><span>Node-реле и Caddy занимают около 150 МБ памяти. Самой дешёвой конфигурации достаточно с большим запасом.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="steps"></div>
+
+  <section id="checks" class="rev">
+    <h2><svg class="ic" style="color:var(--led)"><use href="#i-refresh"/></svg>Живая проверка сервера</h2>
+    <div class="step">
+      <p>Эти кнопки проверяют всё прямо из браузера — <b>выключите VPN</b> перед нажатием. Если страница открыта по адресу вашего сервера, кнопка «Записать настройки» сразу настроит Синапс.</p>
+      <div class="btns">
+        <button class="b b1" data-a="check-site"><svg class="ic"><use href="#i-play"/></svg>1 · Сайт открывается?</button>
+        <button class="b b1" data-a="check-relay"><svg class="ic"><use href="#i-server"/></svg>2 · Реле отвечает?</button>
+        <button class="b b1" data-a="check-chain"><svg class="ic"><use href="#i-key"/></svg>3 · Цепочка до провайдера</button>
+        <button class="b b3" data-a="write"><svg class="ic"><use href="#i-wand"/></svg>4 · Записать настройки в Синапс</button>
+      </div>
+      <div class="res" id="checkRes"></div>
+      <div class="row" style="margin-top:12px">
+        <div class="f"><label>Модель (подставится в настройки)</label><input id="gModel" data-g="model" type="text" spellcheck="false" placeholder="например gemini-3-pro"></div>
+        <div class="f"><label>API Host провайдера</label><input id="gProvider" data-g="provider" type="text" spellcheck="false" placeholder="https://ai.starimg.ru/v1"></div>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+  </section>
+
+  <section id="trouble" class="rev">
+    <h2><svg class="ic" style="color:var(--amber)"><use href="#i-alert"/></svg>Если что-то не заработало</h2>
+    <div id="faq"></div>
+  </section>
+
+  <div class="finale" id="finale">
+    <h2>Сервер развёрнут</h2>
+    <p style="color:var(--mut);font-size:14px;margin-bottom:14px">Синапс живёт на российском IP, реле рядом с ним, VPN не нужен ни на айфоне, ни на компьютере.</p>
+    <a class="b b3" id="openApp" href="#"><svg class="ic"><use href="#i-play"/></svg>Открыть Синапс на своём домене</a>
+  </div>
+
+</div>
+
+<footer>
+  <span class="led" style="width:9px;height:9px"></span>
+  <span>Синапс · развёртывание на Beget VPS · все команды собираются под ваши данные</span>
+  <a href="index.html">Открыть приложение →</a>
+</footer>
+
+<script type="text/plain" id="tplSetup">#!/usr/bin/env bash
+# ============================================================
+#  Синапс: сайт + CORS-реле на VPS Beget
+#  ОС: Ubuntu 24.04 (подойдёт и 22.04)
+#  Запускать под root. Домен должен уже смотреть на IP сервера.
+# ============================================================
+set -e
+
+DOMAIN="{{DOMAIN}}"
+ALLOWED="{{ALLOWED}}"
+
+echo "=== [1/6] Обновление пакетов ==="
+apt update -y
+apt install -y curl ca-certificates nodejs
+
+echo "=== [2/6] Веб-сервер Caddy ==="
+if ! command -v caddy >/dev/null 2>&1; then
+  apt install -y caddy || {
+    echo "Пакет caddy не найден в репозитории, подключаю официальный репозиторий..."
+    apt install -y gnupg2 debian-archive-keyring lsb-release
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable.gpg
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' > /etc/apt/sources.list.d/caddy-stable.list
+    apt update -y
+    apt install -y caddy
+  }
+fi
+
+echo "=== [3/6] Реле (Node.js) ==="
+mkdir -p /opt/synapse /var/www/synapse
+cat > /opt/synapse/relay.js <<'NODEEOF'
+const http = require('http');
+const https = require('https');
+const { URL } = require('url');
+
+const ALLOW = (process.env.ALLOWED || 'ai.starimg.ru').split(',').map(s => s.trim()).filter(Boolean);
+const PORT = Number(process.env.PORT || 8787);
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, content-type, x-target-url, x-relay-key',
+  'Access-Control-Max-Age': '86400'
+};
+
+function sendJson(res, code, obj) {
+  res.writeHead(code, Object.assign({ 'Content-Type': 'application/json' }, CORS));
+  res.end(JSON.stringify(obj));
+}
+
+const server = http.createServer((req, res) => {
+  if (req.method === 'OPTIONS') { res.writeHead(204, CORS); return res.end(); }
+
+  let target = req.headers['x-target-url'];
+  try {
+    if (!target) target = new URL(req.url, 'http://local').searchParams.get('target');
+  } catch (e) {}
+
+  if (!target) return sendJson(res, 400, { error: 'Передайте целевой URL в заголовке x-target-url или ?target=' });
+
+  let t;
+  try { t = new URL(target); } catch (e) { return sendJson(res, 400, { error: 'Некорректный целевой URL' }); }
+  if (t.protocol !== 'https:') return sendJson(res, 403, { error: 'Разрешён только https' });
+  if (ALLOW.length && ALLOW.indexOf(t.hostname) < 0) return sendJson(res, 403, { error: 'Хост не разрешён: ' + t.hostname });
+
+  const headers = Object.assign({}, req.headers);
+  ['host','connection','origin','referer','x-target-url','x-forwarded-for','x-forwarded-proto','x-real-ip','content-length']
+    .forEach(h => delete headers[h]);
+
+  const up = https.request(t, { method: req.method, headers: headers }, (r) => {
+    const out = Object.assign({}, r.headers, CORS);
+    res.writeHead(r.statusCode || 502, out);
+    if (res.flushHeaders) res.flushHeaders();
+    r.pipe(res);
+  });
+
+  up.on('error', (e) => {
+    if (!res.headersSent) sendJson(res, 502, { error: 'Реле не смогло связаться с провайдером: ' + e.message });
+    else res.end();
+  });
+
+  req.pipe(up);
+});
+
+server.listen(PORT, '127.0.0.1', () => console.log('Synapse relay listening on 127.0.0.1:' + PORT));
+NODEEOF
+
+echo "=== [4/6] Служба автозапуска ==="
+cat > /etc/systemd/system/synapse-relay.service <<SVCEOF
+[Unit]
+Description=Synapse CORS relay
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /opt/synapse/relay.js
+Environment=PORT=8787
+Environment=ALLOWED=$ALLOWED
+Restart=always
+RestartSec=3
+User=root
+
+[Install]
+WantedBy=multi-user.target
+SVCEOF
+
+systemctl daemon-reload
+systemctl enable --now synapse-relay
+
+echo "=== [5/6] Конфигурация сайта ==="
+cat > /etc/caddy/Caddyfile <<CADDYEOF
+$DOMAIN {
+    encode zstd gzip
+
+    handle_path /relay/* {
+        reverse_proxy 127.0.0.1:8787
+    }
+
+    handle {
+        root * /var/www/synapse
+        try_files {path} /index.html
+        file_server
+    }
+}
+CADDYEOF
+
+if [ ! -f /var/www/synapse/index.html ]; then
+cat > /var/www/synapse/index.html <<'HTMLEOF'
+<!doctype html><meta charset="utf-8"><title>Синапс</title>
+<body style="background:#04070e;color:#e7edfa;font-family:sans-serif;padding:40px;line-height:1.6">
+<h1>Сервер работает</h1>
+<p>Осталось положить сюда файлы приложения: index.html, sw.js, manifest.webmanifest, icon.svg.</p>
+HTMLEOF
+fi
+
+systemctl reload caddy 2>/dev/null || systemctl restart caddy
+
+echo "=== [6/6] Фаервол и проверка ==="
+if command -v ufw >/dev/null 2>&1; then
+  if ufw status | grep -q "Status: active"; then
+    ufw allow 22/tcp || true
+    ufw allow 80/tcp || true
+    ufw allow 443/tcp || true
+  fi
+fi
+
+sleep 3
+echo ""
+echo "--- Служба реле ---"
+systemctl --no-pager --lines=0 status synapse-relay | head -n 5
+echo ""
+echo "--- Веб-сервер ---"
+systemctl --no-pager --lines=0 status caddy | head -n 5
+echo ""
+echo "--- Локальная проверка реле ---"
+curl -sS http://127.0.0.1:8787 || true
+echo ""
+echo "============================================================"
+echo " Готово."
+echo " Сайт:  https://$DOMAIN"
+echo " Реле:  https://$DOMAIN/relay"
+echo " Файлы приложения кладите в: /var/www/synapse"
+echo ""
+echo " Если HTTPS не открылся — проверьте, что A-запись домена"
+echo " указывает на IP этого сервера и облако в DNS СЕРОЕ (DNS only)."
+echo "============================================================"
+</script>
+
+<script>
+(function(){
+"use strict";
+
+var $=function(id){return document.getElementById(id);};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+var LS="synapse.beget.v1";
+
+var st={domain:"mnetaknado.ru",ip:"",ghBase:"",key:"",model:"",provider:"https://ai.starimg.ru/v1",sound:true,done:{}};
+try{var raw=localStorage.getItem(LS);if(raw){var p=JSON.parse(raw);for(var k in st){if(p[k]!=null)st[k]=p[k];}}}catch(e){}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function cleanDomain(v){return String(v||"").trim().toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,"").replace(/\.$/,"");}
+function norm(v){v=String(v||"").trim();if(!v)return"";if(!/^https?:\/\//i.test(v))v="https://"+v;return v.replace(/\/+$/,"");}
+function D(){return cleanDomain(st.domain)||"mnetaknado.ru";}
+function IP(){return String(st.ip||"").trim()||"IP_ВАШЕГО_СЕРВЕРА";}
+function GH(){return norm(st.ghBase)||"https://ЛОГИН.github.io/synapse";}
+function PROV(){return norm(st.provider)||"https://ai.starimg.ru/v1";}
+function PROVHOST(){try{return new URL(PROV()).hostname;}catch(e){return "ai.starimg.ru";}}
+function SITE(){return "https://"+D();}
+function RELAY(){return SITE()+"/relay";}
+
+function showError(m){var b=$("errBanner");b.className="banner err show";b.textContent="Ошибка скрипта: "+m;}
+window.addEventListener("error",function(e){showError((e.message||"неизвестно")+(e.lineno?" (строка "+e.lineno+")":""));});
+
+function log(msg,kind){
+  var t=new Date().toLocaleTimeString("ru-RU");
+  var l=document.createElement("div");
+  l.className="ll"+(kind?" "+kind:"");
+  l.textContent="["+t+"] "+msg;
+  $("log").appendChild(l);
+  $("log").scrollTop=$("log").scrollHeight;
+}
+var AC=null;
+function beep(kind){
+  if(!st.sound)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended")AC.resume();
+    var t=AC.currentTime;
+    var note=function(f,s,d,v){
+      var o=AC.createOscillator(),g=AC.createGain();
+      o.type="sine";o.frequency.setValueAtTime(f,t+s);
+      g.gain.setValueAtTime(0,t+s);
+      g.gain.linearRampToValueAtTime(v||0.035,t+s+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001,t+s+d);
+      o.connect(g);g.connect(AC.destination);o.start(t+s);o.stop(t+s+d+0.02);
+    };
+    if(kind==="ok"){note(680,0,0.1);note(1020,0.07,0.14);}
+    else if(kind==="err")note(180,0,0.16,0.045);
+    else if(kind==="win"){note(523,0,0.13);note(659,0.09,0.13);note(784,0.18,0.17);note(1046,0.28,0.22);}
+    else note(1200,0,0.04,0.03);
+  }catch(e){}
+}
+function sparks(el){
+  try{
+    var r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    var cols=["#3ddc84","#b6f24a","#22d3ee","#3b82f6","#8b5cf6"];
+    for(var i=0;i<16;i++){
+      var s=document.createElement("span");
+      s.className="spark";s.style.background=cols[i%cols.length];
+      s.style.left=cx+"px";s.style.top=cy+"px";
+      document.body.appendChild(s);
+      var a=Math.random()*Math.PI*2,d=50+Math.random()*70;
+      s.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate("+Math.cos(a)*d+"px,"+(Math.sin(a)*d+30)+"px) scale(.2)",opacity:0}],{duration:700+Math.random()*400,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=(function(n){return function(){n.remove();};})(s);
+    }
+  }catch(e){}
+}
+function res(el,kind,title,body,raw){
+  el.className="res "+kind+" show";
+  var h='<div class="rt2">'+(kind==="load"?'<span class="spin"></span> ':'')+esc(title)+'</div>';
+  if(body)h+='<div>'+body+'</div>';
+  if(raw)h+='<pre class="raw">'+esc(raw)+'</pre>';
+  el.innerHTML=h;
+}
+function copyText(text,label){
+  var done=function(){log("Скопировано: "+label,"ok");beep("ok");};
+  var fb=function(){
+    var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}catch(e){log("Не удалось скопировать — выделите вручную","warn");}
+    ta.remove();
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();
+}
+function term(id,title,code,lang){
+  return '<div class="term"><div class="term-h"><span class="dots"><span class="tdot" style="background:#f4436c"></span><span class="tdot" style="background:#f5a524"></span><span class="tdot" style="background:#3ddc84"></span></span>'+esc(title)+
+    '<button class="b b2" data-copy="'+id+'"><svg class="ic"><use href="#i-copy"/></svg>Скопировать</button></div><pre id="'+id+'">'+esc(code)+'</pre></div>';
+}
+
+function setupScript(){
+  return $("tplSetup").textContent.replace(/^\n/,"").split("{{DOMAIN}}").join(D()).split("{{ALLOWED}}").join(PROVHOST());
+}
+function sshCmd(){return "ssh root@"+IP();}
+function dnsCheckCmd(){return "# узнать, куда сейчас смотрит домен (выполнить НА СЕРВЕРЕ)\ngetent hosts "+D()+"\n\n# должно вернуть IP вашего сервера: "+IP();}
+function verifyCmd(){
+  return "# 1. Служба реле должна быть active (running)\nsystemctl status synapse-relay --no-pager\n\n"+
+  "# 2. Веб-сервер должен быть active (running)\nsystemctl status caddy --no-pager\n\n"+
+  "# 3. Реле отвечает локально (ожидаем JSON про x-target-url)\ncurl -sS http://127.0.0.1:8787\n\n"+
+  "# 4. Реле отвечает снаружи по HTTPS\ncurl -sS "+RELAY()+"\n\n"+
+  "# 5. Сайт отдаёт страницу\ncurl -sSI "+SITE()+"\n\n"+
+  "# 6. Последние ошибки Caddy, если сертификат не выпустился\njournalctl -u caddy -n 40 --no-pager";
+}
+function pullCmd(){
+  return "mkdir -p /var/www/synapse\ncd /var/www/synapse\n"+
+  'for f in index.html sw.js manifest.webmanifest icon.svg; do\n  curl -fsSL "'+GH()+'/$f" -o "$f" && echo "загружен $f" || echo "НЕ загружен $f"\ndone\n\n'+
+  "ls -la /var/www/synapse\nsystemctl reload caddy";
+}
+function restartCmd(){
+  return "# перезапустить реле после правки кода\nsystemctl restart synapse-relay\n\n"+
+  "# перечитать конфиг веб-сервера\nsystemctl reload caddy\n\n"+
+  "# посмотреть логи реле в реальном времени\njournalctl -u synapse-relay -f\n\n"+
+  "# обновить файлы приложения с GitHub Pages\ncd /var/www/synapse && curl -fsSL \""+GH()+'/index.html" -o index.html';
+}
+function backupCmd(){
+  return "# архив файлов сайта\nmkdir -p /root/backup\ntar -czf /root/backup/synapse-$(date +%F).tar.gz /var/www/synapse /opt/synapse /etc/caddy/Caddyfile\n\n"+
+  "# список архивов\nls -lh /root/backup";
+}
+function settingsText(){
+  return "Режим: Свой OpenAI-совместимый API\n"+
+  "API Host: "+PROV()+"\n"+
+  "CORS-реле: "+RELAY()+"\n"+
+  "Модель: "+(st.model||"(получить кнопкой «Список»)")+"\n"+
+  "API-ключ: "+(st.key||"(ваш ключ)")+"\n"+
+  "Режим поиска: Контекст: искать до ответа";
+}
+
+var STEPS=[
+{
+ id:1,title:"Аккаунт и баланс Beget",sub:"5 минут · карта РФ",
+ body:function(){return '<ol class="ol">'+
+  '<li>Откройте <a href="https://beget.com/ru/vps" target="_blank" rel="noopener">beget.com/ru/vps</a> и нажмите регистрацию. Подтвердите почту и телефон.</li>'+
+  '<li>Войдите в панель управления: <a href="https://cp.beget.com" target="_blank" rel="noopener">cp.beget.com</a>.</li>'+
+  '<li>Пополните баланс картой российского банка. Спишется только за фактическое время работы сервера — начните с небольшой суммы, например 500 ₽.</li>'+
+  '</ol>'+
+  '<div class="note info"><span>Beget — российский провайдер, серверы в России. Именно это нам и нужно: российский IP операторы не блокируют, в отличие от Cloudflare.</span></div>'+
+  '<div class="btns"><a class="b b1" href="https://cp.beget.com" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть панель Beget</a></div>';}
+},
+{
+ id:2,title:"Закажите VPS с Ubuntu",sub:"3 минуты · конфигуратор",
+ body:function(){return '<ol class="ol">'+
+  '<li>В панели Beget откройте раздел <span class="ui">VPS</span> (в верхнем или боковом меню) и нажмите <span class="ui">Создать сервер</span> / <span class="ui">Заказать VPS</span>.</li>'+
+  '<li><b>Локация:</b> выберите Россию — Санкт-Петербург или Москву. Зарубежные площадки не берите, смысл переезда именно в российском IP.</li>'+
+  '<li><b>Операционная система:</b> <span class="ui g">Ubuntu 24.04 LTS</span>. Если её нет в списке — подойдёт Ubuntu 22.04.</li>'+
+  '<li><b>Конфигурация:</b> 1 ядро, 1–2 ГБ памяти, 10–20 ГБ NVMe. Этого хватит с запасом: реле и веб-сервер занимают около 150 МБ.</li>'+
+  '<li><b>Доступ:</b> задайте пароль root или добавьте SSH-ключ. Пароль придёт на почту и будет виден в карточке сервера.</li>'+
+  '<li><b>Имя сервера:</b> любое латиницей, например <code>synapse</code>. Нажмите создать и дождитесь статуса «Работает».</li>'+
+  '</ol>'+
+  '<div class="note warn"><span>Не перепутайте с обычным «виртуальным хостингом» Beget — там нет root-доступа и нельзя запустить свой сервис. Нужен именно <b>VPS</b>.</span></div>'+
+  '<div class="note info"><span>Названия кнопок в панели могут немного отличаться — ориентируйтесь по смыслу: раздел VPS → создание сервера → образ Ubuntu → конфигурация → доступ.</span></div>';}
+},
+{
+ id:3,title:"Возьмите IP и подключитесь к серверу",sub:"3 минуты · три способа на выбор",
+ body:function(){return '<p>В карточке сервера Beget найдите <b>IP-адрес</b> (например <code>123.45.67.89</code>) и пароль root. Впишите IP в поле сверху — все команды соберутся под него.</p>'+
+  '<div class="tabs" data-tabs="conn">'+
+  '<button class="tab on" data-tab="conn:panel">Консоль в панели Beget</button>'+
+  '<button class="tab" data-tab="conn:win">Windows</button>'+
+  '<button class="tab" data-tab="conn:mac">macOS / Linux</button>'+
+  '<button class="tab" data-tab="conn:ios">iPhone</button>'+
+  '</div>'+
+  '<div class="tabpan show" data-pan="conn:panel"><p>Самый простой путь — ничего не устанавливать. В карточке сервера нажмите <span class="ui">Консоль</span> (или «VNC», «Экран сервера»). Откроется чёрное окно прямо в браузере. Введите логин <code>root</code> и пароль. Пароль при вводе не отображается — это нормально, просто печатайте и жмите Enter.</p>'+
+  '<div class="note good"><span>Если консоль в браузере неудобна на айфоне — сделайте этот шаг с компьютера, а дальше пользуйтесь только телефоном.</span></div></div>'+
+  '<div class="tabpan" data-pan="conn:win"><p>Откройте <b>PowerShell</b> (Пуск → напишите «PowerShell») и выполните команду ниже. На вопрос про подлинность хоста ответьте <code>yes</code>, затем введите пароль root.</p>'+term("cmdSshWin",sshCmd())+'</div>'+
+  '<div class="tabpan" data-pan="conn:mac"><p>Откройте <b>Терминал</b> (Программы → Утилиты) и выполните ту же команду:</p>'+term("cmdSshMac",sshCmd())+'</div>'+
+  '<div class="tabpan" data-pan="conn:ios"><p>Установите из App Store бесплатный <b>Termius</b> (или Blink Shell). Создайте хост: адрес — IP сервера, пользователь <code>root</code>, пароль — из панели Beget. Подключитесь — увидите приглашение вида <code>root@synapse:~#</code>.</p>'+
+  '<div class="note info"><span>С айфона вставлять длинные команды удобно долгим тапом → «Вставить». Скрипт из шага 5 вставляется целиком одним блоком.</span></div></div>'+
+  '<div class="note bad"><span>Если подключение не идёт: проверьте, что сервер в статусе «Работает», IP скопирован без пробелов, а в панели Beget (если есть раздел «Брандмауэр» / Firewall) открыт порт <b>22</b>.</span></div>';}
+},
+{
+ id:4,title:"Направьте домен на сервер — серым облаком",sub:"5 минут + ожидание DNS · ключевой шаг",
+ body:function(){return '<p>Это тот самый переключатель, который решает всё. Пока запись проксируется через Cloudflare (оранжевое облако), трафик идёт через заблокированную инфраструктуру. Нужно отдать домену прямой IP сервера.</p>'+
+  '<div class="kv">'+
+  '<div class="kvc bad"><div class="kt"><svg class="ic" style="color:var(--red)"><use href="#i-x"/></svg>Сейчас — не работает</div><span class="cloud on"><span class="cd"></span>Proxied</span><div class="kvr"><span class="kk">relay</span><span class="vv">→ Cloudflare IP</span></div><div class="kvr"><span class="kk">итог</span><span class="vv">блокировка оператором</span></div></div>'+
+  '<div class="kvc good"><div class="kt"><svg class="ic" style="color:var(--led)"><use href="#i-check"/></svg>Нужно — работает</div><span class="cloud off"><span class="cd"></span>DNS only</span><div class="kvr"><span class="kk">@</span><span class="vv">'+esc(IP())+'</span></div><div class="kvr"><span class="kk">итог</span><span class="vv">прямое соединение</span></div></div>'+
+  '</div>'+
+  '<ol class="ol">'+
+  '<li>Cloudflare → домен <code>'+esc(D())+'</code> → раздел <span class="ui">DNS</span> → <span class="ui">Records</span>.</li>'+
+  '<li><b>Удалите</b> запись <code>relay</code> — она больше не нужна, реле будет жить по адресу <code>'+esc(D())+'/relay</code>.</li>'+
+  '<li>Если есть запись <code>@</code> или <code>www</code>, указывающая на Cloudflare — удалите и её.</li>'+
+  '<li>Нажмите <span class="ui">Add record</span> и создайте: тип <span class="ui g">A</span>, имя <span class="ui g">@</span>, IPv4 <span class="ui g">'+esc(IP())+'</span>, Proxy status — <b>выключить</b>, чтобы облако стало <span class="cloud off"><span class="cd"></span>серым</span>. Сохраните.</li>'+
+  '<li>По желанию добавьте вторую такую же запись с именем <code>www</code>.</li>'+
+  '<li>Подождите 5–30 минут и проверьте с сервера командой ниже.</li>'+
+  '</ol>'+
+  term("cmdDns",dnsCheckCmd())+
+  '<div class="note good"><span>Проверять DNS лучше <b>с самого сервера</b> — у него интернет без ограничений. Публичные DNS-сервисы в России часто недоступны, поэтому проверки с телефона могут врать.</span></div>'+
+  '<div class="note info"><span>Альтернатива: перенести DNS домена к Beget (NS-серверы Beget) и управлять записями в их панели. Но это ещё одна смена NS с ожиданием — проще оставить Cloudflare как «телефонную книгу» с серым облаком.</span></div>'+
+  '<div class="btns"><a class="b b1" href="https://dash.cloudflare.com/?to=/:account/'+esc(D())+'/dns/records" target="_blank" rel="noopener"><svg class="ic"><use href="#i-cloud"/></svg>Открыть DNS домена</a></div>';}
+},
+{
+ id:5,title:"Запустите скрипт установки",sub:"3–5 минут · одна вставка",
+ body:function(){return '<p>Скрипт сделает всё сам: поставит Node.js и веб-сервер Caddy, создаст реле, настроит автозапуск, выпишет бесплатный HTTPS-сертификат и подготовит папку для сайта.</p>'+
+  '<ol class="ol">'+
+  '<li>Скопируйте скрипт кнопкой ниже (или скачайте <code>setup.sh</code> кнопкой вверху страницы).</li>'+
+  '<li>Вставьте целиком в консоль сервера и нажмите Enter. Вставка в терминал: правый клик мыши, или <span class="ui">Ctrl+Shift+V</span>, на айфоне — долгий тап → «Вставить».</li>'+
+  '<li>Дождитесь строки <code>Готово.</code> Обычно 2–4 минуты.</li>'+
+  '</ol>'+
+  term("cmdSetup",setupScript())+
+  '<div class="note warn"><span>Скрипт нужно запускать <b>после</b> того, как домен уже смотрит на IP сервера (шаг 4). Иначе Caddy не сможет получить сертификат и HTTPS не откроется.</span></div>'+
+  '<div class="note info"><span>Что где лежит afterwards: реле — <code>/opt/synapse/relay.js</code>, служба — <code>synapse-relay</code>, конфиг сайта — <code>/etc/caddy/Caddyfile</code>, файлы приложения — <code>/var/www/synapse</code>.</span></div>';}
+},
+{
+ id:6,title:"Положите файлы Синапса на сервер",sub:"2 минуты · одна команда или SFTP",
+ body:function(){return '<p>Сейчас по адресу <code>'+esc(SITE())+'</code> открывается заглушка «Сервер работает». Замените её настоящим приложением.</p>'+
+  '<div class="tabs" data-tabs="files">'+
+  '<button class="tab on" data-tab="files:curl">Командой с GitHub Pages</button>'+
+  '<button class="tab" data-tab="files:sftp">Через SFTP</button>'+
+  '</div>'+
+  '<div class="tabpan show" data-pan="files:curl"><p>Если сайт уже опубликован на GitHub Pages, сервер сам скачает оттуда все четыре файла. Впишите адрес сайта в поле сверху — команда пересоберётся.</p>'+term("cmdPull",pullCmd())+
+  '<div class="note good"><span>После загрузки откройте <code>'+esc(SITE())+'</code> — должен появиться интерфейс Синапса, а не заглушка.</span></div></div>'+
+  '<div class="tabpan" data-pan="files:sftp"><ol class="ol">'+
+  '<li>Установите <b>FileZilla</b> (компьютер) или <b>Termius</b> (айфон, вкладка SFTP).</li>'+
+  '<li>Подключение: протокол SFTP, хост — <code>'+esc(IP())+'</code>, порт 22, пользователь <code>root</code>, пароль из панели Beget.</li>'+
+  '<li>Перейдите в папку <code>/var/www/synapse</code> и загрузите туда <code>index.html</code>, <code>sw.js</code>, <code>manifest.webmanifest</code>, <code>icon.svg</code>.</li>'+
+  '<li>Перезагрузите страницу сайта.</li>'+
+  '</ol></div>';}
+},
+{
+ id:7,title:"Проверьте, что всё поднялось",sub:"2 минуты · команды и живые кнопки",
+ body:function(){return '<p>Сначала проверьте изнутри сервера, потом снаружи — без VPN.</p>'+
+  term("cmdVerify",verifyCmd())+
+  '<div class="note good"><span>Правильный ответ реле: <code>{"error":"Передайте целевой URL в заголовке x-target-url или ?target="}</code>. Это не поломка — так наш код говорит «я жив и жду запрос от приложения».</span></div>'+
+  '<p>Ниже, в блоке «Живая проверка сервера», нажмите кнопки — они сделают то же самое из браузера и объяснят результат человеческим языком.</p>'+
+  '<div class="btns"><a class="b b2" href="#checks"><svg class="ic"><use href="#i-refresh"/></svg>К живым проверкам</a><a class="b b1" href="'+esc(RELAY())+'" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Открыть адрес реле</a></div>';}
+},
+{
+ id:8,title:"Настройте Синапс на новом адресе",sub:"2 минуты · четыре поля",
+ body:function(){return '<p>Откройте <code>'+esc(SITE())+'</code> → значок шестерёнки → и заполните:</p>'+
+  '<div class="kv">'+
+  '<div class="kvc good"><div class="kt">Провайдер</div><div class="kvr"><span class="kk">Режим</span><span class="vv">Свой OpenAI-совместимый API</span></div><div class="kvr"><span class="kk">API Host</span><span class="vv">'+esc(PROV())+'</span></div><div class="kvr"><span class="kk">Ключ</span><span class="vv">ваш ключ</span></div><div class="kvr"><span class="kk">Модель</span><span class="vv">кнопка «Список»</span></div></div>'+
+  '<div class="kvc good"><div class="kt">Реле и поиск</div><div class="kvr"><span class="kk">CORS-реле</span><span class="vv">'+esc(RELAY())+'</span></div><div class="kvr"><span class="kk">Поиск</span><span class="vv">Контекст: искать до ответа</span></div><div class="kvr"><span class="kk">Движок</span><span class="vv">Авто (без ключа)</span></div></div>'+
+  '</div>'+
+  term("cmdSettings",settingsText())+
+  '<div class="note warn"><span><b>Важно:</b> настройки хранятся в браузере отдельно для каждого адреса. Переехав с <code>github.io</code> на <code>'+esc(D())+'</code>, вы получите <b>пустые настройки</b> — это нормально, их нужно заполнить заново. Кнопка ниже сделает это автоматически, если страница открыта на том же адресе и в том же браузере.</span></div>'+
+  '<div class="btns"><button class="b b3" data-a="write"><svg class="ic"><use href="#i-wand"/></svg>Записать настройки автоматически</button><a class="b b1" href="'+esc(SITE())+'" target="_blank" rel="noopener"><svg class="ic"><use href="#i-play"/></svg>Открыть Синапс</a></div>';}
+},
+{
+ id:9,title:"Перенесите чаты со старого адреса",sub:"2 минуты · экспорт и импорт",
+ body:function(){return '<p>История переписки тоже привязана к адресу сайта. Чтобы не потерять её при переезде:</p>'+
+  '<ol class="ol">'+
+  '<li>Откройте <b>старый</b> адрес Синапса (на GitHub Pages) в том браузере, где вели переписку.</li>'+
+  '<li>Настройки → раздел «Данные» → <span class="ui">Экспорт JSON</span>. Сохраните файл.</li>'+
+  '<li>Откройте <b>новый</b> адрес <code>'+esc(SITE())+'</code> в том же браузере.</li>'+
+  '<li>Настройки → «Данные» → <span class="ui">Импорт JSON</span> → выберите сохранённый файл.</li>'+
+  '</ol>'+
+  '<div class="note info"><span>Импорт заменяет текущие чаты, поэтому делайте его до того, как начнёте новую переписку на новом адресе. На айфоне и компьютере история своя — переносите отдельно на каждом устройстве.</span></div>';}
+},
+{
+ id:10,title:"Поставьте на айфон и проверьте без VPN",sub:"1 минута · финальная проверка",
+ body:function(){return '<ol class="ol">'+
+  '<li><b>Выключите VPN</b> полностью.</li>'+
+  '<li>Откройте в <b>Safari</b> адрес <code>'+esc(SITE())+'</code> — сначала по Wi-Fi, потом с мобильного интернета.</li>'+
+  '<li>Кнопка <span class="ui">Поделиться</span> → <span class="ui g">На экран «Домой»</span> → Добавить.</li>'+
+  '<li>Запустите с домашнего экрана, включите тумблер <span class="ui g">Поиск в интернете</span> и спросите о свежих событиях.</li>'+
+  '</ol>'+
+  '<div class="note good"><span>Если ответ пришёл со ссылками на источники — задача решена: сайт, реле и провайдер доступны напрямую, VPN больше не нужен.</span></div>'+
+  '<div class="note info"><span>Старый воркер на Cloudflare можно оставить как есть — он просто больше не используется. Домен теперь смотрит на российский сервер.</span></div>';}
+},
+{
+ id:11,title:"Обслуживание: обновления и бэкапы",sub:"по необходимости",
+ body:function(){return '<p>Сервер живёт сам: реле и Caddy запускаются при перезагрузке, сертификат продлевается автоматически. Иногда пригодятся команды ниже.</p>'+
+  term("cmdOps",restartCmd())+
+  '<p>Резервная копия файлов и настроек:</p>'+
+  term("cmdBackup",backupCmd())+
+  '<div class="note warn"><span>Следите за балансом Beget: при нуле сервер остановится и сайт перестанет открываться. Пополняйте заранее — списание идёт за фактическое время работы.</span></div>'+
+  '<div class="note info"><span>Домен продлевайте у регистратора раз в год. DNS-записи в Cloudflare на бесплатном плане не требуют оплаты.</span></div>';}
+},
+{
+ id:12,title:"Если сервер недоступен из России",sub:"запасной вариант",
+ body:function(){return '<p>Российский IP у Beget блокировать незачем, но если у конкретного оператора что-то пойдёт не так — проверьте по порядку:</p>'+
+  '<ol class="ol">'+
+  '<li>Откройте сайт с <b>другой сети</b>: мобильный интернет вместо Wi-Fi. Если работает — вопрос к оператору Wi-Fi.</li>'+
+  '<li>Проверьте, что домен смотрит именно на IP сервера: команда <code>getent hosts '+esc(D())+'</code> на сервере.</li>'+
+  '<li>Убедитесь, что облако в DNS <b>серое</b>. Оранжевое вернёт вас к блокировке Cloudflare.</li>'+
+  '<li>Проверьте порты: в панели Beget (если есть фаервол) и в Ubuntu — <code>ufw status</code>. Нужны открытые 22, 80, 443.</li>'+
+  '<li>Напишите в поддержку Beget — они отвечают круглосуточно и помогут с сетевой доступностью сервера.</li>'+
+  '</ol>'+
+  term("cmdPorts","# статус фаервола в Ubuntu\nufw status\n\n# если активен — открыть нужные порты\nufw allow 22/tcp\nufw allow 80/tcp\nufw allow 443/tcp\n\n# кто слушает порты\nss -tlnp | grep -E ':(80|443|8787)'")+
+  '<div class="btns"><a class="b b2" href="https://cp.beget.com" target="_blank" rel="noopener"><svg class="ic"><use href="#i-ext"/></svg>Панель Beget и поддержка</a></div>';}
+}
+];
+
+var FAQ=[
+ {q:"HTTPS не открывается, ошибка сертификата",a:"Caddy не смог получить сертификат Let's Encrypt. Причины по частоте: <b>1)</b> домен ещё не смотрит на IP сервера — проверьте <code>getent hosts "+D()+"</code> на сервере; <b>2)</b> облако в DNS оранжевое — сделайте серым; <b>3)</b> закрыт порт 80 — откройте его; <b>4)</b> прошло меньше 2 минут — подождите. Логи: <code>journalctl -u caddy -n 50 --no-pager</code>."},
+ {q:"Открывается заглушка «Сервер работает»",a:"Файлы приложения не загружены в <code>/var/www/synapse</code>. Выполните команду из шага 6 или загрузите четыре файла через SFTP. Проверьте: <code>ls -la /var/www/synapse</code> — должен быть <code>index.html</code> размером в десятки килобайт, а не 300 байт."},
+ {q:"Адрес /relay отдаёт 502 или страницу сайта",a:"Реле не запущено. Проверьте <code>systemctl status synapse-relay</code> и логи <code>journalctl -u synapse-relay -n 40 --no-pager</code>. Перезапуск: <code>systemctl restart synapse-relay</code>. Если вместо JSON приходит HTML сайта — Caddy не перечитал конфиг: <code>systemctl reload caddy</code>."},
+ {q:"Реле отвечает, но приложение пишет про CORS",a:"В настройках Синапса указан старый адрес реле (workers.dev) или поле пустое. Должно быть <code>"+RELAY()+"</code>. И открывать приложение нужно по адресу <code>"+SITE()+"</code>, а не по старому github.io — иначе настройки будут другие."},
+ {q:"Ошибка 401 или 403 в приложении",a:"Провайдер отклонил ключ. Скопируйте ключ целиком, без пробелов по краям. Проверьте баланс у продавца и что модель доступна на вашем тарифе."},
+ {q:"Ошибка 404 при запросе к провайдеру",a:"Неверный API Host. Должно быть <code>"+PROV()+"</code> — с <code>/v1</code> на конце. Также проверьте точное имя модели: возьмите его кнопкой «Список» в настройках приложения."},
+ {q:"Сервер пропал, сайт не открывается вообще",a:"Проверьте баланс Beget — при нуле сервер останавливается. Зайдите в панель, посмотрите статус сервера, при необходимости запустите. После запуска реле и Caddy поднимутся сами."},
+ {q:"Как обновить приложение новой версией",a:"Загрузите новый <code>index.html</code> в <code>/var/www/synapse</code> поверх старого (команда из шага 11 или SFTP). На айфоне закройте приложение и откройте заново. Чаты и настройки хранятся в браузере и не пострадают."},
+ {q:"Поиск в интернете не работает",a:"В настройках поиска выберите режим <b>«Контекст: искать до ответа»</b> — он работает даже если провайдер не поддерживает инструменты. Бесплатный движок ходит через публичные прокси и иногда недоступен; тогда добавьте ключ Tavily или другой движок."}
+];
+
+function renderSteps(){
+  var html="";
+  STEPS.forEach(function(s){
+    var on=!!st.done[s.id];
+    html+='<section class="step rev'+(on?" ok":"")+'" id="s'+s.id+'" data-step="'+s.id+'">'+
+      '<div class="step-head"><span class="unit">UNIT '+String(s.id).padStart(2,"0")+'</span>'+
+      '<div class="step-title"><h3>'+esc(s.title)+'</h3><div class="sub">'+esc(s.sub)+'</div></div>'+
+      '<button class="done'+(on?" on":"")+'" data-done="'+s.id+'"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span>'+(on?"Готово":"Отметить")+'</span></button>'+
+      '</div>'+s.body()+'</section>';
+  });
+  $("steps").innerHTML=html;
+  renderNav();
+  observeReveals();
+}
+function renderNav(){
+  var html='<a class="nlink" href="#s0" data-nav="0">0</a>';
+  STEPS.forEach(function(s){
+    html+='<a class="nlink'+(st.done[s.id]?" done":"")+'" href="#s'+s.id+'" data-nav="'+s.id+'">'+s.id+'</a>';
+  });
+  html+='<a class="nlink" href="#checks" data-nav="c">✓</a><a class="nlink" href="#trouble" data-nav="t">?</a>';
+  $("nlinks").innerHTML=html;
+  var n=0;
+  STEPS.forEach(function(s){if(st.done[s.id])n++;});
+  $("nprog").textContent=n+" / "+STEPS.length;
+  $("nbar").style.width=(n/STEPS.length*100)+"%";
+  var fin=$("finale");
+  var was=fin.classList.contains("show");
+  fin.classList.toggle("show",n===STEPS.length);
+  if(n===STEPS.length&&!was){beep("win");sparks(fin);}
+  $("openApp").href=SITE();
+}
+function renderFaq(){
+  var html="";
+  FAQ.forEach(function(f,i){
+    html+='<div class="qa"><button class="qa-q"><span class="qn">'+(i+1)+'</span>'+esc(f.q)+'<svg class="ic cv"><use href="#i-chev"/></svg></button><div class="qa-a"><div class="qa-a-in">'+f.a+'</div></div></div>';
+  });
+  $("faq").innerHTML=html;
+}
+function refreshDynamic(){
+  $("hostInline").textContent=D();
+  $("flowHost").textContent=D();
+  var map={cmdSshWin:sshCmd(),cmdSshMac:sshCmd(),cmdDns:dnsCheckCmd(),cmdSetup:setupScript(),cmdPull:pullCmd(),cmdVerify:verifyCmd(),cmdSettings:settingsText(),cmdOps:restartCmd(),cmdBackup:backupCmd()};
+  for(var id in map){var el=$(id);if(el)el.textContent=map[id];}
+  $$("[data-g]").forEach(function(inp){
+    var k=inp.getAttribute("data-g");
+    if(document.activeElement!==inp&&st[k]!=null&&inp.value!==st[k])inp.value=st[k];
+  });
+}
+var revealObserver=null;
+function observeReveals(){
+  if(!("IntersectionObserver" in window)){$$(".rev").forEach(function(e){e.classList.add("in");});return;}
+  if(revealObserver)revealObserver.disconnect();
+  revealObserver=new IntersectionObserver(function(es){
+    es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");revealObserver.unobserve(x.target);}});
+  },{threshold:.04});
+  $$(".rev").forEach(function(e){if(!e.classList.contains("in"))revealObserver.observe(e);});
+}
+
+async function tf(url,opts,ms){
+  var c=new AbortController();
+  var timer=setTimeout(function(){c.abort();},ms||15000);
+  var t0=Date.now();
+  try{var r=await fetch(url,Object.assign({},opts,{signal:c.signal}));return {r:r,ms:Date.now()-t0};}
+  catch(e){e._ms=Date.now()-t0;throw e;}
+  finally{clearTimeout(timer);}
+}
+async function checkSite(){
+  var el=$("checkRes");
+  res(el,"load","Проверяю сайт "+SITE(),"Запрос из браузера, без VPN…");
+  log("Проверка сайта "+SITE(),"act");
+  try{
+    var a=await tf(SITE()+"?_="+Date.now(),{cache:"no-store"},15000);
+    var text=await a.r.text();
+    if(/Сервер работает/.test(text)){
+      res(el,"warn","Сайт отвечает, но это заглушка","Caddy и HTTPS работают. Осталось загрузить файлы приложения в /var/www/synapse — шаг 6.",text.slice(0,300));
+      beep("err");
+    }else if(/Синапс|synapse|<title/i.test(text)){
+      res(el,"ok","Сайт работает!",D()+" отдаёт приложение по HTTPS без VPN. Переходите к проверке реле.","Первые байты: "+text.slice(0,180));
+      st.done[6]=true;st.done[7]=true;persist();renderSteps();refreshDynamic();beep("ok");sparks(el);
+    }else{
+      res(el,"warn","Ответ HTTP "+a.r.status,"Сайт отвечает, но содержимое неожиданное. Посмотрите ниже.",text.slice(0,300));
+      beep("err");
+    }
+  }catch(e){
+    res(el,"err","Сайт не открывается","Проверьте: домен смотрит на IP сервера и облако серое; Caddy запущен; сертификат выпущен (подождите 2 минуты); порты 80/443 открыты. Команды — в шаге 7 и 12.",String(e&&e.message||e));
+    log("Сайт недоступен","err");beep("err");
+  }
+}
+async function checkRelay(){
+  var el=$("checkRes");
+  res(el,"load","Проверяю реле "+RELAY(),"Ожидаю JSON про x-target-url…");
+  log("Проверка реле "+RELAY(),"act");
+  try{
+    var a=await tf(RELAY()+"?_="+Date.now(),{cache:"no-store"},15000);
+    var text=await a.r.text();
+    var j=null;try{j=JSON.parse(text);}catch(e){}
+    if(j&&typeof j.error==="string"&&j.error.indexOf("x-target-url")>=0){
+      res(el,"ok","Реле работает!","Наш Node-сервис отвечает, Caddy проксирует, HTTPS в порядке. Этот «error» — нормальный ответ на запрос без цели.",text);
+      st.done[5]=true;st.done[7]=true;persist();renderSteps();refreshDynamic();beep("ok");sparks(el);
+    }else if(/Сервер работает|<!doctype|<html/i.test(text)){
+      res(el,"warn","Отдаётся страница вместо реле","Caddy не направляет /relay на Node-сервис. Проверьте конфиг и перечитайте его: systemctl reload caddy. Также убедитесь, что служба synapse-relay запущена.",text.slice(0,300));
+      beep("err");
+    }else{
+      res(el,"warn","Ответ HTTP "+a.r.status,"Посмотрите текст ниже.",text.slice(0,300));
+      beep("err");
+    }
+  }catch(e){
+    res(el,"err","Реле не отвечает","Служба не запущена или адрес неверный. На сервере: systemctl status synapse-relay и curl -sS http://127.0.0.1:8787",String(e&&e.message||e));
+    beep("err");
+  }
+}
+async function checkChain(){
+  var el=$("checkRes");
+  var key=String(st.key||"").trim();
+  var target=PROV().replace(/\/v\d+$/,"")+"/v1/models";
+  res(el,"load","Проверяю цепочку до провайдера","Сайт → ваше реле → "+PROVHOST());
+  log("Проверка цепочки","act");
+  try{
+    var headers={};
+    if(key)headers["Authorization"]="Bearer "+key;
+    var a=await tf(RELAY()+"?target="+encodeURIComponent(target),{headers:headers},25000);
+    var text=await a.r.text();
+    if(a.r.status===401||a.r.status===403){
+      res(el,"ok","Цепочка работает!","Провайдер ответил «нужен ключ» (HTTP "+a.r.status+"). Значит запрос прошёл весь путь без VPN. Вставьте ключ в поле сверху и нажмите ещё раз — увидите список моделей.",text);
+      beep("ok");sparks(el);
+    }else if(a.r.ok){
+      var j=null;try{j=JSON.parse(text);}catch(e){}
+      var ids=((j&&j.data)||[]).map(function(x){return x.id;}).filter(Boolean).sort();
+      var chips=ids.slice(0,18).map(function(m){return '<span class="mchip">'+esc(m)+'</span>';}).join("");
+      res(el,"ok","Полная цепочка работает без VPN!","Моделей доступно: <b>"+ids.length+"</b>. Нажмите «Записать настройки»."+(chips?'<div class="chips">'+chips+'</div>':""));
+      if(ids.length&&!st.model){st.model=ids[0];persist();refreshDynamic();}
+      st.done[8]=true;persist();renderSteps();refreshDynamic();
+      beep("win");sparks(el);
+    }else{
+      res(el,"warn","Ответ HTTP "+a.r.status,"Разберём по тексту ниже.",text.slice(0,400));
+      beep("err");
+    }
+  }catch(e){
+    res(el,"err","Цепочка не прошла","Сначала добейтесь успеха проверок 1 и 2.",String(e&&e.message||e));
+    beep("err");
+  }
+}
+function writeSettings(){
+  var el=$("checkRes");
+  var app=null;
+  try{var raw=localStorage.getItem("synapse.v1");if(raw)app=JSON.parse(raw);}catch(e){}
+  if(!app||typeof app!=="object")app={chats:[],activeId:null,settings:{}};
+  if(!app.settings)app.settings={};
+  app.settings.provider="custom";
+  app.settings.baseUrl=PROV();
+  app.settings.relayUrl=RELAY();
+  if(String(st.model||"").trim())app.settings.model=String(st.model).trim();
+  if(String(st.key||"").trim())app.settings.apiKey=String(st.key).trim();
+  if(!app.settings.searchMode)app.settings.searchMode="context";
+  var ok=false;
+  try{localStorage.setItem("synapse.v1",JSON.stringify(app));ok=true;}catch(e){}
+  if(ok){
+    var sameOrigin=location.origin===SITE();
+    res(el,"ok","Настройки записаны",
+      "API Host: <code>"+esc(PROV())+"</code><br>Реле: <code>"+esc(RELAY())+"</code><br>Модель: <code>"+esc(app.settings.model||"не выбрана")+"</code><br><br>"+
+      (sameOrigin?"Страница открыта на том же адресе, что и приложение — настройки уже в нём. Откройте Синапс и начните новый чат.":
+       "Внимание: эта страница открыта по адресу <code>"+esc(location.origin)+"</code>, а приложение будет на <code>"+esc(SITE())+"</code>. Настройки записались только для текущего адреса. Скопируйте эту страницу на сервер рядом с index.html и откройте её там — тогда кнопка настроит приложение напрямую."));
+    st.done[8]=true;persist();renderSteps();refreshDynamic();
+    log("Настройки записаны","ok");beep("win");sparks(el);
+  }else{
+    res(el,"err","Запись недоступна","Браузер запретил доступ к хранилищу (приватный режим или файл с диска). Скопируйте значения из шага 8 и вставьте вручную.");
+    beep("err");
+  }
+}
+
+document.addEventListener("input",function(e){
+  var g=e.target&&e.target.getAttribute?e.target.getAttribute("data-g"):null;
+  if(!g)return;
+  st[g]=e.target.value;persist();refreshDynamic();
+});
+document.addEventListener("click",function(e){
+  var dn=e.target.closest?e.target.closest("[data-done]"):null;
+  if(dn){
+    var id=Number(dn.getAttribute("data-done"));
+    st.done[id]=!st.done[id];persist();
+    var sec=document.querySelector('[data-step="'+id+'"]');
+    if(sec)sec.classList.toggle("ok",!!st.done[id]);
+    dn.classList.toggle("on",!!st.done[id]);
+    dn.querySelector("span:last-child").textContent=st.done[id]?"Готово":"Отметить";
+    if(st.done[id])beep("ok");else beep("tick");
+    renderNav();
+    return;
+  }
+  var cp=e.target.closest?e.target.closest("[data-copy]"):null;
+  if(cp){
+    var el=$(cp.getAttribute("data-copy"));
+    if(el)copyText(el.textContent,"блок "+cp.getAttribute("data-copy"));
+    var old=cp.innerHTML;
+    cp.innerHTML='<svg class="ic"><use href="#i-check"/></svg>Скопировано';
+    setTimeout(function(){cp.innerHTML=old;},1500);
+    return;
+  }
+  var tb=e.target.closest?e.target.closest("[data-tab]"):null;
+  if(tb){
+    var parts=tb.getAttribute("data-tab").split(":");
+    var grp=parts[0],name=parts[1];
+    var wrapEl=tb.closest("[data-tabs]");
+    if(wrapEl)Array.prototype.slice.call(wrapEl.querySelectorAll("[data-tab]")).forEach(function(x){x.classList.toggle("on",x===tb);});
+    $$('[data-pan^="'+grp+':"]').forEach(function(p){p.classList.toggle("show",p.getAttribute("data-pan")===grp+":"+name);});
+    beep("tick");
+    return;
+  }
+  var ac=e.target.closest?e.target.closest("[data-a]"):null;
+  if(ac){
+    var a=ac.getAttribute("data-a");
+    try{
+      if(a==="check-site")checkSite().catch(function(err){showError(err.message);});
+      else if(a==="check-relay")checkRelay().catch(function(err){showError(err.message);});
+      else if(a==="check-chain")checkChain().catch(function(err){showError(err.message);});
+      else if(a==="write")writeSettings();
+    }catch(err){showError(err.message||String(err));}
+    return;
+  }
+  var q=e.target.closest?e.target.closest(".qa-q"):null;
+  if(q){
+    var qa=q.parentElement,ans=qa.querySelector(".qa-a"),open=qa.classList.contains("open");
+    $$(".qa.open").forEach(function(o){if(o!==qa){o.classList.remove("open");o.querySelector(".qa-a").style.maxHeight="0";}});
+    if(open){qa.classList.remove("open");ans.style.maxHeight="0";}
+    else{qa.classList.add("open");ans.style.maxHeight=ans.scrollHeight+"px";}
+    beep("tick");
+  }
+});
+$("dlScript").addEventListener("click",function(){
+  var blob=new Blob([setupScript()],{type:"text/x-shellscript;charset=utf-8"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="setup.sh";
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+  log("setup.sh скачан","ok");beep("ok");
+});
+$("printBtn").addEventListener("click",function(){window.print();});
+$("resetBtn").addEventListener("click",function(){
+  st.done={};persist();renderSteps();refreshDynamic();log("Прогресс сброшен","act");beep("tick");
+});
+$("soundBtn").addEventListener("click",function(){
+  st.sound=!st.sound;persist();
+  $("soundBtn").className="nsound"+(st.sound?" on":"");
+  $("soundBtn").innerHTML='<svg class="ic"><use href="#i-'+(st.sound?"sound":"mute")+'"/></svg>';
+  if(st.sound)beep("tick");
+});
+window.addEventListener("scroll",function(){
+  var h=document.documentElement;
+  var p=h.scrollTop/((h.scrollHeight-h.clientHeight)||1);
+  var links=$$(".nlink");
+  var idx=Math.min(links.length-1,Math.floor(p*links.length));
+  links.forEach(function(l,i){l.classList.toggle("cur",i===idx);});
+},{passive:true});
+
+try{
+  renderSteps();
+  renderFaq();
+  refreshDynamic();
+  $("soundBtn").className="nsound"+(st.sound?" on":"");
+  $("soundBtn").innerHTML='<svg class="ic"><use href="#i-'+(st.sound?"sound":"mute")+'"/></svg>';
+  $("originBanner").className="banner info show";
+  $("originBanner").innerHTML=location.protocol==="file:"
+    ? "Страница открыта как файл — команды и проверки работают, но автозапись настроек попадёт только в этот браузер. Положите этот файл рядом с index.html на сервер и откройте по адресу "+esc(SITE())+"/beget-vps.html — тогда кнопка настроит приложение напрямую."
+    : "Страница открыта по адресу <code>"+esc(location.origin+location.pathname)+"</code>. Автозапись настроек работает для этого адреса. Если приложение будет на "+esc(SITE())+" — откройте инструкцию там же.";
+  log("Инструкция готова. Заполните домен и IP сверху — команды пересоберутся.","ok");
+}catch(e){showError(e.message||String(e));}
+
+})();
+</script>
+</body>
+</html>
