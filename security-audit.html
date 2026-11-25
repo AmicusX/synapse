@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a14">
+<meta name="color-scheme" content="dark">
+<title>Синапс · Аудит публичных файлов</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;900&family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#060a14;--bg2:#0a1122;--surf:rgba(15,22,44,.76);--surf2:rgba(24,33,64,.55);
+--line:rgba(122,142,222,.16);--line2:rgba(122,142,222,.34);
+--tx:#e9edfb;--mut:#93a0c4;--dim:#5d6890;
+--cy:#22d3ee;--vi:#8b5cf6;--mg:#e879f9;--gr:#a3e635;--am:#fbbf24;--rd:#fb7185;--bl:#60a5fa;
+--grad:linear-gradient(135deg,var(--cy),var(--vi) 55%,var(--mg));
+--ok:linear-gradient(135deg,var(--gr),var(--cy));--nav:60px}
+*{box-sizing:border-box;margin:0;padding:0;scrollbar-width:thin;scrollbar-color:rgba(34,211,238,.42) rgba(10,17,34,.7)}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:rgba(10,17,34,.7)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--cy),var(--vi));border-radius:11px;border:2px solid rgba(10,17,34,.7)}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:"Manrope",-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.62;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-25%;z-index:-2;pointer-events:none;
+background:radial-gradient(620px 480px at 12% 10%,rgba(34,211,238,.15),transparent 62%),radial-gradient(740px 540px at 88% 8%,rgba(139,92,246,.19),transparent 62%),radial-gradient(820px 620px at 74% 94%,rgba(251,113,133,.1),transparent 62%),linear-gradient(180deg,var(--bg),var(--bg2));
+animation:drift 34s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-2%,2%) scale(1.04)}}
+a{color:var(--cy)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button:active{transform:scale(.97)}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px;border-radius:8px}
+input{font:inherit}
+.ic{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+code{font-family:"JetBrains Mono",monospace;font-size:.87em;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.26);padding:1px 7px;border-radius:6px;color:#a5f3fc;word-break:break-all}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:70;height:calc(var(--nav) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);background:rgba(6,10,20,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1080px;margin:0 auto;height:var(--nav);display:flex;align-items:center;gap:11px;padding:0 15px}
+.orb{width:27px;height:27px;border-radius:50%;background:var(--grad);position:relative;flex:none;box-shadow:0 0 16px rgba(34,211,238,.5)}
+.orb::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--bg)}
+.orb::before{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--grad);z-index:1}
+.nbrand{font-family:"Unbounded";font-weight:900;font-size:11.5px;letter-spacing:.11em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
+.nlinks{margin-left:auto;display:flex;gap:7px;align-items:center}
+.nlink{padding:7px 12px;border-radius:10px;font-size:12px;font-weight:800;color:var(--mut);border:1px solid var(--line2);background:var(--surf2);text-decoration:none;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.nlink:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.nsound{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:var(--mut);border:1px solid var(--line2);background:var(--surf2);flex:none}
+.nsound.on{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.nbar{position:absolute;left:0;bottom:-1px;height:2px;background:var(--grad);width:0}
+
+.wrap{max-width:1080px;margin:0 auto;padding:calc(var(--nav) + env(safe-area-inset-top) + 22px) 15px calc(64px + env(safe-area-inset-bottom))}
+section{scroll-margin-top:calc(var(--nav) + 20px)}
+.rev{opacity:0;transform:translateY(18px);transition:opacity .55s cubic-bezier(.2,.7,.3,1),transform .55s cubic-bezier(.2,.7,.3,1)}
+.rev.in{opacity:1;transform:none}
+h1{font-family:"Unbounded";font-weight:900;font-size:clamp(21px,4.3vw,33px);line-height:1.19;margin-bottom:11px}
+h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-family:"Unbounded";font-weight:700;font-size:16px;letter-spacing:.04em;margin:32px 0 12px;display:flex;align-items:center;gap:11px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+.lead{color:var(--mut);font-size:14.8px;max-width:820px;margin-bottom:16px}
+.kick{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--rd);border:1px solid rgba(251,113,133,.45);background:rgba(251,113,133,.09);margin-bottom:14px}
+.card{border:1px solid var(--line2);border-radius:19px;background:var(--surf);backdrop-filter:blur(13px);padding:19px;margin-bottom:14px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad);opacity:.6}
+.card.good{border-color:rgba(163,230,53,.45);background:linear-gradient(150deg,rgba(163,230,53,.08),rgba(34,211,238,.05))}
+.card.good::before{background:var(--ok);opacity:1}
+.card.bad{border-color:rgba(251,113,133,.45);background:linear-gradient(150deg,rgba(251,113,133,.08),rgba(139,92,246,.05))}
+.card.bad::before{background:linear-gradient(180deg,var(--rd),var(--mg));opacity:1}
+.card h3{font-family:"Unbounded";font-weight:700;font-size:14.5px;margin-bottom:9px;display:flex;align-items:center;gap:9px}
+.card p{font-size:14px;color:#ccd6f2;margin:.45em 0}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.side{padding:15px;border-radius:15px;border:1px solid var(--line2);background:rgba(6,10,20,.5)}
+.side.pub{border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.06)}
+.side.priv{border-color:rgba(163,230,53,.45);background:rgba(163,230,53,.06)}
+.side .sh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.side.pub .sh{color:#fde68a}
+.side.priv .sh{color:#d9f99d}
+.side ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.side li{font-size:13px;color:#ccd6f2;padding-left:18px;position:relative;line-height:1.5}
+.side li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5}
+.ol{list-style:none;counter-reset:s;margin:12px 0;display:flex;flex-direction:column;gap:10px}
+.ol li{counter-increment:s;position:relative;padding-left:35px;font-size:14px;line-height:1.6;color:#ccd6f2}
+.ol li::before{content:counter(s);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-family:"JetBrains Mono";font-size:11.5px;color:var(--cy);background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.33)}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:13px;font-size:13px;line-height:1.55;margin:12px 0}
+.note.warn{border:1px solid rgba(251,191,36,.42);background:rgba(251,191,36,.08);color:#fde68a}
+.note.info{border:1px solid rgba(96,165,250,.42);background:rgba(96,165,250,.08);color:#bfdbfe}
+.note.good{border:1px solid rgba(163,230,53,.42);background:rgba(163,230,53,.08);color:#d9f99d}
+.note.bad{border:1px solid rgba(251,113,133,.45);background:rgba(251,113,133,.08);color:#fecdd3}
+.btns{display:flex;gap:9px;flex-wrap:wrap;margin:13px 0}
+.b{display:inline-flex;align-items:center;gap:8px;padding:11px 16px;border-radius:12px;font-size:13.2px;font-weight:800;border:1px solid transparent;text-decoration:none;transition:.18s}
+.b1{color:#04121a;background:var(--grad);box-shadow:0 4px 15px rgba(34,211,238,.28)}
+.b2{color:var(--mut);border-color:var(--line2);background:var(--surf2)}
+.b2:hover{color:var(--cy);border-color:rgba(34,211,238,.5)}
+.b3{color:#0c1a04;background:var(--ok)}
+.bd{color:#fecdd3;border-color:rgba(251,113,133,.45);background:rgba(251,113,133,.08)}
+.b.sm{padding:7px 12px;font-size:11.5px}
+.f{margin:11px 0}
+.f label{display:block;font-size:11.5px;font-weight:800;color:var(--mut);margin-bottom:5px}
+.f input{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--line2);background:rgba(6,10,20,.75);color:var(--tx);font-size:15px;font-family:"JetBrains Mono"}
+.f input:focus{outline:none;border-color:rgba(34,211,238,.65);box-shadow:0 0 0 3px rgba(34,211,238,.13)}
+.f input::placeholder{color:var(--dim);font-family:"Manrope"}
+.f .h{font-size:11px;color:var(--dim);margin-top:5px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.stat{padding:14px;border-radius:14px;border:1px solid var(--line2);background:rgba(6,10,20,.5);text-align:center}
+.stat .n{font-family:"Unbounded";font-weight:900;font-size:26px;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat.crit .n{background:linear-gradient(135deg,var(--rd),var(--mg));-webkit-background-clip:text;background-clip:text}
+.stat.okk .n{background:var(--ok);-webkit-background-clip:text;background-clip:text}
+.stat .l{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:800;margin-top:6px}
+
+.findings{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.filecard{border:1px solid var(--line2);border-radius:15px;background:rgba(6,10,20,.5);overflow:hidden}
+.filecard.crit{border-color:rgba(251,113,133,.55)}
+.filecard.med{border-color:rgba(251,191,36,.45)}
+.filecard.clean{border-color:rgba(163,230,53,.4)}
+.fh{display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(20,29,56,.6);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.fh .fn{font-family:"JetBrains Mono";font-size:12.5px;color:#a5f3fc;flex:1;min-width:120px;word-break:break-all}
+.fh .badge{padding:3px 10px;border-radius:999px;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line2);color:var(--mut);flex:none}
+.filecard.crit .badge{color:#fecdd3;border-color:rgba(251,113,133,.55);background:rgba(251,113,133,.12)}
+.filecard.med .badge{color:#fde68a;border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
+.filecard.clean .badge{color:#d9f99d;border-color:rgba(163,230,53,.5);background:rgba(163,230,53,.1)}
+.fb{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.hit{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;padding:9px 11px;border-radius:10px;background:rgba(6,10,20,.6);border:1px solid var(--line)}
+.hit .sev{flex:none;padding:2px 8px;border-radius:6px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.hit.crit .sev{background:rgba(251,113,133,.15);border:1px solid rgba(251,113,133,.5);color:#fecdd3}
+.hit.med .sev{background:rgba(251,191,36,.13);border:1px solid rgba(251,191,36,.45);color:#fde68a}
+.hit.low .sev{background:rgba(96,165,250,.13);border:1px solid rgba(96,165,250,.45);color:#bfdbfe}
+.hit .hb{flex:1;min-width:0}
+.hit .what{font-weight:700;margin-bottom:2px}
+.hit .ex{font-family:"JetBrains Mono";font-size:11px;color:var(--mut);word-break:break-all;line-height:1.5}
+.hit .ln{font-family:"JetBrains Mono";font-size:10.5px;color:var(--dim);flex:none}
+.fclean{padding:12px 14px;font-size:12.5px;color:#d9f99d}
+.fmiss{padding:12px 14px;font-size:12.5px;color:var(--dim)}
+
+.kv{display:flex;flex-direction:column;gap:6px;margin-top:11px}
+.kvr{display:flex;align-items:flex-start;gap:11px;padding:10px 12px;border-radius:11px;border:1px solid var(--line);background:rgba(6,10,20,.5)}
+.kvr .k{font-size:11px;font-weight:800;color:var(--dim);min-width:118px;text-transform:uppercase;letter-spacing:.05em;padding-top:2px}
+.kvr .v{flex:1;min-width:0;font-family:"JetBrains Mono";font-size:12.5px;color:#a5f3fc;word-break:break-all}
+.kvr .v.empty{color:var(--dim);font-family:"Manrope";font-style:italic}
+
+.checks{display:flex;flex-direction:column;gap:7px;margin:12px 0}
+.check{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:13px;border:1px solid var(--line2);background:var(--surf2);text-align:left;width:100%}
+.check:hover{border-color:rgba(163,230,53,.45)}
+.check .bx{width:23px;height:23px;border-radius:7px;border:2px solid var(--line2);display:grid;place-items:center;flex:none}
+.check .bx .ic{width:13px;height:13px;color:#0c1a04;opacity:0}
+.check.on .bx{background:var(--gr);border-color:var(--gr)}
+.check.on .bx .ic{opacity:1}
+.check .ct{flex:1;font-size:13.2px;font-weight:700}
+.check.on .ct{color:#d9f99d}
+.progress{height:7px;border-radius:7px;background:rgba(122,142,222,.15);overflow:hidden;margin:6px 0 14px}
+.progress i{display:block;height:100%;width:0;background:var(--ok);border-radius:7px;transition:width .5s}
+
+.qa{border:1px solid var(--line2);border-radius:14px;background:var(--surf);overflow:hidden;margin-bottom:8px}
+.qa.open{border-color:rgba(34,211,238,.5)}
+.qa-q{width:100%;display:flex;align-items:center;gap:11px;text-align:left;padding:13px 15px;font-size:13.4px;font-weight:800}
+.qa-q .cv{margin-left:auto;color:var(--cy);transition:transform .25s}
+.qa.open .qa-q .cv{transform:rotate(180deg)}
+.qa-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.2,.7,.3,1)}
+.qa-a-in{padding:0 15px 14px;font-size:13px;color:var(--mut);line-height:1.65}
+.qa-a-in b{color:var(--tx)}
+.log{margin-top:11px;border-radius:12px;border:1px solid var(--line);background:#060b16;padding:10px 12px;height:170px;overflow:auto;font-family:"JetBrains Mono";font-size:11px;line-height:1.65}
+.ll{color:var(--mut);white-space:pre-wrap;word-break:break-word}
+.ll.ok{color:var(--gr)}.ll.warn{color:var(--am)}.ll.err{color:var(--rd)}.ll.act{color:var(--cy)}
+.banner{display:none;padding:12px 14px;border-radius:13px;font-size:13px;margin-bottom:14px;line-height:1.55}
+.banner.show{display:block}
+.banner.err{border:1px solid rgba(251,113,133,.55);background:rgba(251,113,133,.1);color:#fecdd3}
+.banner.info{border:1px solid rgba(96,165,250,.45);background:rgba(96,165,250,.08);color:#bfdbfe}
+.spin{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid rgba(96,165,250,.25);border-top-color:var(--bl);animation:rot .8s linear infinite;display:inline-block;vertical-align:-2px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.spark{position:fixed;width:7px;height:7px;border-radius:2px;pointer-events:none;z-index:95}
+footer{max-width:1080px;margin:0 auto;padding:22px 15px calc(30px + env(safe-area-inset-bottom));border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--dim);font-size:12px}
+footer a{margin-left:auto}
+@media(max-width:760px){.row,.split{grid-template-columns:1fr}.summary{grid-template-columns:1fr 1fr}.nlink span{display:none}.card{padding:16px}.kvr{flex-wrap:wrap}.kvr .k{min-width:100%}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rev{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4L2.5 20h19L12 4z"/><path d="M12 10v4.5M12 17.5v.5"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 3.5V8h-4.5"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7.5 11.5L12 16l4.5-4.5M4 19h16"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.3 3.9 5.2 3.9 8.5s-1.3 6.2-3.9 8.5c-2.6-2.3-3.9-5.2-3.9-8.5s1.3-6.2 3.9-8.5z"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6.5 7l1 13h9l1-13"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h12v16H7a2 2 0 0 0-2 2V5z"/><path d="M5 19a2 2 0 0 1 2-2h12"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7V5z"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M15.5 9.5a4 4 0 0 1 0 5"/></symbol>
+<symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h3.5L12 18V6l-4.5 4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
+<symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19L16 8M14.5 4.5l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z"/></symbol>
+</svg>
+
+<nav class="nav">
+  <div class="nav-in">
+    <div class="orb"></div><span class="nbrand">СИНАПС · АУДИТ ФАЙЛОВ</span>
+    <div class="nlinks">
+      <a class="nlink" href="docs.html"><svg class="ic"><use href="#i-book"/></svg><span>Инструкции</span></a>
+      <a class="nlink" href="index.html"><svg class="ic"><use href="#i-play"/></svg><span>Синапс</span></a>
+      <button class="nsound on" id="soundBtn" aria-label="Звук"><svg class="ic"><use href="#i-sound"/></svg></button>
+    </div>
+  </div>
+  <div class="nbar" id="nbar"></div>
+</nav>
+
+<div class="wrap">
+
+  <div class="banner err" id="errBanner"></div>
+  <div class="banner info" id="originBanner"></div>
+
+  <section class="rev">
+    <span class="kick"><svg class="ic"><use href="#i-eye"/></svg>что видно посторонним</span>
+    <h1>Ключ — в браузере.<br>Домен и воркер — <em>в файлах</em></h1>
+    <p class="lead">Публичный репозиторий означает, что любой может открыть исходники. Но настройки приложения в исходниках не хранятся: ключ, модель и чаты лежат в localStorage конкретного браузера. Другой человек, открывший ваш сайт, увидит пустое приложение со своими настройками. Опасность в другом — в файлы попали ваши личные адреса как примеры.</p>
+
+    <div class="split">
+      <div class="side pub">
+        <div class="sh"><svg class="ic"><use href="#i-globe"/></svg>Видно всем</div>
+        <ul>
+          <li>Весь код всех HTML-файлов, включая инструкции</li>
+          <li>Домен <code>mnetaknado.ru</code> — вписан в примеры</li>
+          <li>Адрес воркера <code>synapse-relay.amicus0206.workers.dev</code></li>
+          <li>Адрес провайдера <code>ai.starimg.ru</code> — значение по умолчанию</li>
+          <li>История коммитов: удалённое позже остаётся в истории</li>
+        </ul>
+      </div>
+      <div class="side priv">
+        <div class="sh"><svg class="ic"><use href="#i-lock"/></svg>Видно только вам</div>
+        <ul>
+          <li>API-ключ — localStorage вашего браузера</li>
+          <li>Все чаты и история переписки</li>
+          <li>Выбранная модель и настройки поиска</li>
+          <li>Отметки прогресса в инструкциях</li>
+          <li>Другой посетитель получает своё пустое хранилище</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note bad"><svg class="ic"><use href="#i-alert"/></svg><span><b>Важное исключение:</b> файл экспорта JSON, который вы скачиваете кнопкой «Экспорт», содержит ключ открытым текстом. Если такой файл попадёт в репозиторий или в переписку — ключ утечёт. Никогда не коммитьте бэкапы.</span></div>
+    <div class="note warn"><span><b>Приватный репозиторий не прячет сайт.</b> GitHub Pages отдаёт страницы публично даже из приватного репозитория, а исходники читаются через «просмотр кода страницы». Секрет в клиентском файле не бывает секретом. Плюс на бесплатном тарифе GitHub Pages работает только из публичного репозитория.</span></div>
+  </section>
+
+  <section class="rev">
+    <h2><svg class="ic" style="color:var(--cy)"><use href="#i-search"/></svg>Сканирование ваших файлов</h2>
+    <div class="card">
+      <p>Страница скачает файлы с того же адреса, где она открыта, и поищет в них ключи, домены, адреса воркеров, IP и почты. Ничего никуда не отправляется — всё считается в вашем браузере.</p>
+      <div class="row">
+        <div class="f"><label>Ваш домен (искать как персональные данные)</label><input id="cfgDomain" type="text" spellcheck="false" placeholder="mnetaknado.ru"></div>
+        <div class="f"><label>Поддомен аккаунта Cloudflare</label><input id="cfgCf" type="text" spellcheck="false" placeholder="amicus0206"></div>
+      </div>
+      <div class="f"><label>Дополнительные файлы для проверки (через запятую)</label><input id="cfgExtra" type="text" spellcheck="false" placeholder="backup.json, synapse.json"><div class="h">Полезно, если подозреваете, что загрузили бэкап с ключом.</div></div>
+      <div class="btns">
+        <button class="b b1" id="scanBtn"><svg class="ic"><use href="#i-search"/></svg>Сканировать файлы</button>
+        <button class="b b2" id="reportBtn"><svg class="ic"><use href="#i-down"/></svg>Скачать отчёт</button>
+        <button class="b b2" id="listBtn"><svg class="ic"><use href="#i-copy"/></svg>Список замен</button>
+      </div>
+      <div class="summary" id="summary" hidden>
+        <div class="stat crit"><div class="n" id="stCrit">0</div><div class="l">ключей</div></div>
+        <div class="stat"><div class="n" id="stMed">0</div><div class="l">личных данных</div></div>
+        <div class="stat okk"><div class="n" id="stClean">0</div><div class="l">чистых файлов</div></div>
+        <div class="stat"><div class="n" id="stFiles">0</div><div class="l">проверено</div></div>
+      </div>
+      <div class="findings" id="findings"></div>
+      <div class="log" id="log"></div>
+    </div>
+  </section>
+
+  <section class="rev">
+    <h2><svg class="ic" style="color:var(--gr)"><use href="#i-lock"/></svg>Что лежит в вашем браузере</h2>
+    <div class="card good">
+      <p>Это то, что видит только этот браузер на этом устройстве. В репозитории этого нет.</p>
+      <div class="kv" id="localBox"></div>
+      <div class="btns">
+        <button class="b b2 sm" id="readLocal"><svg class="ic"><use href="#i-refresh"/></svg>Прочитать</button>
+        <button class="b b2 sm" id="revealKey"><svg class="ic"><use href="#i-eye"/></svg>Показать ключ целиком</button>
+      </div>
+      <div class="note info"><span>Ключ показывается только вам, в этом браузере. Не делайте скриншот этого блока и не отправляйте его никому.</span></div>
+    </div>
+  </section>
+
+  <section class="rev">
+    <h2><svg class="ic" style="color:var(--am)"><use href="#i-wand"/></svg>Как убрать личное из файлов</h2>
+    <div class="card">
+      <ol class="ol">
+        <li>Запустите сканирование выше. Для каждого файла с находками появится кнопка <b>«Скачать очищенную копию»</b>.</li>
+        <li>В очищенной копии ваш домен заменён на <code>вашдомен.ru</code>, адрес воркера — на <code>ваш-воркер.workers.dev</code>, найденные ключи вырезаны.</li>
+        <li>Загрузите очищенные файлы в репозиторий поверх старых: <b>Add file → Upload files → Commit changes</b>.</li>
+        <li>Если ключ всё-таки нашёлся в файле — <b>сразу перевыпустите его</b> у продавца. Удаление из файла не помогает: ключ уже мог быть скопирован, и он остаётся в истории коммитов.</li>
+        <li>Воркер больше не нужен для работы приложения. Либо удалите его в Cloudflare, либо задайте переменную <code>RELAY_SECRET</code>, чтобы им не пользовались посторонние.</li>
+      </ol>
+      <div class="note good"><span>После замены файлов запустите сканирование ещё раз — счётчик личных данных должен обнулиться.</span></div>
+    </div>
+  </section>
+
+  <section class="rev">
+    <h2><svg class="ic" style="color:var(--cy)"><use href="#i-check"/></svg>Чек-лист безопасности</h2>
+    <div class="card">
+      <div class="progress"><i id="progressFill"></i></div>
+      <div class="checks" id="checks">
+        <button class="check" data-check="s1"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Сканирование не нашло API-ключей в файлах</span></button>
+        <button class="check" data-check="s2"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Личные адреса убраны из инструкций</span></button>
+        <button class="check" data-check="s3"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Бэкапы JSON не загружены в репозиторий</span></button>
+        <button class="check" data-check="s4"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">История коммитов проверена на ключи</span></button>
+        <button class="check" data-check="s5"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Воркер удалён или защищён секретом</span></button>
+        <button class="check" data-check="s6"><span class="bx"><svg class="ic"><use href="#i-check"/></svg></span><span class="ct">Ключ перевыпущен, если была утечка</span></button>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <div class="f"><label>Владелец репозитория (логин GitHub)</label><input id="ghOwner" type="text" spellcheck="false" placeholder="ваш-логин"></div>
+        <div class="f"><label>Название репозитория</label><input id="ghRepo" type="text" spellcheck="false" placeholder="synapse"></div>
+      </div>
+      <div class="btns" id="ghLinks"></div>
+    </div>
+  </section>
+
+  <section class="rev">
+    <h2><svg class="ic" style="color:var(--am)"><use href="#i-alert"/></svg>Вопросы, которые тут возникают</h2>
+    <div id="faq"></div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="orb" style="width:20px;height:20px"></div>
+  <span>Синапс · аудит публичных файлов · всё считается локально</span>
+  <a href="docs.html">← Все инструкции</a>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id);};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+var LS="synapse.audit.v1";
+
+var BASE_FILES=["index.html","docs.html","guide.html","steps.html","cloudflare-help.html","fix-relay.html","relay-doctor.html","domain-setup.html","ns-status.html","check.html","app-doctor.html","network-fix.html","beget-vps.html","security-audit.html","sw.js","manifest.webmanifest","icon.svg","worker.js"];
+
+var st={domain:"mnetaknado.ru",cf:"amicus0206",extra:"",owner:"",repo:"",sound:true,checks:{},reveal:false};
+try{var raw=localStorage.getItem(LS);if(raw){var p=JSON.parse(raw);for(var k in st){if(p[k]!=null)st[k]=p[k];}}}catch(e){}
+function persist(){try{localStorage.setItem(LS,JSON.stringify(st));}catch(e){}}
+
+var texts={},results=[],scanned=false;
+
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function showError(m){var b=$("errBanner");b.className="banner err show";b.textContent="Ошибка скрипта: "+m;}
+window.addEventListener("error",function(e){showError((e.message||"неизвестно")+(e.lineno?" (строка "+e.lineno+")":""));});
+
+function log(msg,kind){
+  var t=new Date().toLocaleTimeString("ru-RU");
+  var l=document.createElement("div");
+  l.className="ll"+(kind?" "+kind:"");
+  l.textContent="["+t+"] "+msg;
+  $("log").appendChild(l);
+  $("log").scrollTop=$("log").scrollHeight;
+}
+var AC=null;
+function beep(kind){
+  if(!st.sound)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended")AC.resume();
+    var t=AC.currentTime;
+    var n=function(f,s,d,v){var o=AC.createOscillator(),g=AC.createGain();o.type="sine";o.frequency.setValueAtTime(f,t+s);
+      g.gain.setValueAtTime(0,t+s);g.gain.linearRampToValueAtTime(v||0.032,t+s+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+s+d);
+      o.connect(g);g.connect(AC.destination);o.start(t+s);o.stop(t+s+d+0.02);};
+    if(kind==="ok"){n(660,0,0.1);n(990,0.07,0.14);}
+    else if(kind==="err")n(190,0,0.17,0.045);
+    else if(kind==="win"){n(523,0,0.13);n(659,0.09,0.13);n(784,0.18,0.17);}
+    else n(1180,0,0.045);
+  }catch(e){}
+}
+function sparks(el){
+  try{
+    var r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    var cols=["#a3e635","#22d3ee","#8b5cf6","#e879f9"];
+    for(var i=0;i<14;i++){
+      var s=document.createElement("span");
+      s.className="spark";s.style.background=cols[i%cols.length];
+      s.style.left=cx+"px";s.style.top=cy+"px";
+      document.body.appendChild(s);
+      var a=Math.random()*Math.PI*2,d=45+Math.random()*65;
+      s.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate("+Math.cos(a)*d+"px,"+(Math.sin(a)*d+25)+"px) scale(.2)",opacity:0}],{duration:650+Math.random()*350,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=(function(n){return function(){n.remove();};})(s);
+    }
+  }catch(e){}
+}
+function maskKey(s){
+  s=String(s);
+  if(s.length<=12)return s.slice(0,3)+"••••";
+  return s.slice(0,6)+"••••••••"+s.slice(-4);
+}
+function download(name,content,type){
+  var b=new Blob([content],{type:type||"text/plain;charset=utf-8"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+}
+function copyText(text,label){
+  var done=function(){log("Скопировано: "+label,"ok");beep("ok");};
+  var fb=function(){
+    var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}catch(e){log("Не удалось скопировать","warn");}
+    ta.remove();
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done).catch(fb);else fb();
+}
+
+function fileList(){
+  var list=BASE_FILES.slice();
+  String(st.extra||"").split(",").forEach(function(x){
+    var f=x.trim();
+    if(f&&list.indexOf(f)<0)list.push(f);
+  });
+  return list;
+}
+function escRe(s){return String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
+
+function buildRules(){
+  var rules=[
+    {id:"sk",sev:"crit",what:"API-ключ формата sk-",re:/\bsk-[A-Za-z0-9_\-]{12,}/g,mask:true},
+    {id:"tvly",sev:"crit",what:"Ключ Tavily",re:/\btvly-[A-Za-z0-9_\-]{8,}/g,mask:true},
+    {id:"jina",sev:"crit",what:"Ключ Jina",re:/\bjina_[A-Za-z0-9_\-]{8,}/g,mask:true},
+    {id:"bearer",sev:"crit",what:"Токен в заголовке Bearer",re:/Bearer\s+[A-Za-z0-9_\-\.]{20,}/g,mask:true},
+    {id:"worker",sev:"med",what:"Адрес воркера workers.dev",re:/\b[a-z0-9][a-z0-9\-]*\.[a-z0-9][a-z0-9\-]*\.workers\.dev\b/gi,mask:false},
+    {id:"ip",sev:"low",what:"IP-адрес",re:/\b(?:\d{1,3}\.){3}\d{1,3}\b/g,mask:false},
+    {id:"mail",sev:"med",what:"Адрес почты",re:/[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g,mask:false}
+  ];
+  var d=String(st.domain||"").trim().toLowerCase();
+  if(d)rules.push({id:"domain",sev:"med",what:"Ваш домен "+d,re:new RegExp(escRe(d),"gi"),mask:false});
+  var cf=String(st.cf||"").trim().toLowerCase();
+  if(cf)rules.push({id:"cfacc",sev:"med",what:"Поддомен аккаунта Cloudflare",re:new RegExp(escRe(cf),"gi"),mask:false});
+  return rules;
+}
+function lineOf(text,index){
+  var n=1;
+  for(var i=0;i<index&&i<text.length;i++){if(text.charCodeAt(i)===10)n++;}
+  return n;
+}
+function excerpt(text,index,len){
+  var start=Math.max(0,index-30),end=Math.min(text.length,index+len+30);
+  var s=text.slice(start,end).replace(/\s+/g," ");
+  return (start>0?"…":"")+s+(end<text.length?"…":"");
+}
+function scanText(name,text){
+  var rules=buildRules(),hits=[],seen={};
+  rules.forEach(function(r){
+    r.re.lastIndex=0;
+    var m,count=0;
+    while((m=r.re.exec(text))!==null){
+      count++;
+      if(count>40)break;
+      var val=m[0];
+      if(r.id==="ip"&&/^127\.|^0\.|^255\.|^1\.1\.1\.1$/.test(val))continue;
+      var key=r.id+"|"+val;
+      if(seen[key])continue;
+      seen[key]=1;
+      hits.push({
+        rule:r.id,sev:r.sev,what:r.what,
+        value:r.mask?maskKey(val):val,
+        raw:val,
+        line:lineOf(text,m.index),
+        ex:excerpt(text,m.index,val.length)
+      });
+      if(m.index===r.re.lastIndex)r.re.lastIndex++;
+    }
+  });
+  var sev="clean";
+  hits.forEach(function(h){if(h.sev==="crit")sev="crit";else if(h.sev==="med"&&sev!=="crit")sev="med";});
+  return {file:name,hits:hits,sev:sev,size:text.length};
+}
+
+async function fetchFile(name){
+  var c=new AbortController(),t=setTimeout(function(){c.abort();},15000);
+  try{
+    var r=await fetch(name+(name.indexOf("?")>=0?"&":"?")+"_="+Date.now(),{cache:"no-store",signal:c.signal});
+    if(r.status===404)return {missing:true};
+    if(!r.ok)return {error:"HTTP "+r.status};
+    return {text:await r.text()};
+  }catch(e){
+    return {error:e.name==="AbortError"?"таймаут":"сеть недоступна"};
+  }finally{clearTimeout(t);}
+}
+
+async function scan(){
+  if(location.protocol==="file:"){
+    log("Сканирование недоступно: страница открыта как файл. Откройте по адресу сайта.","err");
+    beep("err");
+    $("findings").innerHTML='<div class="card bad" style="margin:0"><h3>Нужен адрес сайта</h3><p>Браузер не даёт читать соседние файлы с диска. Загрузите эту страницу в репозиторий и откройте её по адресу <code>https://логин.github.io/репозиторий/security-audit.html</code>.</p></div>';
+    return;
+  }
+  var btn=$("scanBtn");btn.disabled=true;
+  var list=fileList();
+  texts={};results=[];
+  $("summary").hidden=false;
+  $("findings").innerHTML='<div class="card" style="margin:0"><p><span class="spin"></span> Скачиваю и проверяю '+list.length+' файлов…</p></div>';
+  log("Сканирование запущено: "+list.length+" файлов","act");
+
+  var idx=0;
+  async function worker(){
+    while(idx<list.length){
+      var my=idx++,name=list[my];
+      var r=await fetchFile(name);
+      if(r.missing){results.push({file:name,missing:true,hits:[],sev:"miss"});log(name+" — файла нет","warn");}
+      else if(r.error){results.push({file:name,error:r.error,hits:[],sev:"err"});log(name+" — "+r.error,"err");}
+      else{
+        texts[name]=r.text;
+        var res=scanText(name,r.text);
+        results.push(res);
+        var crit=res.hits.filter(function(h){return h.sev==="crit";}).length;
+        var med=res.hits.filter(function(h){return h.sev==="med";}).length;
+        log(name+" — ключей: "+crit+", личных данных: "+med,crit?"err":med?"warn":"ok");
+      }
+      renderResults();
+    }
+  }
+  var pool=[];for(var i=0;i<4;i++)pool.push(worker());
+  await Promise.all(pool);
+
+  scanned=true;btn.disabled=false;
+  renderResults();
+  var totals=totalsOf();
+  if(totals.crit>0){
+    log("ВНИМАНИЕ: найдены ключи в файлах. Перевыпустите их у провайдера.","err");
+    beep("err");
+  }else if(totals.med>0){
+    log("Ключей нет. Есть личные адреса — их можно убрать очищенными копиями.","warn");
+    beep("ok");
+  }else{
+    log("Чисто: ни ключей, ни личных данных в доступных файлах.","ok");
+    beep("win");sparks($("summary"));
+  }
+}
+function totalsOf(){
+  var crit=0,med=0,clean=0,files=0;
+  results.forEach(function(r){
+    if(r.missing||r.error)return;
+    files++;
+    var c=r.hits.filter(function(h){return h.sev==="crit";}).length;
+    var m=r.hits.filter(function(h){return h.sev==="med";}).length;
+    crit+=c;med+=m;
+    if(!c&&!m)clean++;
+  });
+  return {crit:crit,med:med,clean:clean,files:files};
+}
+function renderResults(){
+  var t=totalsOf();
+  $("stCrit").textContent=t.crit;$("stMed").textContent=t.med;$("stClean").textContent=t.clean;$("stFiles").textContent=t.files;
+  var order={crit:0,med:1,clean:2,err:3,miss:4};
+  var sorted=results.slice().sort(function(a,b){return (order[a.sev]||9)-(order[b.sev]||9);});
+  var html="";
+  sorted.forEach(function(r){
+    if(r.missing){
+      html+='<div class="filecard"><div class="fh"><span class="fn">'+esc(r.file)+'</span><span class="badge">нет файла</span></div><div class="fmiss">Файл не найден на сервере — проверять нечего.</div></div>';
+      return;
+    }
+    if(r.error){
+      html+='<div class="filecard"><div class="fh"><span class="fn">'+esc(r.file)+'</span><span class="badge">ошибка</span></div><div class="fmiss">Не удалось прочитать: '+esc(r.error)+'</div></div>';
+      return;
+    }
+    var badge=r.sev==="crit"?"ключи!":r.sev==="med"?"личные данные":"чисто";
+    html+='<div class="filecard '+r.sev+'"><div class="fh"><span class="fn">'+esc(r.file)+'</span><span class="badge">'+badge+'</span>';
+    if(r.hits.length)html+='<button class="b b2 sm" data-clean="'+esc(r.file)+'"><svg class="ic"><use href="#i-down"/></svg>Скачать очищенную копию</button>';
+    html+='</div>';
+    if(!r.hits.length){
+      html+='<div class="fclean">Ничего подозрительного не найдено.</div>';
+    }else{
+      html+='<div class="fb">';
+      r.hits.slice(0,25).forEach(function(h){
+        html+='<div class="hit '+h.sev+'"><span class="sev">'+(h.sev==="crit"?"ключ":h.sev==="med"?"личное":"инфо")+'</span>'+
+          '<span class="hb"><span class="what">'+esc(h.what)+': <code>'+esc(h.value)+'</code></span>'+
+          '<span class="ex">'+esc(h.ex)+'</span></span>'+
+          '<span class="ln">стр. '+h.line+'</span></div>';
+      });
+      if(r.hits.length>25)html+='<div class="fmiss">…и ещё '+(r.hits.length-25)+' совпадений</div>';
+      html+='</div>';
+    }
+    html+='</div>';
+  });
+  $("findings").innerHTML=html||'<div class="card" style="margin:0"><p>Результатов пока нет.</p></div>';
+}
+function cleanText(name){
+  var text=texts[name];
+  if(text==null)return null;
+  var d=String(st.domain||"").trim();
+  if(d)text=text.split(d).join("вашдомен.ru");
+  var cf=String(st.cf||"").trim();
+  if(cf)text=text.replace(new RegExp("[a-z0-9\\-]+\\."+escRe(cf)+"\\.workers\\.dev","gi"),"ваш-воркер.workers.dev");
+  text=text.replace(/\b[a-z0-9][a-z0-9\-]*\.[a-z0-9][a-z0-9\-]*\.workers\.dev\b/gi,"ваш-воркер.workers.dev");
+  text=text.replace(/\bsk-[A-Za-z0-9_\-]{12,}/g,"sk-УДАЛЕНО");
+  text=text.replace(/\btvly-[A-Za-z0-9_\-]{8,}/g,"tvly-УДАЛЕНО");
+  text=text.replace(/\bjina_[A-Za-z0-9_\-]{8,}/g,"jina_УДАЛЕНО");
+  text=text.replace(/Bearer\s+[A-Za-z0-9_\-\.]{20,}/g,"Bearer УДАЛЕНО");
+  return text;
+}
+function reportText(){
+  var lines=["Синапс · аудит публичных файлов","Дата: "+new Date().toLocaleString("ru-RU"),"Адрес: "+location.href,""];
+  var t=totalsOf();
+  lines.push("Итого: ключей "+t.crit+", личных данных "+t.med+", чистых файлов "+t.clean+" из "+t.files);
+  lines.push("");
+  results.forEach(function(r){
+    if(r.missing){lines.push(r.file+" — файла нет");return;}
+    if(r.error){lines.push(r.file+" — ошибка: "+r.error);return;}
+    lines.push(r.file+" ("+r.sev+")");
+    if(!r.hits.length)lines.push("  чисто");
+    r.hits.forEach(function(h){lines.push("  ["+h.sev+"] "+h.what+": "+h.value+" (строка "+h.line+")");});
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+function replacementsText(){
+  var lines=["Что заменить в файлах репозитория",""];
+  var d=String(st.domain||"").trim(),cf=String(st.cf||"").trim();
+  if(d)lines.push(d+"  →  вашдомен.ru");
+  if(cf)lines.push("synapse-relay."+cf+".workers.dev  →  ваш-воркер.workers.dev");
+  lines.push("");
+  lines.push("Файлы, где найдены личные данные:");
+  results.forEach(function(r){
+    if(r.hits&&r.hits.length)lines.push("  "+r.file+" ("+r.hits.length+" совпадений)");
+  });
+  lines.push("");
+  lines.push("Ключи, если найдены, — перевыпустить у провайдера, а не просто удалить из файла.");
+  return lines.join("\n");
+}
+
+function readLocal(){
+  var box=$("localBox"),app=null;
+  try{var raw=localStorage.getItem("synapse.v1");if(raw)app=JSON.parse(raw);}catch(e){}
+  if(!app||!app.settings){
+    box.innerHTML='<div class="kvr"><span class="k">Статус</span><span class="v empty">Настройки не найдены в этом браузере. Откройте страницу по адресу сайта, где пользуетесь Синапсом.</span></div>';
+    return;
+  }
+  var s=app.settings;
+  var key=String(s.apiKey||"");
+  var shown=st.reveal?key:maskKey(key);
+  box.innerHTML=
+    row("Провайдер",s.provider)+
+    row("API Host",s.baseUrl)+
+    row("Реле",s.relayUrl||"не используется")+
+    row("Модель",s.model)+
+    row("API-ключ",key?shown:"")+
+    row("Чатов",String((app.chats||[]).length))+
+    row("Ключ Tavily",s.tavilyKey?(st.reveal?s.tavilyKey:maskKey(s.tavilyKey)):"");
+  function row(k,v){
+    return '<div class="kvr"><span class="k">'+esc(k)+'</span><span class="v'+(v?"":" empty")+'">'+esc(v||"пусто")+'</span></div>';
+  }
+  log("Прочитаны локальные настройки","ok");
+}
+function ghLinks(){
+  var o=String(st.owner||"").trim(),r=String(st.repo||"").trim();
+  var box=$("ghLinks");
+  if(!o||!r){box.innerHTML='<span style="font-size:11.5px;color:var(--dim)">Впишите логин и репозиторий — появятся ссылки для проверки истории.</span>';return;}
+  var base="https://github.com/"+encodeURIComponent(o)+"/"+encodeURIComponent(r);
+  var q=encodeURIComponent("repo:"+o+"/"+r+" sk-");
+  box.innerHTML=
+    '<a class="b b2 sm" href="'+base+'" target="_blank" rel="noopener">Открыть репозиторий</a>'+
+    '<a class="b b2 sm" href="https://github.com/search?q='+q+'&type=code" target="_blank" rel="noopener">Поиск ключей в коде</a>'+
+    '<a class="b b2 sm" href="'+base+'/commits" target="_blank" rel="noopener">История коммитов</a>'+
+    '<a class="b b2 sm" href="'+base+'/settings" target="_blank" rel="noopener">Настройки репозитория</a>';
+}
+
+var FAQ=[
+ {q:"Может ли посторонний воспользоваться моим ключом через мой сайт?",a:"Нет. Ключ не передаётся в файлах сайта — он лежит в localStorage вашего браузера и подставляется в запрос только у вас. Посетитель откроет приложение с пустым полем ключа и должен ввести свой. Единственный способ утечки — если ключ попал в файл, в бэкап или в скриншот."},
+ {q:"Увидит ли кто-то мои чаты?",a:"Нет, если это другой браузер или другое устройство. История хранится локально. Но на вашем устройстве любой, кто откроет сайт в том же браузере, увидит всё: пароля у приложения нет."},
+ {q:"Сделать репозиторий приватным — поможет?",a:"Частично и с оговорками. На бесплатном тарифе GitHub Pages публикуется только из публичного репозитория. И даже при приватном репозитории сам сайт остаётся публичным, а его HTML и JS читаются через просмотр кода страницы. Секреты в клиентских файлах не защищены никогда."},
+ {q:"Домен — это секрет?",a:"Нет. Любой домен с HTTPS-сертификатом попадает в открытые журналы Certificate Transparency, его можно найти без вашего репозитория. Убирать домен из инструкций стоит скорее ради аккуратности, чем ради безопасности."},
+ {q:"А адрес воркера опасно светить?",a:"Умеренно. Воркер ограничен списком разрешённых хостов и не содержит вашего ключа, поэтому тратить ваши деньги через него нельзя. Но посторонние могут гонять через него запросы и расходовать вашу бесплатную квоту Cloudflare. Задайте RELAY_SECRET или удалите воркер — он больше не нужен."},
+ {q:"Я удалил ключ из файла и запушил. Достаточно?",a:"Нет. Ключ остаётся в истории коммитов, и его мог кто-то скопировать. Правильный порядок: сначала перевыпустить ключ у провайдера, потом чистить файлы. Историю можно переписать, но это уже не отменяет перевыпуск."},
+ {q:"Что делать, если нашёлся бэкап JSON в репозитории?",a:"Считайте ключ скомпрометированным. Перевыпустите его, удалите файл из репозитория и из истории, проверьте, не было ли посторонних запросов на балансе у продавца."}
+];
+function renderFaq(){
+  $("faq").innerHTML=FAQ.map(function(f){
+    return '<div class="qa"><button class="qa-q">'+esc(f.q)+'<svg class="ic cv"><use href="#i-chev"/></svg></button><div class="qa-a"><div class="qa-a-in">'+f.a+'</div></div></div>';
+  }).join("");
+}
+
+var CHECKS=["s1","s2","s3","s4","s5","s6"];
+function updateChecks(){
+  var n=0;
+  $$(".check").forEach(function(c){var on=!!st.checks[c.dataset.check];c.classList.toggle("on",on);if(on)n++;});
+  $("progressFill").style.width=(n/CHECKS.length*100)+"%";
+}
+$$(".check").forEach(function(c){
+  c.onclick=function(){var id=c.dataset.check;st.checks[id]=!st.checks[id];persist();updateChecks();beep(st.checks[id]?"ok":"tick");};
+});
+
+document.addEventListener("input",function(e){
+  var id=e.target.id;
+  if(id==="cfgDomain"){st.domain=e.target.value;persist();}
+  else if(id==="cfgCf"){st.cf=e.target.value;persist();}
+  else if(id==="cfgExtra"){st.extra=e.target.value;persist();}
+  else if(id==="ghOwner"){st.owner=e.target.value;persist();ghLinks();}
+  else if(id==="ghRepo"){st.repo=e.target.value;persist();ghLinks();}
+});
+document.addEventListener("click",function(e){
+  var cl=e.target.closest?e.target.closest("[data-clean]"):null;
+  if(cl){
+    var name=cl.dataset.clean,text=cleanText(name);
+    if(text==null){log("Файл не загружен, сначала сканируйте","warn");return;}
+    download(name,text,"text/plain;charset=utf-8");
+    log("Скачана очищенная копия: "+name+" — загрузите её в репозиторий поверх старой","ok");
+    beep("ok");
+    return;
+  }
+  var q=e.target.closest?e.target.closest(".qa-q"):null;
+  if(q){
+    var qa=q.parentElement,ans=qa.querySelector(".qa-a"),open=qa.classList.contains("open");
+    $$(".qa.open").forEach(function(o){if(o!==qa){o.classList.remove("open");o.querySelector(".qa-a").style.maxHeight="0";}});
+    if(open){qa.classList.remove("open");ans.style.maxHeight="0";}
+    else{qa.classList.add("open");ans.style.maxHeight=ans.scrollHeight+"px";}
+    beep("tick");
+  }
+});
+$("scanBtn").addEventListener("click",function(){scan().catch(function(err){showError(err.message);});});
+$("reportBtn").addEventListener("click",function(){
+  if(!scanned){log("Сначала запустите сканирование","warn");beep("err");return;}
+  download("synapse-audit.txt",reportText());beep("ok");
+});
+$("listBtn").addEventListener("click",function(){
+  if(!scanned){log("Сначала запустите сканирование","warn");beep("err");return;}
+  copyText(replacementsText(),"список замен");
+});
+$("readLocal").addEventListener("click",readLocal);
+$("revealKey").addEventListener("click",function(){
+  st.reveal=!st.reveal;persist();
+  $("revealKey").innerHTML='<svg class="ic"><use href="#i-eye"/></svg>'+(st.reveal?"Скрыть ключ":"Показать ключ целиком");
+  readLocal();
+});
+$("soundBtn").addEventListener("click",function(){
+  st.sound=!st.sound;persist();
+  $("soundBtn").className="nsound"+(st.sound?" on":"");
+  $("soundBtn").innerHTML='<svg class="ic"><use href="#i-'+(st.sound?"sound":"mute")+'"/></svg>';
+  if(st.sound)beep("tick");
+});
+window.addEventListener("scroll",function(){
+  var h=document.documentElement;
+  $("nbar").style.width=(h.scrollTop/((h.scrollHeight-h.clientHeight)||1)*100)+"%";
+},{passive:true});
+
+try{
+  $("cfgDomain").value=st.domain;$("cfgCf").value=st.cf;$("cfgExtra").value=st.extra;
+  $("ghOwner").value=st.owner;$("ghRepo").value=st.repo;
+  $("soundBtn").className="nsound"+(st.sound?" on":"");
+  $("soundBtn").innerHTML='<svg class="ic"><use href="#i-'+(st.sound?"sound":"mute")+'"/></svg>';
+  renderFaq();updateChecks();ghLinks();readLocal();
+  $("originBanner").className="banner info show";
+  $("originBanner").innerHTML=location.protocol==="file:"
+    ? "Страница открыта как файл с диска — сканирование соседних файлов недоступно. Загрузите её в репозиторий и откройте по адресу сайта."
+    : "Сканируются файлы по адресу <code>"+esc(location.origin+location.pathname.replace(/[^/]*$/,""))+"</code>. Всё считается locally, ничего не отправляется наружу.";
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target);}});},{threshold:.04});
+    $$(".rev").forEach(function(el){io.observe(el);});
+  }else{$$(".rev").forEach(function(el){el.classList.add("in");});}
+  log("Аудит готов. Нажмите «Сканировать файлы».","ok");
+}catch(e){showError(e.message||String(e));}
+
+})();
+</script>
+</body>
+</html>
