@@ -55,7 +55,6 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 
 .app{display:grid;grid-template-columns:var(--sbw) minmax(0,1fr);height:100%}
 
-/* sidebar */
 .side{background:var(--side);border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;padding-top:env(safe-area-inset-top)}
 .side-top{padding:16px 14px 10px;display:flex;align-items:center;gap:9px}
 .mark{width:26px;height:26px;flex:none;display:grid;place-items:center;color:var(--accent)}
@@ -81,6 +80,9 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .citem:hover .dots,.citem.on .dots{opacity:1}
 .citem .dots:hover{background:var(--border);color:var(--text)}
 .side-empty{padding:20px 12px;color:var(--dim);font-size:13px;text-align:center}
+.side-clock{margin:0 14px 10px;padding:9px 12px;border-radius:11px;background:var(--tint);border:1px solid var(--border);display:flex;align-items:baseline;gap:8px}
+.side-clock .t{font-family:var(--mono);font-size:17px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.side-clock .d{font-size:11px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.3}
 .side-foot{border-top:1px solid var(--border);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:6px}
 .fbtn{flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;font-size:13px;font-weight:500;color:var(--muted)}
 .fbtn:hover{background:var(--tint);color:var(--text)}
@@ -88,13 +90,13 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .ibtn:hover{background:var(--tint);color:var(--text)}
 .ibtn.on{color:var(--accent)}
 
-/* main */
 .main{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg)}
 .top{height:calc(var(--top) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);display:flex;align-items:center;gap:10px;padding-left:16px;padding-right:16px;border-bottom:1px solid var(--border);flex:none}
 .menu{display:none;width:34px;height:34px;border-radius:9px;place-items:center;color:var(--muted)}
 .menu:hover{background:var(--tint)}
 .ttl{font-family:var(--serif);font-size:15.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
 .top-r{display:flex;align-items:center;gap:7px;flex:none}
+.topclock{font-family:var(--mono);font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums;padding-right:3px}
 .pill{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:12.5px;font-weight:500;color:var(--muted);max-width:210px}
 .pill:hover{border-color:var(--border2);color:var(--text)}
 .pill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -102,7 +104,6 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 
 .thread{flex:1;overflow-y:auto;min-height:0;overscroll-behavior:contain}
 .inner{max-width:768px;margin:0 auto;padding:26px 22px 30px;display:flex;flex-direction:column;gap:26px}
-
 .msg{animation:rise .35s cubic-bezier(.2,.7,.3,1) both}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .msg.user{display:flex;justify-content:flex-end}
@@ -121,6 +122,7 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .prose code{font-family:var(--mono);font-size:.85em;background:var(--tint);border:1px solid var(--border);padding:.08em .38em;border-radius:5px}
 .prose strong{font-weight:600}
 .prose a{color:var(--accent-h)}
+.bigclock{font-family:var(--mono);font-size:2.3em;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1.1;color:var(--text)}
 .cb{margin:.8em 0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
 .cb-h{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--tint);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted)}
 .cb-copy{display:flex;align-items:center;gap:6px;font-family:var(--sans);font-size:11.5px;font-weight:500;color:var(--muted);padding:3px 8px;border-radius:7px}
@@ -137,6 +139,8 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .act-row.done .st{color:var(--ok)}
 .act-row.error .st{color:var(--err)}
 .act-row.running .st{color:var(--warn)}
+.act-row.skip{background:var(--surface);border-style:dashed}
+.act-row.skip .st{color:var(--dim)}
 .spin{width:14px;height:14px;flex:none;border-radius:50%;border:2px solid var(--border2);border-top-color:var(--accent);animation:rot .75s linear infinite}
 @keyframes rot{to{transform:rotate(360deg)}}
 
@@ -163,10 +167,11 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .errbox button:hover{background:rgba(166,67,47,.1)}
 .stopped{color:var(--warn);font-weight:600}
 
-.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:12vh 16px 20px;animation:rise .45s both}
-.hero .big{width:44px;height:44px;color:var(--accent);margin-bottom:20px}
-.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,5vw,36px);letter-spacing:-.02em;margin-bottom:10px}
-.hero p{color:var(--muted);font-size:14.5px;max-width:460px;margin-bottom:26px}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10vh 16px 20px;animation:rise .45s both}
+.hero .big{width:44px;height:44px;color:var(--accent);margin-bottom:18px}
+.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(26px,5vw,36px);letter-spacing:-.02em;margin-bottom:8px}
+.hero .now{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;margin-bottom:14px}
+.hero p{color:var(--muted);font-size:14.5px;max-width:460px;margin-bottom:24px}
 .sugs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:100%;max-width:560px}
 .sug{display:flex;align-items:center;gap:10px;text-align:left;padding:13px 15px;border-radius:13px;border:1px solid var(--border);background:var(--surface);font-size:13.5px;color:var(--text)}
 .sug:hover{border-color:var(--accent-line);background:var(--accent-soft)}
@@ -191,7 +196,6 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 
 .scrim{position:fixed;inset:0;background:rgba(38,38,36,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .22s;z-index:40}
 .scrim.on{opacity:1;pointer-events:auto}
-
 .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(38,38,36,.4);backdrop-filter:blur(3px)}
 .modal.on{display:flex;animation:fade .18s both}
 @keyframes fade{from{opacity:0}to{opacity:1}}
@@ -240,6 +244,8 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .seg button{flex:1;padding:7px 10px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--muted)}
 .seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
 .row-btns{display:flex;gap:8px;flex-wrap:wrap}
+.preview{margin-top:10px;padding:11px 13px;border-radius:11px;border:1px dashed var(--border2);background:var(--bg);font-family:var(--mono);font-size:11.5px;line-height:1.6;color:var(--muted);word-break:break-word}
+.preview b{color:var(--accent-h);font-weight:500}
 .diag{margin-top:10px;display:flex;flex-direction:column;gap:6px}
 .drow{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-size:12.5px}
 .drow .dn{flex:1;min-width:0}
@@ -259,7 +265,6 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .mitem .mn{flex:1;min-width:0;font-family:var(--mono);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mitem .mk{width:18px;height:18px;flex:none;color:var(--accent);opacity:0}
 .mitem.on .mk{opacity:1}
-.mitem .mt{font-size:10.5px;color:var(--dim);border:1px solid var(--border);padding:2px 7px;border-radius:6px;flex:none}
 .mgroup{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:12px 4px 5px}
 .mempty{padding:26px;text-align:center;color:var(--dim);font-size:13.5px}
 
@@ -279,7 +284,8 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
   .sugs{grid-template-columns:1fr}
   .two{grid-template-columns:1fr}
   .ttl{font-size:14.5px}
-  .pill.model{max-width:130px}
+  .pill.model{max-width:120px}
+  .topclock{display:none}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -311,7 +317,7 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
 <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 2-2h12v16H7a2 2 0 0 0-2 2V5z"/><path d="M5 19a2 2 0 0 1 2-2h12"/></symbol>
 <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></symbol>
-<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4L2.5 20h19L12 4z"/><path d="M12 10v4.5M12 17.5v.5"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
 <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.5M3.5 12h.5M3.5 18h.5"/></symbol>
 </svg>
 
@@ -323,6 +329,7 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
       <button class="side-close" id="sideClose" aria-label="Закрыть"><svg class="ic"><use href="#i-x"/></svg></button>
     </div>
     <button class="newchat" id="newChat"><svg class="ic sm"><use href="#i-plus"/></svg>Новый чат</button>
+    <div class="side-clock"><span class="t" id="sideTime">--:--:--</span><span class="d" id="sideDate">—</span></div>
     <div class="side-search"><svg class="ic"><use href="#i-search"/></svg><input id="chatSearch" type="text" placeholder="Поиск по чатам" autocomplete="off"></div>
     <div class="chats" id="chats"></div>
     <div class="side-foot">
@@ -337,6 +344,7 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
       <button class="menu" id="menuBtn" aria-label="Меню"><svg class="ic"><use href="#i-menu"/></svg></button>
       <div class="ttl" id="chatTitle">Новый чат</div>
       <div class="top-r">
+        <span class="topclock" id="topTime">--:--</span>
         <button class="pill" id="searchToggle"><svg class="ic sm"><use href="#i-globe"/></svg><span>Поиск</span></button>
         <button class="pill model" id="modelChip"><svg class="ic sm"><use href="#i-cube"/></svg><span id="modelLabel">Модель</span></button>
       </div>
@@ -365,6 +373,14 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
     <div class="sh-top"><h2>Настройки</h2><button class="ibtn" data-close="settingsModal"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <div class="sh-body">
       <div class="sec">
+        <h3>Время и контекст</h3>
+        <div class="swrow"><div><div class="sl">Передавать модели текущее время</div><div class="sd">Без этого модель не знает, какой сейчас год и час</div></div><label class="sw"><input type="checkbox" id="sClock"><span class="tr"></span></label></div>
+        <div class="swrow"><div><div class="sl">Отвечать о времени с устройства</div><div class="sd">Мгновенно и точно, без обращения к модели</div></div><label class="sw"><input type="checkbox" id="sLocalTime"><span class="tr"></span></label></div>
+        <div class="swrow"><div><div class="sl">Умный поиск</div><div class="sd">Не искать в интернете для времени, счёта и текстов</div></div><label class="sw"><input type="checkbox" id="sSmart"><span class="tr"></span></label></div>
+        <div class="preview" id="clockPreview"></div>
+      </div>
+
+      <div class="sec">
         <h3>Провайдер</h3>
         <div class="fld"><label>API Host</label><input type="url" id="sBase" spellcheck="false" placeholder="https://ai.starimg.ru/v1">
           <div class="hint">Продавец включил CORS — подключайтесь напрямую, реле не нужно.</div></div>
@@ -373,9 +389,9 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
           <div class="row-btns"><button class="btn g sm" id="sPickModel"><svg class="ic sm"><use href="#i-list"/></svg>Выбрать из списка</button><button class="btn g sm" id="sFetch"><svg class="ic sm"><use href="#i-refresh"/></svg>Обновить список</button></div>
           <div class="hint" id="sModelHint">Модель не выбрана</div></div>
         <div class="fld"><label>Температура</label><div class="rng"><input type="range" id="sTemp" min="0" max="1.5" step="0.1"><span class="v" id="sTempV">0.7</span></div></div>
-        <div class="fld"><label>Системный промпт</label><textarea id="sSys"></textarea></div>
-        <div class="fld"><label>CORS-реле (необязательно)</label><input type="url" id="sRelay" spellcheck="false" placeholder="оставьте пустым">
-          <div class="hint">Нужно только если провайдер перестанет отдавать CORS-заголовки.</div></div>
+        <div class="fld"><label>Системный промпт</label><textarea id="sSys"></textarea>
+          <div class="hint">Строка со временем добавляется автоматически, вписывать её сюда не нужно.</div></div>
+        <div class="fld"><label>CORS-реле (необязательно)</label><input type="url" id="sRelay" spellcheck="false" placeholder="оставьте пустым"></div>
         <div class="fld"><label>Секрет реле</label><input type="password" id="sRelayKey" spellcheck="false" placeholder="необязательно"></div>
       </div>
 
@@ -388,8 +404,7 @@ a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
             <option value="tavily">Tavily — нужен ключ, из РФ часто недоступен</option>
             <option value="jina">Jina Search — нужен ключ</option>
             <option value="searxng">SearXNG — свой инстанс</option>
-          </select>
-          <div class="hint">Зарубежные движки (Tavily, Jina) блокируются операторами. Википедия доступна всегда.</div></div>
+          </select></div>
         <div class="fld" id="fTavily" hidden><label>Tavily API-ключ</label><input type="password" id="sTavily" spellcheck="false" placeholder="tvly-…"></div>
         <div class="fld" id="fJina" hidden><label>Jina API-ключ</label><input type="password" id="sJina" spellcheck="false" placeholder="jina_…"></div>
         <div class="fld" id="fSearx" hidden><label>Адрес SearXNG</label><input type="url" id="sSearx" spellcheck="false" placeholder="https://searx.example.org"></div>
@@ -458,11 +473,13 @@ var coarse=window.matchMedia&&matchMedia("(pointer:coarse)").matches;
 function uid(){return (window.crypto&&crypto.randomUUID)?crypto.randomUUID():"id"+Date.now().toString(36)+Math.random().toString(36).slice(2,9);}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function icon(n,cls){return '<svg class="ic'+(cls?" "+cls:"")+'"><use href="#i-'+n+'"/></svg>';}
+function pad(n){return n<10?"0"+n:String(n);}
 
 var DEF={provider:"custom",baseUrl:"https://ai.starimg.ru/v1",relayUrl:"",relayKey:"",apiKey:"",model:"",models:[],
  temperature:0.7,systemPrompt:"Ты — полезный ассистент. Отвечай на русском, ясно и по делу. Используй markdown для структуры.",
  searchOn:true,searchMode:"context",searchBackend:"wiki",tavilyKey:"",jinaKey:"",searxngUrl:"",
- sound:true,enterSend:!coarse,fontScale:1,theme:"light"};
+ sound:true,enterSend:!coarse,fontScale:1,theme:"light",
+ sendClock:true,localTime:true,smartSearch:true};
 var state={chats:[],activeId:null,settings:Object.assign({},DEF)};
 var generating=false,ctrl=null,pendingDelete=null,askCb=null;
 
@@ -473,8 +490,6 @@ function load(){
     state.chats=Array.isArray(d.chats)?d.chats:[];
     state.activeId=d.activeId||null;
     state.settings=Object.assign({},DEF,d.settings||{});
-    if(state.settings.searchBackend==="auto"&&!d.settings.searchBackendV2)state.settings.searchBackend="wiki";
-    state.settings.searchBackendV2=true;
     return true;
   }catch(e){return false;}
 }
@@ -483,10 +498,58 @@ function S(){return state.settings;}
 function chat(){for(var i=0;i<state.chats.length;i++){if(state.chats[i].id===state.activeId)return state.chats[i];}return null;}
 function curModel(){var c=chat();return (c&&c.model)||S().model||"";}
 function touch(c){c.updatedAt=Date.now();save();}
-
 function newChat(){
   var c={id:uid(),title:"Новый чат",createdAt:Date.now(),updatedAt:Date.now(),messages:[],model:""};
   state.chats.unshift(c);state.activeId=c.id;save();renderChats();renderThread();syncTop();return c;
+}
+
+/* ---------- clock ---------- */
+function tzName(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||"";}catch(e){return "";}}
+function nowParts(){
+  var d=new Date();
+  var time=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+  var hm=pad(d.getHours())+":"+pad(d.getMinutes());
+  var long=d.toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  var short=d.toLocaleDateString("ru-RU",{day:"numeric",month:"short"});
+  return {d:d,time:time,hm:hm,long:long,short:short,tz:tzName()};
+}
+function clockLine(){
+  var n=nowParts();
+  return "Текущие дата и время по часам устройства пользователя: "+n.long+", "+n.time+(n.tz?" ("+n.tz+")":"")+
+    ". Это настоящее текущее время. Используй его для любых вопросов о «сейчас», «сегодня», о датах и времени. "+
+    "Никогда не утверждай, что у тебя нет доступа к часам или что текущая дата неизвестна.";
+}
+function tickClock(){
+  var n=nowParts();
+  $("sideTime").textContent=n.time;
+  $("sideDate").innerHTML=esc(n.long.replace(",",""));
+  $("topTime").textContent=n.hm;
+  var hero=$("heroNow");if(hero)hero.textContent=n.long+", "+n.time;
+  if($("settingsModal").classList.contains("on")){
+    $("clockPreview").innerHTML=S().sendClock
+      ? "<b>Уходит модели перед каждым сообщением:</b><br>"+esc(clockLine())
+      : "<b>Передача времени выключена.</b> Модель не будет знать текущую дату и может ошибаться во времени.";
+  }
+}
+setInterval(tickClock,1000);
+
+var TIME_RE=/(сколько\s+(сейчас\s+)?времени|который\s+час|текущее\s+время|точное\s+время|какое\s+(сегодня\s+)?число|какой\s+(сегодня\s+)?день|какая\s+(сегодня\s+)?дата|какой\s+сейчас\s+год|сколько\s+времени)/i;
+function isTimeQuery(t){return TIME_RE.test(String(t||"").trim());}
+function localTimeAnswer(){
+  var n=nowParts();
+  return '<div class="bigclock">'+n.time+'</div>\n\n'+
+    "**"+n.long.charAt(0).toUpperCase()+n.long.slice(1)+"**"+(n.tz?"  \nЧасовой пояс: `"+n.tz+"`":"")+
+    "\n\n*Взято с часов вашего устройства — точно и без обращения к модели.*";
+}
+function needsWeb(t){
+  var s=String(t||"").toLowerCase();
+  if(isTimeQuery(s))return false;
+  if(/^(привет|здравствуй|хай|добрый|спасибо|благодарю|ок|окей)/.test(s))return false;
+  var web=/(новост|сегодняшн|актуальн|курс\s|курс$|погод|цен[аыу]|свеж|последн|найди|поищи|поиск|кто выиграл|что случилось|в интернете|20(2[4-9]|[3-9]\d))/;
+  if(web.test(s))return true;
+  var local=/(посчитай|сколько будет|вычисли|переведи|напиши|составь|придумай|объясни|расскажи о|отредактируй|перепиши|сократи|код|скрипт|функци|стих|план)/;
+  if(local.test(s))return false;
+  return false;
 }
 
 /* ---------- sound ---------- */
@@ -519,7 +582,7 @@ function openModal(id){$(id).classList.add("on");}
 function closeModal(id){$(id).classList.remove("on");}
 function ask(title,bodyHtml,okText,cb,danger){
   $("askTitle").textContent=title;$("askBody").innerHTML=bodyHtml;
-  var ok=$("askOk");ok.textContent=okText||"OK";ok.className="btn "+(danger?"d":"p");
+  var ok=$("askOk");ok.textContent=okText||"OK";ok.className="btn "+(danger?"d":"p");ok.hidden=false;
   askCb=cb;openModal("askModal");
   var f=$("askBody").querySelector("input,textarea");if(f)setTimeout(function(){f.focus();},50);
 }
@@ -539,10 +602,12 @@ function codeBlock(lang,code){
 }
 function md(src){
   if(!src)return "";
+  if(String(src).indexOf('<div class="bigclock">')===0)return src;
   var lines=String(src).replace(/\r\n?/g,"\n").split("\n"),out=[],para=[],i=0;
   function flush(){if(para.length){out.push("<p>"+inlineMd(esc(para.join("\n"))).replace(/\n/g,"<br>")+"</p>");para=[];}}
   while(i<lines.length){
     var line=lines[i];
+    if(line.indexOf('<div class="bigclock">')===0){flush();out.push(line);i++;continue;}
     var f=line.match(/^```(\w*)\s*$/);
     if(f){flush();var buf=[];i++;while(i<lines.length&&!/^```\s*$/.test(lines[i])){buf.push(lines[i]);i++;}i++;out.push(codeBlock(f[1],buf.join("\n")));continue;}
     if(/^\s*$/.test(line)){flush();i++;continue;}
@@ -563,8 +628,7 @@ function md(src){
 
 /* ---------- chats ---------- */
 function dayLabel(ts){
-  var d=new Date(ts),n=new Date();
-  var t0=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime();
+  var n=new Date(),t0=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime();
   if(ts>=t0)return "Сегодня";
   if(ts>=t0-86400000)return "Вчера";
   if(ts>=t0-6*86400000)return "На неделе";
@@ -581,7 +645,7 @@ function renderChats(){
     var g=dayLabel(c.updatedAt);
     if(g!==last){html+='<div class="cgroup">'+g+'</div>';last=g;}
     var m=c.messages[c.messages.length-1];
-    var snip=m?String(m.content||"").replace(/\s+/g," ").slice(0,54):"Пустой чат";
+    var snip=m?String(m.content||"").replace(/<[^>]+>/g,"").replace(/\s+/g," ").slice(0,54):"Пустой чат";
     html+='<button class="citem'+(c.id===state.activeId?" on":"")+'" data-chat="'+c.id+'">'+
       '<div class="ct">'+esc(c.title)+'</div><div class="cs">'+esc(snip)+'</div>'+
       '<span class="dots" data-menu="'+c.id+'">'+icon("dots","sm")+'</span></button>';
@@ -601,8 +665,6 @@ function chatMenu(id){
     $("cmE").onclick=function(){closeModal("askModal");exportMd(c);};
     $("cmD").onclick=function(){closeModal("askModal");delChat(id);};
   },0);
-  var obs=new MutationObserver(function(){if(!$("askModal").classList.contains("on")){$("askOk").hidden=false;obs.disconnect();}});
-  obs.observe($("askModal"),{attributes:true,attributeFilter:["class"]});
 }
 function renameChat(id){
   var c=null;state.chats.forEach(function(x){if(x.id===id)c=x;});if(!c)return;
@@ -638,13 +700,15 @@ function renderThread(){
   toBottom();
 }
 function renderHero(){
+  var n=nowParts();
   var h=document.createElement("div");h.className="hero";
   h.innerHTML='<svg class="big" viewBox="0 0 24 24"><use href="#s-spark"/></svg>'+
-    '<h1>Чем помочь?</h1><p>Спросите что угодно или включите поиск — найду свежие материалы и приведу источники.</p>'+
+    '<h1>Чем помочь?</h1><div class="now" id="heroNow">'+esc(n.long+", "+n.time)+'</div>'+
+    '<p>Я знаю текущее время и могу искать в интернете, когда это действительно нужно.</p>'+
     '<div class="sugs">'+
+    '<button class="sug" data-q="Сколько сейчас времени?" data-s="0">'+icon("clock","sm")+'Который час</button>'+
     '<button class="sug" data-q="Найди свежие новости искусственного интеллекта" data-s="1">'+icon("globe","sm")+'Свежие новости ИИ</button>'+
     '<button class="sug" data-q="Объясни, как работают трансформеры в нейросетях" data-s="0">'+icon("book","sm")+'Как работают трансформеры</button>'+
-    '<button class="sug" data-q="Составь план тренировок на три дня для начинающих" data-s="0">'+icon("list","sm")+'План тренировок</button>'+
     '<button class="sug" data-q="Напиши скрипт бэкапа папки на Python" data-s="0">'+icon("cube","sm")+'Скрипт бэкапа</button></div>';
   inner.appendChild(h);
   $$(".sug").forEach(function(b){
@@ -674,6 +738,7 @@ function paintAct(r,m){
   if(!r.act)return;
   if(!m.activity||!m.activity.length){r.act.innerHTML="";return;}
   r.act.innerHTML=m.activity.map(function(a){
+    if(a.status==="skip")return '<div class="act-row skip">'+icon("clock","sm")+'<span>'+esc(a.query||"")+'</span><span class="st">локально</span></div>';
     var lead=a.status==="running"?'<span class="spin"></span>':icon(a.type==="search"?"globe":"book","sm");
     var st=a.status==="running"?"ищу…":a.status==="done"?(a.type==="search"?(a.count||0)+" источн.":"готово"):"ошибка";
     return '<div class="act-row '+a.status+'">'+lead+'<span>'+(a.type==="search"?"Поиск":"Чтение")+'</span><span class="q">'+esc(a.query||a.url||"")+'</span><span class="st">'+st+'</span></div>';
@@ -717,7 +782,7 @@ inner.addEventListener("click",function(e){
     setTimeout(function(){b.innerHTML=icon("copy","sm")+"Копировать";},1500);return;
   }
   if(!m)return;
-  if(act==="copy"){copyText(m.content||"");toast("Скопировано");}
+  if(act==="copy"){copyText(String(m.content||"").replace(/<[^>]+>/g,""));toast("Скопировано");}
   else if(act==="srcs"){m._open=!m._open;paintSrcs({srcs:node.querySelector(".srcs")},m);save();}
   else if(act==="regen")regen();
   else if(act==="settings")openSettings();
@@ -750,7 +815,6 @@ function fetchT(url,opts,ms,ext){
 function domainOf(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch(e){return "";}}
 function dedupe(list){var seen={},out=[];list.forEach(function(r){var k=(r.url||"").replace(/\/$/,"");if(k&&!seen[k]){seen[k]=1;out.push(r);}});return out;}
 function stripTags(s){return String(s||"").replace(/<[^>]+>/g,"");}
-
 function viaRelay(url,opts){
   var s=S();
   if(s.relayUrl&&s.relayUrl.trim()){
@@ -921,17 +985,18 @@ async function apiStream(messages,tools,signal,m,r,model){
   var calls=[];for(var k in tmap){if(tmap[k].function&&tmap[k].function.name)calls.push(tmap[k]);}
   return {content:content,toolCalls:calls,finish:finish};
 }
-function buildMessages(c,ctx,model){
-  var sys=S().systemPrompt||"";
+function buildMessages(c,ctx){
+  var s=S(),sys=s.systemPrompt||"";
+  if(s.sendClock)sys=(sys?sys+"\n\n":"")+clockLine();
   if(ctx&&ctx.length){
     sys+="\n\nРезультаты веб-поиска (JSON):\n"+JSON.stringify(ctx)+
-      "\n\nОпирайся на эти результаты и приводи ссылки на источники в markdown. Если данных мало — скажи об этом прямо.";
+      "\n\nОпирайся на эти результаты и приводи ссылки на источники в markdown. Если данных мало — скажи прямо.";
   }
   var out=[{role:"system",content:sys}];
   c.messages.forEach(function(m){
     if(m.pending)return;
     if(m.role==="user")out.push({role:"user",content:m.content});
-    else if(m.role==="assistant"&&m.content)out.push({role:"assistant",content:m.content});
+    else if(m.role==="assistant"&&m.content&&m.content.indexOf('<div class="bigclock">')!==0)out.push({role:"assistant",content:m.content});
   });
   return out;
 }
@@ -973,19 +1038,35 @@ async function run(c,text,skipUser){
     if(c.title==="Новый чат")c.title=text.slice(0,44)+(text.length>44?"…":"");
     touch(c);renderChats();renderThread();syncTop();
   }
-  var model=curModel();
-  if(!model){toast("Сначала выберите модель");openModels();return;}
   generating=true;syncSend();
+
+  if(s.localTime&&isTimeQuery(text)){
+    var lm={id:uid(),role:"assistant",content:localTimeAnswer(),ts:Date.now(),activity:[{type:"clock",query:"Время с устройства",status:"skip"}],sources:[],model:"Часы устройства",durationMs:1};
+    c.messages.push(lm);
+    var lr=appendMsg(lm);finalize(lr,lm);
+    generating=false;syncSend();touch(c);renderChats();beep("done");
+    return;
+  }
+
+  var model=curModel();
+  if(!model){generating=false;syncSend();toast("Сначала выберите модель");openModels();return;}
+
   var m={id:uid(),role:"assistant",content:"",ts:Date.now(),activity:[],sources:[],pending:true,model:model};
   c.messages.push(m);save();
   var r=appendMsg(m);paint(r,m);toBottom();
   ctrl=new AbortController();
   var ok=true;
   try{
+    var wantSearch=s.searchOn;
+    if(wantSearch&&s.smartSearch&&!needsWeb(text)){
+      wantSearch=false;
+      m.activity.push({type:"search",query:"Поиск не нужен для этого вопроса",status:"skip"});
+      paintAct(r,m);
+    }
     var ctx=null;
-    var useTools=s.searchOn&&s.searchMode!=="context";
-    if(s.searchOn&&s.searchMode==="context")ctx=await searchActivity(m,r,text,ctrl.signal);
-    var messages=buildMessages(c,ctx,model),tools=useTools?TOOLS:undefined,loops=0,fell=false;
+    var useTools=wantSearch&&s.searchMode!=="context";
+    if(wantSearch&&s.searchMode==="context")ctx=await searchActivity(m,r,text,ctrl.signal);
+    var messages=buildMessages(c,ctx),tools=useTools?TOOLS:undefined,loops=0,fell=false;
     while(true){
       var res;
       try{res=await apiStream(messages,tools,ctrl.signal,m,r,model);}
@@ -993,7 +1074,7 @@ async function run(c,text,skipUser){
         if(tools&&!fell&&(e.status===400||e.status===404||e.status===422||e.status===501)){
           fell=true;tools=undefined;
           ctx=await searchActivity(m,r,text,ctrl.signal);
-          messages=buildMessages(c,ctx,model);continue;
+          messages=buildMessages(c,ctx);continue;
         }
         throw e;
       }
@@ -1062,9 +1143,7 @@ function renderModels(){
   var q=($("mSearch").value||"").trim().toLowerCase();
   var filtered=q?list.filter(function(x){return x.toLowerCase().indexOf(q)>=0;}):list;
   $("mCount").textContent=list.length?list.length+" шт":"";
-  if(!list.length){
-    $("mList").innerHTML='<div class="mempty">Список пуст. Нажмите «Обновить с сервера» — модели загрузятся из вашего провайдера.</div>';return;
-  }
+  if(!list.length){$("mList").innerHTML='<div class="mempty">Список пуст. Нажмите «Обновить с сервера».</div>';return;}
   if(!filtered.length){$("mList").innerHTML='<div class="mempty">Ничего не найдено по запросу «'+esc(q)+'»</div>';return;}
   var cur=curModel(),groups=modelGroups(filtered),html="";
   Object.keys(groups).sort().forEach(function(k){
@@ -1094,15 +1173,12 @@ async function fetchModels(silent){
     if(!r.ok)throw httpErr(r.status,await r.text().catch(function(){return "";}));
     var j=await r.json();
     var ids=((j.data||j.models)||[]).map(function(x){return typeof x==="string"?x:x.id;}).filter(Boolean).sort();
-    s.models=ids;save();
-    if(!s.model&&ids.length){s.model=ids[0];save();}
-    syncTop();renderModels();
+    s.models=ids;
+    if(!s.model&&ids.length)s.model=ids[0];
+    save();syncTop();renderModels();
     if(!silent){toast("Загружено моделей: "+ids.length);openModels();beep("done");}
     return ids;
-  }catch(e){
-    if(!silent)toast(friendly(e));
-    throw e;
-  }
+  }catch(e){if(!silent)toast(friendly(e));throw e;}
 }
 $("mRefresh").onclick=function(){
   var b=$("mRefresh");b.disabled=true;
@@ -1110,7 +1186,7 @@ $("mRefresh").onclick=function(){
 };
 
 /* ---------- settings ---------- */
-function openSettings(){fillSettings();openModal("settingsModal");}
+function openSettings(){fillSettings();openModal("settingsModal");tickClock();}
 function fillSettings(){
   var s=S();
   $("sBase").value=s.baseUrl;$("sKey").value=s.apiKey;$("sRelay").value=s.relayUrl;$("sRelayKey").value=s.relayKey;
@@ -1119,9 +1195,10 @@ function fillSettings(){
   $("sTavily").value=s.tavilyKey;$("sJina").value=s.jinaKey;$("sSearx").value=s.searxngUrl;
   $("sFont").value=s.fontScale;$("sFontV").textContent=Math.round(s.fontScale*100)+"%";
   $("sEnter").checked=s.enterSend;$("sSound").checked=s.sound;
+  $("sClock").checked=s.sendClock;$("sLocalTime").checked=s.localTime;$("sSmart").checked=s.smartSearch;
   $("sModelHint").textContent=s.model?("Текущая: "+s.model+" · в списке "+(s.models||[]).length):"Модель не выбрана";
   $$("#themeSeg button").forEach(function(b){b.classList.toggle("on",b.dataset.theme===s.theme);});
-  backendFields();
+  backendFields();tickClock();
 }
 function backendFields(){
   var b=S().searchBackend;
@@ -1138,12 +1215,15 @@ function bindSettings(){
   $("sMode").onchange=function(e){s().searchMode=e.target.value;save();};
   $("sEnter").onchange=function(e){s().enterSend=e.target.checked;save();syncHint();};
   $("sSound").onchange=function(e){s().sound=e.target.checked;save();syncSound();};
+  $("sClock").onchange=function(e){s().sendClock=e.target.checked;save();tickClock();};
+  $("sLocalTime").onchange=function(e){s().localTime=e.target.checked;save();};
+  $("sSmart").onchange=function(e){s().smartSearch=e.target.checked;save();};
   $("sPickModel").onclick=function(){closeModal("settingsModal");openModels();};
   $("sFetch").onclick=function(){fetchModels(false).catch(function(){});};
   $("sExport").onclick=exportAll;
   $("sImport").onclick=function(){$("importFile").click();};
   $("sClear").onclick=function(){
-    ask("Стереть все данные?","<p style='font-size:14px;color:var(--muted)'>Все чаты и настройки будут удалены безвозвратно. Сначала сделайте экспорт, если они нужны.</p>","Стереть",function(){
+    ask("Стереть все данные?","<p style='font-size:14px;color:var(--muted)'>Все чаты и настройки будут удалены безвозвратно.</p>","Стереть",function(){
       state.chats=[];state.settings=Object.assign({},DEF);newChat();fillSettings();applyTheme();applyFont();syncAll();toast("Данные стёрты");
     },true);
   };
@@ -1153,9 +1233,9 @@ function bindSettings(){
   $("sTestSearch").onclick=testSearch;
   $("sTestProvider").onclick=testProvider;
 }
-function diagRow(name,state,text){
-  var cls=state==="ok"?"ok":state==="no"?"no":"wait";
-  var label=state==="ok"?"доступен":state==="no"?"недоступен":"проверка…";
+function diagRow(name,stt,text){
+  var cls=stt==="ok"?"ok":stt==="no"?"no":"wait";
+  var label=stt==="ok"?"доступен":stt==="no"?"недоступен":"проверка…";
   return '<div class="drow '+cls+'"><span class="dn">'+esc(name)+(text?' <span style="color:var(--dim)">· '+esc(text)+'</span>':'')+'</span><span class="ds">'+label+'</span></div>';
 }
 async function testSearch(){
@@ -1172,8 +1252,7 @@ async function testSearch(){
     try{await fetchT(t.u,{method:"GET",mode:"no-cors",cache:"no-store"},9000);return {n:t.n,ok:true,ms:Date.now()-t0};}
     catch(e){return {n:t.n,ok:false,ms:Date.now()-t0};}
   }));
-  box.innerHTML=results.map(function(r){return diagRow(r.n,r.ok?"ok":"no",r.ms+" мс");}).join("")+
-    '<div class="hint" style="margin-top:8px">Если Tavily недоступен — используйте движок «Википедия»: он работает без VPN и без ключа.</div>';
+  box.innerHTML=results.map(function(r){return diagRow(r.n,r.ok?"ok":"no",r.ms+" мс");}).join("");
   beep("tick");
 }
 async function testProvider(){
@@ -1184,15 +1263,9 @@ async function testProvider(){
     if(S().apiKey)h.Authorization="Bearer "+S().apiKey;
     var req=viaRelay(target,{method:"GET",headers:h});
     var r=await fetchT(req.url,req.opts,20000);
-    if(r.ok){
-      var j=await r.json();var n=((j.data||j.models)||[]).length;
-      box.innerHTML=diagRow("Провайдер","ok","моделей: "+n);beep("done");
-    }else{
-      box.innerHTML=diagRow("Провайдер","no","HTTP "+r.status);beep("err");
-    }
-  }catch(e){
-    box.innerHTML=diagRow("Провайдер","no",e.message||"сеть/CORS");beep("err");
-  }
+    if(r.ok){var j=await r.json();var n=((j.data||j.models)||[]).length;box.innerHTML=diagRow("Провайдер","ok","моделей: "+n);beep("done");}
+    else{box.innerHTML=diagRow("Провайдер","no","HTTP "+r.status);beep("err");}
+  }catch(e){box.innerHTML=diagRow("Провайдер","no",e.message||"сеть/CORS");beep("err");}
 }
 
 /* ---------- data ---------- */
@@ -1204,7 +1277,7 @@ function download(name,content,type){
 function exportMd(c){
   var out="# "+c.title+"\n\n";
   c.messages.forEach(function(m){
-    out+="## "+(m.role==="user"?"Вы":"Ассистент")+"\n\n"+(m.content||"")+"\n\n";
+    out+="## "+(m.role==="user"?"Вы":"Ассистент")+"\n\n"+String(m.content||"").replace(/<[^>]+>/g,"")+"\n\n";
     if(m.sources&&m.sources.length)out+="Источники:\n"+m.sources.map(function(s){return "- ["+s.title+"]("+s.url+")";}).join("\n")+"\n\n";
   });
   download(c.title.replace(/[^\wа-яё\- ]/gi,"").slice(0,40)+".md",out,"text/markdown;charset=utf-8");
@@ -1217,7 +1290,7 @@ $("importFile").addEventListener("change",function(e){
     try{
       var d=JSON.parse(rd.result);
       if(!d||!Array.isArray(d.chats))throw new Error("bad");
-      ask("Импортировать?","<p style='font-size:14px;color:var(--muted)'>Чатов в файле: <b>"+d.chats.length+"</b>. Текущие чаты будут заменены.</p>","Импортировать",function(){
+      ask("Импортировать?","<p style='font-size:14px;color:var(--muted)'>Чатов в файле: <b>"+d.chats.length+"</b>. Текущие будут заменены.</p>","Импортировать",function(){
         state.chats=d.chats;state.settings=Object.assign({},DEF,d.settings||{});
         state.activeId=state.chats[0]?state.chats[0].id:null;
         if(!state.activeId)newChat();
@@ -1228,7 +1301,7 @@ $("importFile").addEventListener("change",function(e){
   rd.readAsText(f);e.target.value="";
 });
 
-/* ---------- sync UI ---------- */
+/* ---------- sync ---------- */
 function applyTheme(){
   document.documentElement.dataset.theme=S().theme;
   var meta=document.querySelector('meta[name="theme-color"]');
@@ -1236,15 +1309,8 @@ function applyTheme(){
   $("themeBtn").innerHTML=icon(S().theme==="dark"?"sun":"moon");
 }
 function applyFont(){document.documentElement.style.setProperty("--fs",S().fontScale);}
-function syncSound(){
-  $("soundBtn").classList.toggle("on",S().sound);
-  $("soundBtn").innerHTML=icon(S().sound?"sound":"mute");
-}
-function syncSearch(){
-  var on=S().searchOn;
-  $("searchToggle").classList.toggle("on",on);
-  $("searchToggle2").classList.toggle("on",on);
-}
+function syncSound(){$("soundBtn").classList.toggle("on",S().sound);$("soundBtn").innerHTML=icon(S().sound?"sound":"mute");}
+function syncSearch(){var on=S().searchOn;$("searchToggle").classList.toggle("on",on);$("searchToggle2").classList.toggle("on",on);}
 function syncHint(){$("hint").textContent=coarse?"Отправка — кнопкой со стрелкой":(S().enterSend?"Enter — отправить, Shift+Enter — новая строка":"Shift+Enter — новая строка");}
 function syncTop(){
   var c=chat();
@@ -1253,12 +1319,12 @@ function syncTop(){
   $("modelLabel").textContent=m||"Модель";
   $("modelLabel2").textContent=m||"Выбрать модель";
 }
-function syncAll(){renderChats();renderThread();syncTop();syncSearch();syncSound();syncHint();syncSend();}
+function syncAll(){renderChats();renderThread();syncTop();syncSearch();syncSound();syncHint();syncSend();tickClock();}
 
 /* ---------- wiring ---------- */
 $("menuBtn").onclick=function(){$("side").classList.add("on");$("scrim").classList.add("on");};
 $("sideClose").onclick=closeSide;
-$("scrim").onclick=function(){closeSide();};
+$("scrim").onclick=closeSide;
 function closeSide(){$("side").classList.remove("on");$("scrim").classList.remove("on");}
 $("newChat").onclick=function(){newChat();closeSide();input.focus();};
 $("chatSearch").addEventListener("input",renderChats);
@@ -1302,12 +1368,9 @@ window.addEventListener("resize",function(){if(window.innerWidth>900)closeSide()
 })();
 
 /* ---------- init ---------- */
-if(!load()){
-  state.settings.searchBackend="wiki";
-  newChat();
-}else if(!chat()){newChat();}
+if(!load()){newChat();}else if(!chat()){newChat();}
 applyTheme();applyFont();bindSettings();syncAll();autoGrow();
-if(S().apiKey&&(!S().models||!S().models.length)){fetchModels(true).catch(function(){});}
+if(S().apiKey&&(!S().models||!S().models.length))fetchModels(true).catch(function(){});
 })();
 </script>
 </body>
